@@ -5,7 +5,10 @@ import AppRouter from './routes'
 function App() {
 
   return (
-    <AppRouter />
+    <div data-theme="sunset" className="bg-navy">
+      <AppRouter />
+    </div>
+
   )
 }
 

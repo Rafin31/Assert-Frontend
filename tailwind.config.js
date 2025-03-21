@@ -1,3 +1,5 @@
+import daisyui from "daisyui";
+
 export default {
     content: ["./index.html", "./src/**/*.{js,ts,jsx,tsx}"],
     theme: {
@@ -6,8 +8,11 @@ export default {
                 primary: "#264653",
                 secondary: "#E76F51",
                 accent: "#2A9D8F",
+                dark: '#264653',
+                navy: "#13242a"
+
             },
         },
     },
-    plugins: [],
+    plugins: [daisyui]
 };

@@ -7,7 +7,7 @@ export default function LandingPage() {
     return (
         <div className=''>
             <Hero />
-            <div className="predictionCards max-w-[1450px] mx-auto mt-[50px] ">
+            <div className="predictionCards max-w-[1450px] mx-auto mt-[50px] max-xl:px-5">
                 <SportsPredictions />
             </div>
             <Footer />

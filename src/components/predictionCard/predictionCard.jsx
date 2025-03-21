@@ -1,11 +1,11 @@
 export default function PredictionCard({ match, index, handleVote }) {
     return (
-        <div className="card w-full bg-base-100 shadow-xl py-4 border border-gray-200 ">
+        <div className="card w-full shadow-xl py-4 ">
             <div className="card-body">
-                <h2 className="card-title text-lg font-semibold text-gray-900">{match.question}</h2>
-                <div className="flex justify-between items-center mt-4">
+                <h2 className="card-title text-lg font-semibold">{match.question}</h2>
+                <div className="flex items-center flex-wrap mt-4 justify-center xl:justify-between">
                     <button
-                        className="btn btn-soft btn-success"
+                        className="btn btn-soft btn-success m-5"
                         onClick={() => handleVote(index, "A")}
                     >
                         {match.teamA} ({match.votesA}%)

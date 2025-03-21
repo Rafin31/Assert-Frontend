@@ -10,7 +10,7 @@ export default function Hero() {
                         ASSERT is a blockchain-powered prediction platform where users can participate in market and sports predictions, earn rewards, and engage in decentralized decision-making.
                         Join the revolution and make informed predictions with transparency and security.
                     </p>
-                    <button className="btn btn-primary">Start Predicting</button>
+                    <button className="btn ">Start Predicting</button>
                 </div>
             </div>
         </div>
