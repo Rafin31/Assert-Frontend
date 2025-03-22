@@ -1,6 +1,6 @@
 export default function PredictionCard({ match, index, handleVote }) {
     return (
-        <div className="card w-full shadow-xl py-4 ">
+        <div className="card w-full shadow-sm py-4 bg-[#13242a] ">
             <div className="card-body">
                 <h2 className="card-title text-lg font-semibold">{match.question}</h2>
                 <div className="flex items-center flex-wrap mt-4 justify-center xl:justify-between">

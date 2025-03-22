@@ -8,7 +8,7 @@ const navLinks = [
 
 export default function Header() {
     return (
-        <div className="navbar bg-base-100 shadow-sm">
+        <div className="navbar bg-base-100 shadow-sm sticky top-0 z-[999]">
             <div className="navbar-start">
                 <Link to={'/'} className="text-xl px-[10px] font-bold">Assert</Link>
             </div>
