@@ -12,18 +12,20 @@ import Overview from '../src/Page/Dashboard/Overview';
 import MyPredictions from '../src/Page/dashboard/MyPredictions';
 import TokenWallet from '../src/Page/dashboard/TokenWallet';
 import CreateIssue from '../src/Page/dashboard/CreateIssue';
+import PrivateRoute from './Services/privateAuth';
 
 export default function AppRouter() {
-
     const location = useLocation();
     const isDashboard = location.pathname.startsWith('/dashboard');
     const isLogin = location.pathname.startsWith('/login');
     const isSignup = location.pathname.startsWith('/signup');
 
+
+
     return (
         <>
             <ScrollToTop />
-            {!isDashboard || !isLogin || !isSignup && <Header />}
+            {!isDashboard && !isLogin && !isSignup && <Header />}
 
             <Routes>
                 <Route path="/" element={<LandingPage />} />
@@ -31,15 +33,19 @@ export default function AppRouter() {
                 <Route path="/login" element={<LoginPage />} />
                 <Route path="/signup" element={<SignupPage />} />
 
-                <Route path="/dashboard" element={<DashboardLayout />}>
-                    <Route path="overview" element={<Overview />} />
-                    <Route path="predictions" element={<MyPredictions />} />
-                    <Route path="wallet" element={<TokenWallet />} />
-                    <Route path="create" element={<CreateIssue />} />
+                <Route path="/dashboard" element={<PrivateRoute />}>
+                    <Route element={<DashboardLayout />}>
+                        <Route index element={<Overview />} />
+                        <Route path="overview" element={<Overview />} />
+                        <Route path="predictions" element={<MyPredictions />} />
+                        <Route path="wallet" element={<TokenWallet />} />
+                        <Route path="create" element={<CreateIssue />} />
+                        <Route path="football" element={<SportsPredictions />} />
+                    </Route>
                 </Route>
             </Routes>
 
-            {!isDashboard || !isLogin || !isSignup && <Footer />}
+            {!isDashboard && !isLogin && !isSignup && <Footer />}
         </>
     );
 }

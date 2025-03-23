@@ -15,7 +15,7 @@ export default function SignupPage() {
         password: ''
     });
 
-    const { mutate, isPending, error, isSuccess } = useMutation({
+    const { mutate, isPending, error } = useMutation({
         mutationFn: signupUser,
         onSuccess: () => {
             toast.success('Successfully Signed Up ', {
@@ -64,9 +64,17 @@ export default function SignupPage() {
                     <img src={metaMaskIcon} className='inline mr-3 w-6' alt="MetaMask" /> MetaMask
                 </button>
 
-                {error && <p className="text-red-500 mt-5 text-sm text-center">{error?.response?.data?.message || 'Signup failed'}</p>}
+                {
+                    error &&
+                    <div role="alert" className="alert alert-error mt-5">
+                        <svg xmlns="http://www.w3.org/2000/svg" className="h-6 w-6 shrink-0 stroke-current" fill="none" viewBox="0 0 24 24">
+                            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M10 14l2-2m0 0l2-2m-2 2l-2-2m2 2l2 2m7-2a9 9 0 11-18 0 9 9 0 0118 0z" />
+                        </svg>
+                        <span>{error?.response?.data?.message || 'Signup failed'}</span>
+                    </div>
+                }
 
-                {isSuccess && <p className="text-green-500 mt-5 text-sm text-center">Account created successfully!</p>}
+
 
                 <p className="mt-4 text-center">
                     Already have an account? <Link to="/login" className="text-primary">Login</Link>

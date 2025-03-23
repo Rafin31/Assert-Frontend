@@ -1,6 +1,6 @@
 import { useState, useEffect } from "react";
 import PredictionCard from "../predictionCard/predictionCard";
-import { getFixturesForNext14Days } from '../../Services/FootballService.js'
+import { getFixturesForNext14Days } from '../../Services/FootballService.jsx'
 
 export default function SportsPredictions() {
 
