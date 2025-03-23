@@ -9,7 +9,7 @@ export default function PredictionCard({ match }) {
     return (
         <div className="card w-full shadow-sm py-4 bg-[#13242a] ">
             <div className="card-body">
-                <div className="top grid grid-cols-2">
+                <div className="top grid grid-cols-2 h-[70%]">
                     <div className="left col-span-2">
                         <h2 className="card-title text-lg font-bold">Who will win?</h2>
                         <p className="text-2xl font-semibold text-accent">{match?.name}</p>

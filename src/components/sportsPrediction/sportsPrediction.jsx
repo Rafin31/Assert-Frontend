@@ -8,7 +8,7 @@ export default function SportsPredictions() {
     const [fixtures, setFixtures] = useState([]);
     const [loading, setLoading] = useState(true);
     const [currentPage, setCurrentPage] = useState(1);
-    const totalPages = Math.ceil(fixtures.data.length / ITEMS_PER_PAGE);
+    const totalPages = Math.ceil(fixtures?.data?.length / ITEMS_PER_PAGE);
     const startIndex = (currentPage - 1) * ITEMS_PER_PAGE;
 
 
@@ -36,7 +36,7 @@ export default function SportsPredictions() {
     const paginatedFixtures = fixtures.data?.slice(startIndex, startIndex + ITEMS_PER_PAGE);
 
     return (
-        <div className="mx-5">
+        <div className="mx-auto max-w-[1450px] mt-[50px]">
             <div className="searchBar">
                 <label class="input w-full">
                     <svg class="h-[1em] opacity-50" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><g strokeLinejoin="round" stroke-linecap="round" stroke-width="2.5" fill="none" stroke="currentColor"><circle cx="11" cy="11" r="8"></circle><path d="m21 21-4.3-4.3"></path></g></svg>
