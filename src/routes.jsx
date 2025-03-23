@@ -17,11 +17,13 @@ export default function AppRouter() {
 
     const location = useLocation();
     const isDashboard = location.pathname.startsWith('/dashboard');
+    const isLogin = location.pathname.startsWith('/login');
+    const isSignup = location.pathname.startsWith('/signup');
 
     return (
         <>
             <ScrollToTop />
-            {!isDashboard && <Header />}
+            {!isDashboard || !isLogin || !isSignup && <Header />}
 
             <Routes>
                 <Route path="/" element={<LandingPage />} />
@@ -37,7 +39,7 @@ export default function AppRouter() {
                 </Route>
             </Routes>
 
-            {!isDashboard && <Footer />}
+            {!isDashboard || !isLogin || !isSignup && <Footer />}
         </>
     );
 }
