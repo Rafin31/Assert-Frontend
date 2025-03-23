@@ -1,20 +1,33 @@
-export default function PredictionCard({ match, index, handleVote }) {
+import dayjs from "dayjs";
+
+export default function PredictionCard({ match }) {
+
+
+    const teamA = match?.name.split('vs')[0]
+    const teamB = match?.name.split('vs')[1]
+
     return (
         <div className="card w-full shadow-sm py-4 bg-[#13242a] ">
             <div className="card-body">
-                <h2 className="card-title text-lg font-semibold">{match.question}</h2>
+                <div className="top grid grid-cols-2">
+                    <div className="left col-span-2">
+                        <h2 className="card-title text-lg font-bold">Who will win?</h2>
+                        <p className="text-2xl font-semibold text-accent">{match?.name}</p>
+                        <p className="text-sm text-gray-500">{`${match?.league?.name} 2025/2026`}</p>
+                        <p className="text-sm text-gray-500">
+                            {dayjs(match?.starting_at).format('MMMM D, YYYY h:mm A')}
+                        </p>
+                    </div>
+                    <div className="right">
+                        <img className="w-[70%]" src={match?.league?.image_path} alt="leagueImage" />
+                    </div>
+                </div>
                 <div className="flex items-center flex-wrap mt-4 justify-center xl:justify-between">
-                    <button
-                        className="btn btn-soft btn-success m-5"
-                        onClick={() => handleVote(index, "A")}
-                    >
-                        {match.teamA} ({match.votesA}%)
+                    <button className="btn btn-lg btn-soft btn-success m-2 w-[40%]">
+                        {teamA}
                     </button>
-                    <button
-                        className="btn btn-soft btn-error"
-                        onClick={() => handleVote(index, "B")}
-                    >
-                        {match.teamB} ({match.votesB}%)
+                    <button className="btn btn-lg btn-soft btn-error w-[40%]">
+                        {teamB}
                     </button>
                 </div>
             </div>

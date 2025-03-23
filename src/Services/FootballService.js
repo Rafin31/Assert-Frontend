@@ -1,23 +1,13 @@
-import footballApi from '../api/footballAPI';
+import ServerApi from '../api/ServerAPI';
 import dayjs from 'dayjs';
 
-export const getUpcomingFixtures = async () => {
+export const getFixturesForNext14Days = async () => {
     const today = dayjs().format('YYYY-MM-DD');
-    const nextWeek = dayjs().add(7, 'day').format('YYYY-MM-DD');
+    const nextWeek = dayjs().add(14, 'day').format('YYYY-MM-DD');
 
-    //https://api.sportmonks.com/v3/football
+    const res = await ServerApi.get(
+        `/football/fixtures?date_from=${today}&date_to=${nextWeek}`
+    );
 
-    try {
-        const res = await footballApi.get('/fixtures/between', {
-            params: {
-                'filter[date_from]': today,
-                'filter[date_to]': nextWeek,
-                include: 'participants,league',
-            },
-        });
-        return res;
-    } catch (error) {
-        console.error('Error fetching fixtures:', error);
-        return [];
-    }
+    return res.data || [];
 };
