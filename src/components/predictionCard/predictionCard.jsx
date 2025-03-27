@@ -7,7 +7,7 @@ export default function PredictionCard({ match }) {
     const teamB = match?.name.split('vs')[1]
 
     return (
-        <div className="card w-full shadow-sm py-4 bg-[#13242a] ">
+        <div className="card w-full shadow-lg py-4">
             <div className="card-body">
                 <div className="top grid grid-cols-2 h-[70%]">
                     <div className="left col-span-2">

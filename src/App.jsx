@@ -6,7 +6,7 @@ import { ToastContainer, Slide } from 'react-toastify';
 function App() {
 
   return (
-    <div data-theme="sunset" className="bg-navy">
+    <div data-theme="silk" className="bg-navy">
       <AppRouter />
       <ToastContainer
         position="top-center"

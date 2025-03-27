@@ -8,24 +8,27 @@ const navLinks = [
 
 export default function Header() {
     return (
-        <div className="navbar bg-base-100 shadow-sm sticky top-0 z-[999]">
-            <div className="navbar-start">
-                <Link to={'/'} className="text-xl px-[10px] font-bold">Assert</Link>
-            </div>
-            <div className="navbar-center hidden lg:flex">
-                <ul className="menu menu-horizontal px-1">
-                    {
-                        navLinks.map((link) => {
-                            return <li>
-                                <Link to={link.path}>{link.name}</Link>
-                            </li>
-                        })
-                    }
-                </ul>
-            </div>
-            <div className="navbar-end">
-                <Link to={'/login'} className="btn">Login</Link>
+        <div className="max-w-[1450px] mx-auto shadow-">
+            <div className="navbar bg-base-100 sticky top-0 z-[999]">
+                <div className="navbar-start">
+                    <Link to={'/'} className="text-xl px-[10px] font-bold">Assert</Link>
+                </div>
+                <div className="navbar-center hidden lg:flex">
+                    <ul className="menu menu-horizontal px-1">
+                        {
+                            navLinks.map((link) => {
+                                return <li>
+                                    <Link to={link.path}>{link.name}</Link>
+                                </li>
+                            })
+                        }
+                    </ul>
+                </div>
+                <div className="navbar-end">
+                    <Link to={'/login'} className="btn btn-accent w-[150px]">Login</Link>
+                </div>
             </div>
         </div>
+
     );
 }

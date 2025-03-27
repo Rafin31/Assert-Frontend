@@ -12,6 +12,7 @@ export default function SportsPredictions() {
     const startIndex = (currentPage - 1) * ITEMS_PER_PAGE;
 
 
+
     useEffect(() => {
         const fetchFixtures = async () => {
             try {
