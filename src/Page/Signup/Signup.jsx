@@ -6,8 +6,10 @@ import googleIcon from '../../assets/google-logo.png';
 import metaMaskIcon from '../../assets/metamask-icon.svg';
 import { useMutation } from '@tanstack/react-query';
 import { Slide, toast } from 'react-toastify';
+// import { useAuth } from "../../Context/AuthContext.jsx";
 
 export default function SignupPage() {
+    // const { login } = useAuth();
     const navigate = useNavigate();
     const [formData, setFormData] = useState({
         userName: '',
@@ -29,8 +31,7 @@ export default function SignupPage() {
                 theme: "dark",
                 transition: Slide,
             });
-
-            navigate('/login')
+            navigate("/login"); navigate('/login')
         },
         onError: (err) => {
             console.error('Signup Error:', err);

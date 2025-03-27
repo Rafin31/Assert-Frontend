@@ -5,9 +5,11 @@ import metaMaskIcon from '.././../assets/metamask-icon.svg';
 import { Slide, toast } from 'react-toastify';
 import { useMutation } from '@tanstack/react-query';
 import { loginUser } from '../../Services/authService';
+import { useAuth } from "../../Context/AuthContext.jsx";
 
 export default function LoginPage() {
     const navigate = useNavigate()
+    const { login } = useAuth();
 
     const [formData, setFormData] = useState(
         {
@@ -30,10 +32,9 @@ export default function LoginPage() {
                 theme: "dark",
                 transition: Slide,
             });
-            localStorage.setItem("token", response.token);
-            localStorage.setItem("user", JSON.stringify(response.user)); // inside login
+            login(response.token, response.user);
 
-            navigate('/dashboard')
+            navigate('/')
         },
         onError: (err) => {
             console.error('Signup Error:', err);

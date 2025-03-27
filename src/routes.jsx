@@ -25,7 +25,7 @@ export default function AppRouter() {
     return (
         <>
             <ScrollToTop />
-            {!isDashboard && !isLogin && !isSignup && <Header />}
+            {!isDashboard && <Header />}
 
             <Routes>
                 <Route path="/" element={<LandingPage />} />
