@@ -4,7 +4,7 @@ import { castVote, getUserVotes } from "../../Services/votingService.jsx";
 import { useAuth } from "../../Context/AuthContext.jsx"; // Using auth context
 import { Slide, toast } from "react-toastify";
 
-export default function PredictionCard({ match, index }) {
+export default function PredictionCard({ match, index, refreshBalance }) {
   const { user } = useAuth();
   const [selectedTeam, setSelectedTeam] = useState(null);
   const [loading, setLoading] = useState(false);
@@ -79,6 +79,8 @@ export default function PredictionCard({ match, index }) {
 
       // Update the state to reflect the vote was cast
       setUserVote(selectedTeam);
+
+      refreshBalance()
     } catch (error) {
       toast.error(error.message || "Vote Failed!", {
         position: "top-center",

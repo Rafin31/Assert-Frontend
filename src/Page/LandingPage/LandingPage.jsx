@@ -4,14 +4,14 @@ import SportsPredictions from '../../components/sportsPrediction/sportsPredictio
 
 
 
-export default function LandingPage() {
+export default function LandingPage({ refreshBalance }) {
 
 
     return (
         <div className=''>
             <Hero />
             <div className="predictionCards max-w-[1450px] mx-auto my-[50px] max-xl:px-5">
-                <SportsPredictions />
+                <SportsPredictions refreshBalance={refreshBalance} />
             </div>
         </div>
 

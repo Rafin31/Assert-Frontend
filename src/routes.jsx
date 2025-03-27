@@ -13,6 +13,7 @@ import MyPredictions from '../src/Page/dashboard/MyPredictions';
 import TokenWallet from '../src/Page/dashboard/TokenWallet';
 import CreateIssue from '../src/Page/dashboard/CreateIssue';
 import PrivateRoute from './Services/privateAuth';
+import { useState } from 'react';
 
 export default function AppRouter() {
     const location = useLocation();
@@ -21,14 +22,21 @@ export default function AppRouter() {
     const isSignup = location.pathname.startsWith('/signup');
 
 
+    const [refreshKey, setRefreshKey] = useState(0);
+
+    const refreshBalance = () => {
+        setRefreshKey((prevKey) => prevKey + 1);
+    };
+
+
 
     return (
         <>
             <ScrollToTop />
-            {!isDashboard && <Header />}
+            {!isDashboard && <Header refreshBalance={refreshBalance} />}
 
             <Routes>
-                <Route path="/" element={<LandingPage />} />
+                <Route path="/" element={<LandingPage refreshBalance={refreshBalance} />} />
                 <Route path="/sports" element={<SportsPredictions />} />
                 <Route path="/login" element={<LoginPage />} />
                 <Route path="/signup" element={<SignupPage />} />

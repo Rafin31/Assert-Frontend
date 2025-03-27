@@ -2,7 +2,7 @@ import { useState, useEffect } from "react";
 import PredictionCard from "../predictionCard/predictionCard";
 import { getFixturesForNext14Days } from '../../Services/FootballService.jsx'
 
-export default function SportsPredictions() {
+export default function SportsPredictions({ refreshBalance }) {
 
     const ITEMS_PER_PAGE = 6;
     const [fixtures, setFixtures] = useState([]);
@@ -49,7 +49,7 @@ export default function SportsPredictions() {
                     !loading ?
 
                         paginatedFixtures.map((match, index) => (
-                            <PredictionCard key={index} match={match} index={index} />
+                            <PredictionCard key={index} match={match} index={index} refreshBalance={refreshBalance} />
                         ))
 
                         :
