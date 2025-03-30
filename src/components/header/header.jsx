@@ -1,5 +1,5 @@
 import { useEffect, useState } from "react";
-import { Link } from "react-router-dom";
+import { Link, useNavigate } from "react-router-dom"; // Import useNavigate
 import { useAuth } from "../../Context/AuthContext.jsx"; // Import auth context
 import { claimDailyReward, userData } from "../../Services/userService.jsx"; // Import API function
 import dayjs from "dayjs";
@@ -11,13 +11,15 @@ import coin from "../../assets/coin.png";
 dayjs.extend(duration);
 
 const navLinks = [
-    { name: "Social", path: "/market" },
+    { name: "Technology", path: "/technology" },
+    { name: "Politics", path: "/politics" },
     { name: "Sports", path: "/sports" },
     { name: "Reward", path: "/reward" },
 ];
 
 export default function Header({ refreshBalance }) {
     const { user, logout } = useAuth();
+    const navigate = useNavigate(); // Initialize navigate
     const [tokenBalance, setTokenBalance] = useState(null);
     const [loading, setLoading] = useState(true); // Loading state
     const [countdown, setCountdown] = useState(null);
@@ -36,7 +38,7 @@ export default function Header({ refreshBalance }) {
         try {
             const response = await userData(user.id);
             setTokenBalance(response.data.user.totalToken);
-            refreshBalance()
+            refreshBalance();
 
             // Check last claim time
             if (response.data.user?.lastLoginReward) {
@@ -98,11 +100,17 @@ export default function Header({ refreshBalance }) {
         }
     };
 
+    // Handle logout and redirect to homepage
+    const handleLogout = () => {
+        logout();
+        navigate("/"); // Redirect to homepage after logout
+    };
+
     return (
         <div className="max-w-[1450px] mx-auto">
             <div className="navbar bg-base-100 sticky top-0 z-[999]">
                 <div className="navbar-start">
-                    <Link to="/" className="text-xl px-[10px] font-bold">
+                    <Link to="/" className="text-3xl px-[10px] font-bold">
                         Assert
                     </Link>
                 </div>
@@ -124,16 +132,33 @@ export default function Header({ refreshBalance }) {
                     ) : (
                         user && (
                             <div className="flex items-center gap-3">
-                                {/* Token Balance Display */}
-                                <div className="badge badge-lg badge-success">
-                                    <img src={coin} alt="coin" className="w-[20px]" />
-                                    {tokenBalance} AT Tokens
-                                </div>
 
+                                <div className="dropdown dropdown-end">
+                                    <div tabIndex={0} role="button">
+                                        <div className="text-black border-none cursor-pointer">
+                                            <span className="text-xl font-bold text-[#e66c6c]">CREATE</span>
+                                        </div>
+                                    </div>
+                                    <ul tabIndex={0} className="menu menu-lg dropdown-content bg-base-100 z-1 mt-3 w-52 p-2 shadow">
+                                        <li>
+                                            <Link to="/createquery">Query</Link>
+                                        </li>
+                                        <li>
+                                            <Link to="/createprediction">Prediction</Link>
+                                        </li>
+                                        <li>
+                                            <Link to="/createpoll">Poll</Link>
+                                        </li>
+                                    </ul>
+                                </div>
+                                {/* Token Balance Display */}
+                                <button className="btn">
+                                    AT Token: <div className="badge badge-lg badge-neutral">{tokenBalance} </div>
+                                </button>
                                 {/* Claim Daily Reward Button */}
                                 {isClaimable ? (
                                     <button
-                                        className="btn btn-accent btn-sm"
+                                        className="btn btn-warning"
                                         onClick={handleClaimReward}
                                         disabled={loading}
                                     >
@@ -157,7 +182,7 @@ export default function Header({ refreshBalance }) {
                                             <Link to="/dashboard">Dashboard</Link>
                                         </li>
                                         <li>
-                                            <button onClick={logout}>Logout</button>
+                                            <button onClick={handleLogout}>Logout</button> {/* Call handleLogout */}
                                         </li>
                                     </ul>
                                 </div>

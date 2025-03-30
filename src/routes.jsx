@@ -1,7 +1,7 @@
 import { Route, Routes, useLocation } from 'react-router-dom'
 import LandingPage from './Page/LandingPage/LandingPage';
 import SportsPredictions from './components/sportsPrediction/sportsPrediction';
-import Header from './components/header/Header';
+import Header from './components/header/header';
 import LoginPage from './Page/Login/Login';
 import SignupPage from './Page/Signup/Signup';
 import Footer from './components/footer/footer';
@@ -14,6 +14,13 @@ import TokenWallet from '../src/Page/dashboard/TokenWallet';
 import CreateIssue from '../src/Page/dashboard/CreateIssue';
 import PrivateRoute from './Services/privateAuth';
 import { useState } from 'react';
+import  { PoliticsPage }  from './Page/Politics/PoliticsPage';
+import  { TechnologyPage }  from './Page/Technology/TechnologyPage';
+
+
+import { CreateQuery } from './components/CreateThread/CreateQuery';
+import CreatePrediction from './components/CreateThread/CreatePrediction';
+import CreatePoll from './components/CreateThread/CreatePoll';
 
 export default function AppRouter() {
     const location = useLocation();
@@ -40,6 +47,15 @@ export default function AppRouter() {
                 <Route path="/sports" element={<SportsPredictions />} />
                 <Route path="/login" element={<LoginPage />} />
                 <Route path="/signup" element={<SignupPage />} />
+                <Route path="/politics" element={<PoliticsPage />} />
+                <Route path="/technology" element={<TechnologyPage />} />
+
+                <Route element={<PrivateRoute />}>
+                    <Route path="/createquery" element={<CreateQuery />} />
+                    <Route path="/createprediction" element={<CreatePrediction />} />
+                    <Route path="/createpoll" element={<CreatePoll />} />
+                </Route>
+               
 
                 <Route path="/dashboard" element={<PrivateRoute />}>
                     <Route element={<DashboardLayout />}>
