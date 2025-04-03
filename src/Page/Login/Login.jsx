@@ -72,15 +72,15 @@ export default function LoginPage() {
                         value={formData.password}
                         onChange={handleChange}
                     />
-                    <button type="submit" className="btn btn-soft btn-primary w-full mb-2" disabled={isPending}>
+                    <button type="submit" className="btn btn-error w-full mb-2" disabled={isPending}>
                         {isPending ? 'Logging In...' : 'Login'}
                     </button>
                 </form>
-                <button className=" btn btn-soft btn-secondary w-full mb-2">
+                <button className="btn btn-xs sm:btn-sm md:btn-md lg:btn-lg xl:btn-lg w-full mb-2">
                     <img src={googleIcon} className='inline mr-3 w-6' alt="icon" />
                     Google
                 </button>
-                <button className="btn btn-soft btn-accent w-full">
+                <button className="btn btn-xs sm:btn-sm md:btn-md lg:btn-lg xl:btn-lg w-full">
                     <img src={metaMaskIcon} className='inline mr-3 w-6' alt="icon" />
                     MetaMask
                 </button>
@@ -99,7 +99,7 @@ export default function LoginPage() {
 
 
                 <p className="mt-4 text-center">
-                    Don't have an account? <Link to="/signup" className="text-primary">Sign up</Link>
+                    Don't have an account? <Link to="/signup" className="link link-error">Sign up</Link>
                 </p>
             </div>
         </div>

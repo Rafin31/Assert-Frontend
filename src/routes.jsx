@@ -18,9 +18,12 @@ import  { PoliticsPage }  from './Page/Politics/PoliticsPage';
 import  { TechnologyPage }  from './Page/Technology/TechnologyPage';
 
 
-import { CreateQuery } from './components/CreateThread/CreateQuery';
+import CreateQuery from './components/CreateThread/CreateQuery';
+import CreateDebate from './components/CreateThread/CreateDebate';
 import CreatePrediction from './components/CreateThread/CreatePrediction';
 import CreatePoll from './components/CreateThread/CreatePoll';
+import DisplayThread from './components/DisplayThread/DisplayThread';
+import Reward from './components/Reward/Reward'
 
 export default function AppRouter() {
     const location = useLocation();
@@ -49,9 +52,12 @@ export default function AppRouter() {
                 <Route path="/signup" element={<SignupPage />} />
                 <Route path="/politics" element={<PoliticsPage />} />
                 <Route path="/technology" element={<TechnologyPage />} />
+                <Route path="/thread" element={<DisplayThread />} />
+                <Route path="/reward" element={<Reward />} />
 
                 <Route element={<PrivateRoute />}>
                     <Route path="/createquery" element={<CreateQuery />} />
+                    <Route path="/createdebate" element={<CreateDebate />} />
                     <Route path="/createprediction" element={<CreatePrediction />} />
                     <Route path="/createpoll" element={<CreatePoll />} />
                 </Route>
