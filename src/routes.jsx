@@ -24,6 +24,7 @@ import CreatePrediction from './components/CreateThread/CreatePrediction';
 import CreatePoll from './components/CreateThread/CreatePoll';
 import DisplayThread from './components/DisplayThread/DisplayThread';
 import Reward from './components/Reward/Reward'
+import AdminPanel from './components/Admin/AdminPanel'
 
 export default function AppRouter() {
     const location = useLocation();
@@ -60,6 +61,7 @@ export default function AppRouter() {
                     <Route path="/createdebate" element={<CreateDebate />} />
                     <Route path="/createprediction" element={<CreatePrediction />} />
                     <Route path="/createpoll" element={<CreatePoll />} />
+                    <Route path="/adminpanel" element={<AdminPanel/>} />
                 </Route>
                
 

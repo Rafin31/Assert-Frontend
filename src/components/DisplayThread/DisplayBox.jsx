@@ -48,95 +48,117 @@ const DisplayBox = () => {
   
 
   // Handle reply submission
-  const addReply = async (formId) => {
-    if (!replyText[formId]) return; // Prevent empty replies
-  
-    // Make sure the user is logged in before proceeding
-    if (!user) {
-      navigate("/login"); // Redirect to login page
-      return;
-    }
-  
-    try {
-      const response = await fetch(`http://localhost:5000/api/v1/form/${formId}/reply`, {
-        method: "PUT",
-        headers: {
-          "Content-Type": "application/json",
-        },
-        body: JSON.stringify({
-          reply: replyText[formId],
-          username: user.userName, // Send the logged-in username
-        }),
-      });
-  
-      const result = await response.json();
-  
-      if (result.success) {
-        console.log("✅ Reply added:", result.data);
-  
-        // Update formData with the new reply immediately
-        setFormData((prevData) =>
-          prevData.map((form) =>
-            form._id === formId ? { ...form, replies: result.data.replies } : form
-          )
-        );
-  
-        // Update openModalPost if it's the current post
-        if (openModalPost && openModalPost._id === formId) {
-          setOpenModalPost((prevPost) => ({
-            ...prevPost,
-            replies: result.data.replies, // Update the replies directly
-          }));
-        }
-  
-        setReplyText((prev) => ({ ...prev, [formId]: "" }));
-      } else {
-        console.error("❌ Error adding reply:", result.message);
+const addReply = async (formId) => {
+  if (!replyText[formId]) return; // Prevent empty replies
+
+  // Make sure the user is logged in before proceeding
+  if (!user) {
+    navigate("/login"); // Redirect to login page
+    return;
+  }
+
+  try {
+    const response = await fetch(`http://localhost:5000/api/v1/form/${formId}/reply`, {
+      method: "PUT",
+      headers: {
+        "Content-Type": "application/json",
+      },
+      body: JSON.stringify({
+        reply: replyText[formId],
+        username: user.userName, // Send the logged-in username
+      }),
+    });
+
+    const result = await response.json();
+
+    if (result.success) {
+      console.log("✅ Reply added:", result.data);
+
+      // Update formData with the new reply immediately
+      setFormData((prevData) =>
+        prevData.map((form) =>
+          form._id === formId ? { ...form, replies: result.data.replies } : form
+        )
+      );
+
+      // Update openModalPost if it's the current post
+      if (openModalPost && openModalPost._id === formId) {
+        setOpenModalPost((prevPost) => ({
+          ...prevPost,
+          replies: result.data.replies, // Update the replies directly
+        }));
       }
-    } catch (error) {
-      console.error("❌ Error adding reply:", error);
-    }
-  };
-  
 
-  // Handle like button click
-  const handleLike = async (formId) => {
+      setReplyText((prev) => ({ ...prev, [formId]: "" }));
+    } else {
+      console.error("❌ Error adding reply:", result.message);
+    }
+  } catch (error) {
+    console.error("❌ Error adding reply:", error);
+  }
+};
+
+
+   // Handle like button click
+// Handle like button click
+const handleLike = async (formId) => {
     if (!user) {
-      navigate("/login"); // Redirect to login page
+      navigate("/login"); // Redirect to login page if user is not logged in
       return;
     }
-
-    if (likedPosts.has(formId)) {
-      console.warn("❌ You have already liked this post!");
-      return;
-    }
-
+  
+    const isLiked = likedPosts.has(formId); // Check if the post is already liked
+  
     try {
       const response = await fetch(`http://localhost:5000/api/v1/form/${formId}/like`, {
         method: "PUT",
         headers: {
           "Content-Type": "application/json",
         },
-        body: JSON.stringify({ username: user.userName }), // Send username
+        body: JSON.stringify({ username: user.userName }), // Send the username
       });
-
+  
       const result = await response.json();
-
+  
       if (result.success) {
-        console.log("👍 Like added:", result.data);
+        console.log(isLiked ? "❌ Like removed:" : "👍 Like added:", result.data);
+  
+        // Update the likeCount directly in the modal or the selected form data
         setFormData((prevData) =>
           prevData.map((form) =>
-            form._id === formId ? { ...form, likeCount: result.data.likeCount } : form
+            form._id === formId
+              ? { ...form, likeCount: result.data.likeCount }
+              : form
           )
         );
-        setLikedPosts((prev) => new Set([...prev, formId])); // Add to liked posts
+  
+        // Update likedPosts based on whether it's being liked or unliked
+        if (isLiked) {
+          setLikedPosts((prev) => {
+            const newLikedPosts = new Set(prev);
+            newLikedPosts.delete(formId); // Remove the like
+            return newLikedPosts;
+          });
+        } else {
+          setLikedPosts((prev) => new Set([...prev, formId])); // Add the like
+        }
+  
+        // If modal is open, you need to update the modal state as well:
+        if (openModalPost && openModalPost._id === formId) {
+          setOpenModalPost((prevPost) => ({
+            ...prevPost,
+            likeCount: result.data.likeCount,
+          }));
+        }
       } else {
-        console.error("❌ Error adding like:", result.message);
+        console.error("❌ Error updating like:", result.message);
       }
     } catch (error) {
-      console.error("❌ Error adding like:", error);
+      console.error("❌ Error updating like:", error);
     }
   };
+  
+  
 
   // Open Modal with post data
   const openModal = (post) => {
@@ -218,10 +240,10 @@ const DisplayBox = () => {
           <p className="text-gray-500">No approved posts available</p>
         ) : (
           formData.map((form) => (
-            <div key={form._id} className="p-4 mb-4 shadow-md rounded-lg bg-white hover:shadow-lg cursor-pointer" onClick={() => openModal(form)}>
-              <p className="text-gray-600 mb-2">{form.realm.charAt(0).toUpperCase() + form.realm.slice(1)} - {form.type.charAt(0).toUpperCase() + form.type.slice(1)}</p>
+            <div key={form._id} className="p-4 mb-4 shadow-md rounded-lg bg-white hover:shadow-lg cursor-pointer" >
+              <p className="text-gray-600 mb-2" onClick={() => openModal(form)}>{form.realm.charAt(0).toUpperCase() + form.realm.slice(1)} - {form.type.charAt(0).toUpperCase() + form.type.slice(1)}</p>
               {/* Post By */}
-              <div className="text-sm text-gray-400 mt-2 mr-2">
+              <div className="text-sm text-gray-400 mt-2 mr-2" onClick={() => openModal(form)}>
                 Posted by: <strong>{form.username}</strong> <span> - </span>
                 {new Date(form.timestamp).toLocaleTimeString([], {
                   weekday: "long",    // e.g., "Monday"
@@ -240,7 +262,7 @@ const DisplayBox = () => {
                 {form.question}
               </h3>
 
-              <p className="text-base text-gray-500 mb-3">{form.moreDetails}</p>
+              <p className="text-base text-gray-500 mb-3" onClick={() => openModal(form)}>{form.moreDetails}</p>
 
               <div className="flex items-center">
                 <button
@@ -264,7 +286,7 @@ const DisplayBox = () => {
                   <div className="badge badge-sm">{form.likeCount}</div>
                 </button>
 
-                <button className="btn btn-sm mr-2">
+                <button className="btn btn-sm mr-2" onClick={() => openModal(form)}>
                   <svg
                     xmlns="http://www.w3.org/2000/svg"
                     fill="none"
@@ -441,7 +463,7 @@ const DisplayBox = () => {
                 onClick={() => addReply(openModalPost._id)}
                 className="mt-2 btn btn-success"
               >
-                Add Reply
+                Reply
               </button>
             </div>
 
