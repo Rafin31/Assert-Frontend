@@ -1,4 +1,5 @@
 import React from 'react'
+import { Link, useNavigate } from "react-router-dom"; // Import useNavigate
 
 export default function Footer() {
     return (
@@ -6,6 +7,7 @@ export default function Footer() {
             <nav class="grid grid-flow-col gap-4">
                 <a class="link link-hover">About us</a>
                 <a class="link link-hover">Contact</a>
+                <a class="link link-hover"> <Link to="/adminpanel">Admin Panel</Link></a>
             </nav>
             <nav>
                 <div class="grid grid-flow-col gap-4">

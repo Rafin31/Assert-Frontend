@@ -5,8 +5,8 @@ const links = [
     { name: 'Overview', path: '/dashboard/overview' },
     { name: 'My Predictions', path: '/dashboard/predictions' },
     { name: 'Token Wallet', path: '/dashboard/wallet' },
-    { name: 'Create Issues', path: '/dashboard/create' },
-    { name: 'Football', path: '/dashboard/football' },
+    
+    
 ];
 
 export default function Sidebar() {

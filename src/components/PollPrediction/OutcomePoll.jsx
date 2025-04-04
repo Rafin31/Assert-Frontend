@@ -33,7 +33,7 @@ const OutcomePoll = ({ data }) => {
             <div className="text-sm text-gray-500 mb-2">{poll.subcategory}</div>
             <div className="text-2xl font-bold mb-4">{poll.title}</div>
             <div className="flex flex-col gap-2">
-              <div className="flex justify-between font-bold text-base">
+              <div className="flex justify-between font-bold text-lg text-base">
                 <span className="flex-2">Outcome</span>
                 <span className="flex-1">Votes</span>
                 <span className="flex-1">Chance</span>

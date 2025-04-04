@@ -14,6 +14,7 @@ const navLinks = [
     { name: "Technology", path: "/technology" },
     { name: "Politics", path: "/politics" },
     { name: "Sports", path: "/sports" },
+    { name: "Thread", path: "/thread" },
     { name: "Reward", path: "/reward" },
 ];
 
@@ -107,8 +108,8 @@ export default function Header({ refreshBalance }) {
     };
 
     return (
-        <div className="max-w-[1450px] mx-auto">
-            <div className="navbar bg-base-100 sticky top-0 z-[999]">
+        <div className=" p-3 mx-auto bg-base-100">
+            <div className="navbar  sticky top-0 z-[999]">
                 <div className="navbar-start">
                     <Link to="/" className="text-3xl px-[10px] font-bold">
                         Assert
@@ -136,12 +137,15 @@ export default function Header({ refreshBalance }) {
                                 <div className="dropdown dropdown-end">
                                     <div tabIndex={0} role="button">
                                         <div className="text-black border-none cursor-pointer">
-                                            <span className="text-xl font-bold text-[#e66c6c]">CREATE</span>
+                                            <span className="text-xl font-bold text-[#e66c6c] tooltip tooltip-bottom" data-tip="ASSERTIFY">CREATE</span>
                                         </div>
                                     </div>
                                     <ul tabIndex={0} className="menu menu-lg dropdown-content bg-base-100 z-1 mt-3 w-52 p-2 shadow">
                                         <li>
                                             <Link to="/createquery">Query</Link>
+                                        </li>
+                                        <li>
+                                            <Link to="/createdebate">Debate</Link>
                                         </li>
                                         <li>
                                             <Link to="/createprediction">Prediction</Link>
@@ -165,9 +169,13 @@ export default function Header({ refreshBalance }) {
                                         Claim Daily Reward
                                     </button>
                                 ) : countdown > 0 ? (
-                                    <span className="text-sm text-gray-500">
-                                        Next Claim: {dayjs.duration(countdown * 1000).format("HH:mm:ss")}
-                                    </span>
+                                    <div className="flex flex-col">
+                                        <span>Next Claim</span>
+                                        <span className="text-gray-500 countdown font-mono text-2xl">
+                                             {dayjs.duration(countdown * 1000).format("HH:mm:ss")}
+                                        </span>
+                                    </div>
+
                                 ) : null}
 
                                 {/* Profile Dropdown */}
@@ -190,9 +198,10 @@ export default function Header({ refreshBalance }) {
                         )
                     )}
 
-                    {!user && <Link to="/login" className="btn btn-accent w-[150px]">Login</Link>}
+                    {!user && <Link to="/login" className="btn btn-outline btn-error w-[150px]">Login</Link>}
                 </div>
             </div>
+            
         </div>
     );
 }

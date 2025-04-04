@@ -54,14 +54,14 @@ export default function SignupPage() {
                 <input name="userName" onChange={handleChange} type="text" placeholder="Full Name" className="input input-bordered w-full mb-2" />
                 <input name="email" onChange={handleChange} type="email" placeholder="Email" className="input input-bordered w-full mb-2" />
                 <input name="password" onChange={handleChange} type="password" placeholder="Password" className="input input-bordered w-full mb-4" />
-                <button type="submit" className="btn btn-soft btn-primary w-full mb-2" disabled={isPending}>
+                <button type="submit" className="btn btn-success w-full mb-2" disabled={isPending}>
                     {isPending ? 'Signing Up...' : 'Sign Up'}
                 </button>
 
-                <button type="button" className="btn btn-soft btn-secondary w-full mb-2">
+                <button type="button" className="btn btn-xs sm:btn-sm md:btn-md lg:btn-lg xl:btn-lg w-full mb-2">
                     <img src={googleIcon} className='inline mr-3 w-6' alt="Google" /> Google
                 </button>
-                <button type="button" className="btn btn-soft btn-accent w-full">
+                <button type="button" className="btn btn-xs sm:btn-sm md:btn-md lg:btn-lg xl:btn-lg w-full">
                     <img src={metaMaskIcon} className='inline mr-3 w-6' alt="MetaMask" /> MetaMask
                 </button>
 
@@ -78,7 +78,7 @@ export default function SignupPage() {
 
 
                 <p className="mt-4 text-center">
-                    Already have an account? <Link to="/login" className="text-primary">Login</Link>
+                    Already have an account? <Link to="/login" className="link link-error">Login</Link>
                 </p>
             </form>
         </div>
