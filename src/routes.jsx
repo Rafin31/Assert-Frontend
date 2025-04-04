@@ -10,8 +10,8 @@ import ScrollToTop from './components/Utils/ScrollToTop'
 import DashboardLayout from '../src/Layout/DashboardLayout';
 import Overview from '../src/Page/Dashboard/Overview';
 import MyPredictions from '../src/Page/Dashboard/MyPredictions';
-import TokenWallet from '../src/Page/dashboard/TokenWallet';
-import CreateIssue from '../src/Page/dashboard/CreateIssue';
+import TokenWallet from '../src/Page/Dashboard/TokenWallet';
+import CreateIssue from '../src/Page/Dashboard/CreateIssue';
 import PrivateRoute from './Services/privateAuth';
 import { useState } from 'react';
 import { PoliticsPage } from './Page/Politics/PoliticsPage';
