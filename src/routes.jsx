@@ -9,7 +9,7 @@ import ScrollToTop from './components/Utils/ScrollToTop'
 
 import DashboardLayout from '../src/Layout/DashboardLayout';
 import Overview from '../src/Page/Dashboard/Overview';
-import MyPredictions from '../src/Page/dashboard/MyPredictions';
+import MyPredictions from '../src/Page/Dashboard/MyPredictions';
 import TokenWallet from '../src/Page/dashboard/TokenWallet';
 import CreateIssue from '../src/Page/dashboard/CreateIssue';
 import PrivateRoute from './Services/privateAuth';
