@@ -1,9 +1,9 @@
 import ServerApi from '../api/ServerAPI';
 
 
-export const claimDailyReward = async ({ walletAddress }) => {
+export const claimDailyReward = async ({ email }) => {
     try {
-        const response = await ServerApi.post("/users/token/claimDailyReward", { walletAddress });
+        const response = await ServerApi.post("/users/token/claimDailyReward", { email });
         return response; // Return success message & updated token balance
     } catch (error) {
         console.error(error || "Failed to claim daily reward");

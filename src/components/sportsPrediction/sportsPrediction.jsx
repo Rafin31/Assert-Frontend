@@ -6,10 +6,10 @@ import OutcomePoll from "../PollPrediction/OutcomePoll.jsx";
 import ScorePrediction from '../PollPrediction/ScorePrediction.jsx'
 import MatchPrediction from '../PollPrediction/MatchPrediction.jsx';
 
-export default function SportsPredictions({ refreshBalance }) {
+export default function SportsPredictions({ refreshBalance, refreshKey }) {
 
 
-    
+
 
     const pollData = [
         {
@@ -52,74 +52,74 @@ export default function SportsPredictions({ refreshBalance }) {
             ],
         },
     ];
-    
+
 
     const matchesData = [
         {
-          league: "La Liga",
-          date: "2025-02-27",
-          time: "20:00",
-          teams: ["Real Madrid", "Barcelona"],
-          category: "Football",
-          subcategory: "La Liga",
+            league: "La Liga",
+            date: "2025-02-27",
+            time: "20:00",
+            teams: ["Real Madrid", "Barcelona"],
+            category: "Football",
+            subcategory: "La Liga",
         },
         {
-          league: "Premier League",
-          date: "2025-03-16",
-          time: "01:30",
-          teams: ["Manchester United", "Chelsea"],
-          category: "Football",
-          subcategory: "Premier League",
+            league: "Premier League",
+            date: "2025-03-16",
+            time: "01:30",
+            teams: ["Manchester United", "Chelsea"],
+            category: "Football",
+            subcategory: "Premier League",
         },
         {
-          league: "Ligue 1",
-          date: "2025-04-03",
-          time: "19:45",
-          teams: ["Bayern Munich", "PSG"],
-          category: "Football",
-          subcategory: "Ligue 1",
+            league: "Ligue 1",
+            date: "2025-04-03",
+            time: "19:45",
+            teams: ["Bayern Munich", "PSG"],
+            category: "Football",
+            subcategory: "Ligue 1",
         },
         {
-          league: "Serie A",
-          date: "2025-04-05",
-          time: "21:00",
-          teams: ["Juventus", "AC Milan"],
-          category: "Football",
-          subcategory: "Serie A",
+            league: "Serie A",
+            date: "2025-04-05",
+            time: "21:00",
+            teams: ["Juventus", "AC Milan"],
+            category: "Football",
+            subcategory: "Serie A",
         },
         {
-          league: "Premier League",
-          date: "2025-03-16",
-          time: "05:30",
-          teams: ["Man City", "Liverpool"],
-          category: "Football",
-          subcategory: "Premier League",
+            league: "Premier League",
+            date: "2025-03-16",
+            time: "05:30",
+            teams: ["Man City", "Liverpool"],
+            category: "Football",
+            subcategory: "Premier League",
         },
         {
-          league: "Premier League",
-          date: "2025-03-11",
-          time: "18:00",
-          teams: ["Arsenal", "Tottenham"],
-          category: "Football",
-          subcategory: "Premier League",
+            league: "Premier League",
+            date: "2025-03-11",
+            time: "18:00",
+            teams: ["Arsenal", "Tottenham"],
+            category: "Football",
+            subcategory: "Premier League",
         },
         {
-          league: "NBA",
-          date: "2025-03-16",
-          time: "15:00",
-          teams: ["Los Angeles Lakers", "Chicago Bulls"],
-          category: "Basketball",
-          subcategory: "NBA",
+            league: "NBA",
+            date: "2025-03-16",
+            time: "15:00",
+            teams: ["Los Angeles Lakers", "Chicago Bulls"],
+            category: "Basketball",
+            subcategory: "NBA",
         },
         {
-          league: "MLB",
-          date: "2025-04-10",
-          time: "18:30",
-          teams: ["New York Yankees", "Boston Red Sox"],
-          category: "Baseball",
-          subcategory: "MLB",
+            league: "MLB",
+            date: "2025-04-10",
+            time: "18:30",
+            teams: ["New York Yankees", "Boston Red Sox"],
+            category: "Baseball",
+            subcategory: "MLB",
         }
-      ];
+    ];
 
     const ITEMS_PER_PAGE = 6;
     const [fixtures, setFixtures] = useState([]);
@@ -166,7 +166,7 @@ export default function SportsPredictions({ refreshBalance }) {
                     !loading ?
 
                         paginatedFixtures.map((match, index) => (
-                            <PredictionCard key={index} match={match} index={index} refreshBalance={refreshBalance} />
+                            <PredictionCard key={index} match={match} index={index} refreshBalance={refreshBalance} refreshKey={refreshKey} />
                         ))
 
                         :
@@ -174,8 +174,8 @@ export default function SportsPredictions({ refreshBalance }) {
                 }
             </div>
 
-            
-            
+
+
 
             <div className="flex justify-center mt-6 gap-2">
                 <button
@@ -200,7 +200,7 @@ export default function SportsPredictions({ refreshBalance }) {
             <div className="flex flex-col items-center bg-base-100">
                 <OutcomePoll data={pollData} />
             </div>
-            
+
             <div>
                 <h1 className="text-center text-3xl font-bold my-8">Upcoming Match Predictions</h1>
                 <ScorePrediction data={matchesData} /> {/* Pass the matchesData to the ScorePrediction component */}
@@ -213,7 +213,7 @@ export default function SportsPredictions({ refreshBalance }) {
             </div>
         </div>
 
-        
+
 
     );
 }
