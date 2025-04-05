@@ -9,13 +9,13 @@ import ScrollToTop from './components/Utils/ScrollToTop'
 
 import DashboardLayout from '../src/Layout/DashboardLayout';
 import Overview from '../src/Page/Dashboard/Overview';
-import MyPredictions from '../src/Page/dashboard/MyPredictions';
-import TokenWallet from '../src/Page/dashboard/TokenWallet';
-import CreateIssue from '../src/Page/dashboard/CreateIssue';
+import MyPredictions from '../src/Page/Dashboard/MyPredictions';
+import TokenWallet from '../src/Page/Dashboard/TokenWallet';
+import CreateIssue from '../src/Page/Dashboard/CreateIssue';
 import PrivateRoute from './Services/privateAuth';
 import { useState } from 'react';
-import  { PoliticsPage }  from './Page/Politics/PoliticsPage';
-import  { TechnologyPage }  from './Page/Technology/TechnologyPage';
+import { PoliticsPage } from './Page/Politics/PoliticsPage';
+import { TechnologyPage } from './Page/Technology/TechnologyPage';
 
 
 import CreateQuery from './components/CreateThread/CreateQuery';
@@ -39,15 +39,17 @@ export default function AppRouter() {
         setRefreshKey((prevKey) => prevKey + 1);
     };
 
+    console.log(refreshKey)
+
 
 
     return (
         <>
             <ScrollToTop />
-            {!isDashboard && <Header refreshBalance={refreshBalance} />}
+            {!isDashboard && <Header refreshBalance={refreshBalance} refreshKey={refreshKey} />}
 
             <Routes>
-                <Route path="/" element={<LandingPage refreshBalance={refreshBalance} />} />
+                <Route path="/" element={<LandingPage refreshBalance={refreshBalance} refreshKey={refreshKey} />} />
                 <Route path="/sports" element={<SportsPredictions />} />
                 <Route path="/login" element={<LoginPage />} />
                 <Route path="/signup" element={<SignupPage />} />
@@ -61,9 +63,9 @@ export default function AppRouter() {
                     <Route path="/createdebate" element={<CreateDebate />} />
                     <Route path="/createprediction" element={<CreatePrediction />} />
                     <Route path="/createpoll" element={<CreatePoll />} />
-                    <Route path="/adminpanel" element={<AdminPanel/>} />
+                    <Route path="/adminpanel" element={<AdminPanel />} />
                 </Route>
-               
+
 
                 <Route path="/dashboard" element={<PrivateRoute />}>
                     <Route element={<DashboardLayout />}>

@@ -2,11 +2,10 @@ import React, { useState } from 'react';
 
 import { useAuth } from "../../Context/AuthContext"; // Adjust the import path as needed
 
-import { useNavigate } from "react-router-dom";
+
 
 const CreateQuery = () => {
   const { user } = useAuth(); // Get user from AuthContext
-  const navigate = useNavigate(); // Redirect to login page
   const [realm, setRealm] = useState('');
   const [question, setQuestion] = useState('');
   const [moreDetails, setMoreDetails] = useState('');
@@ -16,19 +15,19 @@ const CreateQuery = () => {
   // Handle form submission
   const handleSubmit = async (e) => {
     e.preventDefault();
-    
+
     if (!realm || !question) {
       alert('Please fill out all required fields.');
       return;
     }
-    
+
     const formData = {
       username: user.userName, // logged in username
       realm,
       question,
       moreDetails,
       type: "query", // Explicitly setting type
-      status: "pending", // Added status field
+      status: "approved", // Added status field
     };
 
     try {
@@ -56,7 +55,7 @@ const CreateQuery = () => {
       alert('An error occurred. Please try again later.');
     }
 
-        // Clear form
+    // Clear form
     setRealm('');
     setQuestion('');
     setMoreDetails('');
