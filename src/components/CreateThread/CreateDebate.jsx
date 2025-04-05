@@ -1,18 +1,16 @@
 import React, { useState } from 'react';
-
-import { useAuth } from "../../Context/AuthContext"; // Adjust the import path as needed
-
+import { useAuth } from "../../Context/AuthContext"; // Adjust path as needed
+import ServerApi from '../../api/ServerAPI'; // Axios instance
 
 const CreateDebate = () => {
   const { user } = useAuth(); // Get user from AuthContext
+
   const [realm, setRealm] = useState('');
   const [question, setQuestion] = useState('');
   const [moreDetails, setMoreDetails] = useState('');
   const [submittedQuery, setSubmittedQuery] = useState(null);
   const [isModalOpen, setIsModalOpen] = useState(false);
 
-
-  // Handle form submission
   const handleSubmit = async (e) => {
     e.preventDefault();
 
@@ -22,33 +20,23 @@ const CreateDebate = () => {
     }
 
     const formData = {
-      username: user.userName, // logged in username
+      username: user.userName,       // logged-in username
       realm,
       question,
       moreDetails,
-      type: "debate", // Explicitly setting type
-      status: "approved", // Added status field
+      type: "debate",               // Explicitly set type
+      status: "approved",           // Set default status
     };
 
     try {
-      const response = await fetch('http://localhost:5000/api/v1/form/submit', {
-        method: 'POST',
-        headers: {
-          'Content-Type': 'application/json',
-        },
-        body: JSON.stringify(formData),
-      });
+      const response = await ServerApi.post('/form/submit', formData); // Axios handles baseURL
+      const result = response.data;
 
-      if (!response.ok) {
-        throw new Error('Network response was not ok');
-      }
-
-      const result = await response.json();
       if (result.success) {
         setSubmittedQuery(result.data);
         setIsModalOpen(true);
       } else {
-        alert('There was an error submitting the query');
+        alert('There was an error submitting the query.');
       }
     } catch (error) {
       console.error('Error:', error);
@@ -61,7 +49,6 @@ const CreateDebate = () => {
     setMoreDetails('');
   };
 
-  // Close modal
   const closeModal = () => {
     setIsModalOpen(false);
   };

@@ -1,18 +1,16 @@
 import React, { useState } from 'react';
-
-import { useAuth } from "../../Context/AuthContext"; // Adjust the import path as needed
-
-
+import { useAuth } from "../../Context/AuthContext"; // Adjust path as needed
+import ServerApi from '../../api/ServerAPI'; // Axios instance
 
 const CreateQuery = () => {
-  const { user } = useAuth(); // Get user from AuthContext
+  const { user } = useAuth();
+
   const [realm, setRealm] = useState('');
   const [question, setQuestion] = useState('');
   const [moreDetails, setMoreDetails] = useState('');
   const [submittedQuery, setSubmittedQuery] = useState(null);
   const [isModalOpen, setIsModalOpen] = useState(false);
 
-  // Handle form submission
   const handleSubmit = async (e) => {
     e.preventDefault();
 
@@ -22,46 +20,35 @@ const CreateQuery = () => {
     }
 
     const formData = {
-      username: user.userName, // logged in username
+      username: user.userName,
       realm,
       question,
       moreDetails,
-      type: "query", // Explicitly setting type
-      status: "approved", // Added status field
+      type: "query",      // Explicitly set type
+      status: "approved", // Set default status
     };
 
     try {
-      const response = await fetch('http://localhost:5000/api/v1/form/submit', {
-        method: 'POST',
-        headers: {
-          'Content-Type': 'application/json',
-        },
-        body: JSON.stringify(formData),
-      });
+      const response = await ServerApi.post('/form/submit', formData);
+      const result = response.data;
 
-      if (!response.ok) {
-        throw new Error('Network response was not ok');
-      }
-
-      const result = await response.json();
       if (result.success) {
         setSubmittedQuery(result.data);
         setIsModalOpen(true);
       } else {
-        alert('There was an error submitting the query');
+        alert('There was an error submitting the query.');
       }
     } catch (error) {
       console.error('Error:', error);
       alert('An error occurred. Please try again later.');
     }
 
-    // Clear form
+    // Clear form fields
     setRealm('');
     setQuestion('');
     setMoreDetails('');
   };
 
-  // Close modal
   const closeModal = () => {
     setIsModalOpen(false);
   };

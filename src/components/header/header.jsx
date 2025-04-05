@@ -135,9 +135,26 @@ export default function Header({ refreshBalance, refreshKey }) {
     };
 
     return (
+        
         <div className={`navbar bg-base-100 sticky top-0 z-[999] transition-shadow duration-300 ${scrolled ? 'shadow-lg' : ''}`}>
             <div className="navbar max-w-[1450px] mx-auto">
                 <div className="navbar-start">
+
+                    <div className="dropdown lg:hidden">
+                        <div tabIndex={0} role="button" className="btn btn-ghost btn-circle">
+                            <svg xmlns="http://www.w3.org/2000/svg" className="h-5 w-5" fill="none" viewBox="0 0 24 24" stroke="currentColor"> <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M4 6h16M4 12h16M4 18h7" /> </svg>
+                        </div>
+                        <ul
+                            tabIndex={0}
+                            className="menu menu-lg dropdown-content bg-base-100 rounded-box z-1 mt-3 w-52 p-2 shadow">
+                            {navLinks.map((link, index) => (
+                                <li key={index}>
+                                    <Link to={link.path}>{link.name}</Link>
+                                </li>
+                            ))}
+                        </ul>
+                    </div>
+
                     <Link to="/" className="text-3xl px-[10px] font-bold">
                         Assert
                     </Link>
@@ -182,28 +199,33 @@ export default function Header({ refreshBalance, refreshKey }) {
                                         </li>
                                     </ul>
                                 </div>
-                                {/* Token Balance Display */}
-                                <button className="btn">
-                                    AT Token: <div className="badge badge-lg badge-neutral">{tokenBalance} </div>
-                                </button>
-                                {/* Claim Daily Reward Button */}
-                                {isClaimable ? (
-                                    <button
-                                        className="btn btn-warning"
-                                        onClick={handleClaimReward}
-                                        disabled={loading}
-                                    >
-                                        Claim Daily Reward
-                                    </button>
-                                ) : countdown > 0 ? (
-                                    <div className="flex flex-col">
-                                        <span>Next Claim</span>
-                                        <span className="text-gray-500 countdown font-mono text-2xl">
-                                            {dayjs.duration(countdown * 1000).format("HH:mm:ss")}
-                                        </span>
-                                    </div>
 
-                                ) : null}
+                                <div className="flex flex-row lg:flex hidden">
+                                    {/* Token Balance Display */}
+                                    <button className="btn ml-3">
+                                        AT Token: <div className="badge badge-lg badge-neutral">{tokenBalance} </div>
+                                    </button>
+                                    {/* Claim Daily Reward Button */}
+                                    {isClaimable ? (
+                                        <button
+                                            className="btn btn-warning ml-3"
+                                            onClick={handleClaimReward}
+                                            disabled={loading}
+                                        >
+                                            Claim Daily Reward
+                                        </button>
+                                    ) : countdown > 0 ? (
+                                        <div className="flex flex-col ml-3">
+                                            <span>Next Claim</span>
+                                            <span className="text-gray-500 countdown font-mono text-2xl">
+                                                {dayjs.duration(countdown * 1000).format("HH:mm:ss")}
+                                            </span>
+                                        </div>
+
+                                    ) : null}
+                                </div>
+
+                                
 
                                 {/* Profile Dropdown */}
                                 <div className="dropdown dropdown-end">
@@ -215,6 +237,35 @@ export default function Header({ refreshBalance, refreshKey }) {
                                     <ul tabIndex={0} className="menu menu-lg dropdown-content bg-base-100 rounded-box z-1 mt-3 w-52 p-2 shadow">
                                         <li>
                                             <Link to="/dashboard">Dashboard</Link>
+                                        </li>
+                                        <li>
+                                            {/* Token Balance Display */}
+                                            <button className="btn lg:hidden block">
+                                                AT Token: <div className="badge badge-lg badge-neutral">{tokenBalance} </div>
+                                            </button>
+                                        </li>
+                                        <li>
+                                            {/* Claim Daily Reward Button */}
+                                            <div className="lg:hidden block">
+                                                {isClaimable ? (
+                                                    <button
+                                                        className="btn btn-warning"
+                                                        onClick={handleClaimReward}
+                                                        disabled={loading}
+                                                    >
+                                                        Claim Daily Reward
+                                                    </button>
+                                                ) : countdown > 0 ? (
+                                                    <div className="flex flex-col">
+                                                        <span>Next Claim</span>
+                                                        <span className="text-gray-500 countdown font-mono text-2xl">
+                                                            {dayjs.duration(countdown * 1000).format("HH:mm:ss")}
+                                                        </span>
+                                                    </div>
+
+                                                ) : null}
+                                            </div>
+
                                         </li>
                                         <li>
                                             <button onClick={handleLogout}>Logout</button> {/* Call handleLogout */}
