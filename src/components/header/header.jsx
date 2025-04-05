@@ -6,7 +6,7 @@ import dayjs from "dayjs";
 import duration from "dayjs/plugin/duration";
 import { toast } from "react-toastify";
 
-import coin from "../../assets/coin.png";
+
 
 dayjs.extend(duration);
 
@@ -18,55 +18,80 @@ const navLinks = [
     { name: "Reward", path: "/reward" },
 ];
 
-export default function Header({ refreshBalance }) {
+export default function Header({ refreshBalance, refreshKey }) {
     const { user, logout } = useAuth();
     const navigate = useNavigate(); // Initialize navigate
     const [tokenBalance, setTokenBalance] = useState(null);
     const [loading, setLoading] = useState(true); // Loading state
     const [countdown, setCountdown] = useState(null);
     const [isClaimable, setIsClaimable] = useState(false);
+    const [scrolled, setScrolled] = useState(false);
 
     // Extract user's initials
     const userInitials = user?.userName?.slice(0, 2).toUpperCase() || "U";
 
+    //handle Scroll
+    useEffect(() => {
+        const handleScroll = () => {
+            const offset = window.scrollY;
+            setScrolled(offset > 0);
+        };
+
+        window.addEventListener("scroll", handleScroll);
+        return () => window.removeEventListener("scroll", handleScroll);
+    }, []);
+
     // Fetch User's Token Balance & Last Claim Time
-    const fetchUserData = async () => {
+    useEffect(() => {
         if (!user) {
+            setTokenBalance(null); // reset if user logs out
+            setCountdown(null);
+            setIsClaimable(false);
             setLoading(false);
             return;
         }
-        setLoading(true);
-        try {
-            const response = await userData(user.id);
-            setTokenBalance(response.data.user.totalToken);
-            refreshBalance();
 
-            // Check last claim time
-            if (response.data.user?.lastLoginReward) {
-                const lastClaim = dayjs(response.data.user.lastLoginReward);
-                const nextClaimTime = lastClaim.add(24, "hour");
-                const now = dayjs();
+        let isMounted = true; // prevent state update after unmount
 
-                if (now.isAfter(nextClaimTime)) {
+        const fetchUserData = async () => {
+            if (!user?.id) return;
+            try {
+                if (isMounted) setLoading(true);
+                const response = await userData(user.id);
+                if (!isMounted) return;
+
+                setTokenBalance(response.data.user.totalToken);
+
+                // Check last claim time
+                if (response.data.user?.lastLoginReward) {
+                    const lastClaim = dayjs(response.data.user.lastLoginReward);
+                    const nextClaimTime = lastClaim.add(24, "hour");
+                    const now = dayjs();
+
+                    if (now.isAfter(nextClaimTime)) {
+                        setIsClaimable(true);
+                        setCountdown(0);
+                    } else {
+                        setCountdown(nextClaimTime.diff(now, "second"));
+                        setIsClaimable(false);
+                    }
+                } else {
                     setIsClaimable(true);
                     setCountdown(0);
-                } else {
-                    setCountdown(nextClaimTime.diff(now, "second"));
-                    setIsClaimable(false);
                 }
-            } else {
-                setIsClaimable(true);
-                setCountdown(0);
+            } catch (error) {
+                if (isMounted) toast.error("Failed to fetch user data." + error);
+            } finally {
+                if (isMounted) setLoading(false);
             }
-        } catch (error) {
-            toast.error("Failed to fetch user data.");
-        }
-        setLoading(false);
-    };
+        };
 
-    useEffect(() => {
         fetchUserData();
-    }, [user]); // Fetch on login
+
+        return () => {
+            isMounted = false; // cleanup to avoid memory leaks
+        };
+    }, [user?.id, refreshKey]);
 
     // Countdown Timer
     useEffect(() => {
@@ -83,17 +108,19 @@ export default function Header({ refreshBalance }) {
     const handleClaimReward = async () => {
         try {
             setLoading(true);
-            const response = await claimDailyReward({ walletAddress: user.walletAddress });
+
+            const response = await claimDailyReward({ email: user.email });
 
             // **Update Token Balance Immediately**
             setTokenBalance(response.newBalance);
 
             // **Re-fetch user data to ensure frontend state is correct**
-            fetchUserData();
+            refreshBalance();
 
             setCountdown(86400); // Set 24-hour timer
             setIsClaimable(false);
-            toast.success(response.message);
+            toast.success(response?.data?.message);
+
         } catch (error) {
             toast.error(error.response?.data?.message || "Failed to claim reward.");
         } finally {
@@ -104,12 +131,12 @@ export default function Header({ refreshBalance }) {
     // Handle logout and redirect to homepage
     const handleLogout = () => {
         logout();
-        navigate("/"); // Redirect to homepage after logout
+        navigate("/");
     };
 
     return (
-        <div className=" p-3 mx-auto bg-base-100">
-            <div className="navbar  sticky top-0 z-[999]">
+        <div className={`navbar bg-base-100 sticky top-0 z-[999] transition-shadow duration-300 ${scrolled ? 'shadow-lg' : ''}`}>
+            <div className="navbar max-w-[1450px] mx-auto">
                 <div className="navbar-start">
                     <Link to="/" className="text-3xl px-[10px] font-bold">
                         Assert
@@ -172,7 +199,7 @@ export default function Header({ refreshBalance }) {
                                     <div className="flex flex-col">
                                         <span>Next Claim</span>
                                         <span className="text-gray-500 countdown font-mono text-2xl">
-                                             {dayjs.duration(countdown * 1000).format("HH:mm:ss")}
+                                            {dayjs.duration(countdown * 1000).format("HH:mm:ss")}
                                         </span>
                                     </div>
 
@@ -201,7 +228,7 @@ export default function Header({ refreshBalance }) {
                     {!user && <Link to="/login" className="btn btn-outline btn-error w-[150px]">Login</Link>}
                 </div>
             </div>
-            
+
         </div>
     );
 }
