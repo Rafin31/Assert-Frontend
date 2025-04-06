@@ -45,70 +45,70 @@ const DisplayBox = () => {
       })
       .catch((error) => console.error("Error fetching form data:", error));
   }, [user, filter, selectedRealm]);
-  
+
 
   // Handle reply submission
-const addReply = async (formId) => {
-  if (!replyText[formId]) return; // Prevent empty replies
+  const addReply = async (formId) => {
+    if (!replyText[formId]) return; // Prevent empty replies
 
-  // Make sure the user is logged in before proceeding
-  if (!user) {
-    navigate("/login"); // Redirect to login page
-    return;
-  }
-
-  try {
-    const response = await fetch(`http://localhost:5000/api/v1/form/${formId}/reply`, {
-      method: "PUT",
-      headers: {
-        "Content-Type": "application/json",
-      },
-      body: JSON.stringify({
-        reply: replyText[formId],
-        username: user.userName, // Send the logged-in username
-      }),
-    });
-
-    const result = await response.json();
-
-    if (result.success) {
-      console.log("✅ Reply added:", result.data);
-
-      // Update formData with the new reply immediately
-      setFormData((prevData) =>
-        prevData.map((form) =>
-          form._id === formId ? { ...form, replies: result.data.replies } : form
-        )
-      );
-
-      // Update openModalPost if it's the current post
-      if (openModalPost && openModalPost._id === formId) {
-        setOpenModalPost((prevPost) => ({
-          ...prevPost,
-          replies: result.data.replies, // Update the replies directly
-        }));
-      }
-
-      setReplyText((prev) => ({ ...prev, [formId]: "" }));
-    } else {
-      console.error("❌ Error adding reply:", result.message);
+    // Make sure the user is logged in before proceeding
+    if (!user) {
+      navigate("/login"); // Redirect to login page
+      return;
     }
-  } catch (error) {
-    console.error("❌ Error adding reply:", error);
-  }
-};
+
+    try {
+      const response = await fetch(`http://localhost:5000/api/v1/form/${formId}/reply`, {
+        method: "PUT",
+        headers: {
+          "Content-Type": "application/json",
+        },
+        body: JSON.stringify({
+          reply: replyText[formId],
+          username: user.userName, // Send the logged-in username
+        }),
+      });
+
+      const result = await response.json();
+
+      if (result.success) {
+        console.log("✅ Reply added:", result.data);
+
+        // Update formData with the new reply immediately
+        setFormData((prevData) =>
+          prevData.map((form) =>
+            form._id === formId ? { ...form, replies: result.data.replies } : form
+          )
+        );
+
+        // Update openModalPost if it's the current post
+        if (openModalPost && openModalPost._id === formId) {
+          setOpenModalPost((prevPost) => ({
+            ...prevPost,
+            replies: result.data.replies, // Update the replies directly
+          }));
+        }
+
+        setReplyText((prev) => ({ ...prev, [formId]: "" }));
+      } else {
+        console.error("❌ Error adding reply:", result.message);
+      }
+    } catch (error) {
+      console.error("❌ Error adding reply:", error);
+    }
+  };
 
 
-   // Handle like button click
-// Handle like button click
-const handleLike = async (formId) => {
+  // Handle like button click
+  // Handle like button click
+  const handleLike = async (formId) => {
     if (!user) {
       navigate("/login"); // Redirect to login page if user is not logged in
       return;
     }
-  
+
     const isLiked = likedPosts.has(formId); // Check if the post is already liked
-  
+
     try {
       const response = await fetch(`http://localhost:5000/api/v1/form/${formId}/like`, {
         method: "PUT",
@@ -117,12 +117,12 @@ const handleLike = async (formId) => {
         },
         body: JSON.stringify({ username: user.userName }), // Send the username
       });
-  
+
       const result = await response.json();
-  
+
       if (result.success) {
         console.log(isLiked ? "❌ Like removed:" : "👍 Like added:", result.data);
-  
+
         // Update the likeCount directly in the modal or the selected form data
         setFormData((prevData) =>
           prevData.map((form) =>
@@ -131,7 +131,7 @@ const handleLike = async (formId) => {
               : form
           )
         );
-  
+
         // Update likedPosts based on whether it's being liked or unliked
         if (isLiked) {
           setLikedPosts((prev) => {
@@ -142,7 +142,7 @@ const handleLike = async (formId) => {
         } else {
           setLikedPosts((prev) => new Set([...prev, formId])); // Add the like
         }
-  
+
         // If modal is open, you need to update the modal state as well:
         if (openModalPost && openModalPost._id === formId) {
           setOpenModalPost((prevPost) => ({
@@ -157,8 +157,8 @@ const handleLike = async (formId) => {
       console.error("❌ Error updating like:", error);
     }
   };
-  
-  
+
+
 
   // Open Modal with post data
   const openModal = (post) => {
@@ -172,9 +172,9 @@ const handleLike = async (formId) => {
 
 
   return (
-    
-    
-    
+
+
+
     <div className="mx-auto rounded-lg overflow-hidden bg-base-50">
 
       {/* Filter Section */}
@@ -342,15 +342,15 @@ const handleLike = async (formId) => {
             <p className="text-gray-600 mb-2">{openModalPost.realm.charAt(0).toUpperCase() + openModalPost.realm.slice(1)} - {openModalPost.type.charAt(0).toUpperCase() + openModalPost.type.slice(1)}</p>
             {/* Post By */}
             <div className="text-sm text-gray-400 mt-2 mr-2">
-            Posted by: <strong>{openModalPost.username}</strong> <span> - </span>
-            {new Date(openModalPost.timestamp).toLocaleTimeString([], {
+              Posted by: <strong>{openModalPost.username}</strong> <span> - </span>
+              {new Date(openModalPost.timestamp).toLocaleTimeString([], {
                 weekday: "long",    // e.g., "Monday"
                 year: "numeric",    // e.g., "2025"
                 month: "long",      // e.g., "April"
                 day: "numeric",     // e.g., "1"
                 hour: "2-digit",
                 minute: "2-digit",
-            })}
+              })}
             </div>
             <h3 className="text-xl font-semibold mb-2 mt-3">{openModalPost.question}</h3>
             <p className="text-lg font-semibold mb-2 mt-3">{openModalPost.moreDetails}</p>
@@ -411,8 +411,8 @@ const handleLike = async (formId) => {
                 />
               </svg>
             </button>
-			
-			{/* Replies Section */}
+
+            {/* Replies Section */}
             <div className="mt-4">
               <h4 className="font-semibold mb-2">Replies</h4>
               {openModalPost.replies?.length > 0 ? (

@@ -39,8 +39,6 @@ export default function AppRouter() {
         setRefreshKey((prevKey) => prevKey + 1);
     };
 
-    console.log(refreshKey)
-
 
 
     return (
