@@ -171,7 +171,7 @@ export default function Header({ refreshBalance, refreshKey }) {
                 <div className={`navbar-end flex items-center gap-1`}>
                     {/* Show Loading State Before User Data is Fetched */}
                     {loading ? (
-                        <span className="loading loading-spinner loading-lg"></span>
+                        <div className="skeleton h-5 w-[40%]"></div>
                     ) : (
                         user && (
                             <div className="flex items-center gap-3">

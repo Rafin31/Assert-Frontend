@@ -1,6 +1,7 @@
 import { useEffect, useState } from "react";
 import { useAuth } from "../../Context/AuthContext"; // Adjust the import path as needed
 import { useNavigate } from "react-router-dom";
+import ServerApi from '../../api/ServerAPI';
 
 const DisplayBox = () => {
   const { user } = useAuth(); // Get user from AuthContext
@@ -14,9 +15,9 @@ const DisplayBox = () => {
 
   // Fetch form data from the backend
   useEffect(() => {
-    fetch("http://localhost:5000/api/v1/form")
-      .then((response) => response.json())
-      .then((data) => {
+    ServerApi.get("/form")
+      .then((response) => {
+        const data = response.data;
         if (data.success) {
           // Filter only approved posts
           const approvedPosts = data.data.filter((form) => form.status === "approved");
@@ -49,81 +50,69 @@ const DisplayBox = () => {
 
   // Handle reply submission
   const addReply = async (formId) => {
-    if (!replyText[formId]) return; // Prevent empty replies
+    const text = replyText[formId]?.trim();
+    if (!text) return;
 
-    // Make sure the user is logged in before proceeding
     if (!user) {
-      navigate("/login"); // Redirect to login page
+      navigate("/login");
       return;
     }
 
     try {
-      const response = await fetch(`http://localhost:5000/api/v1/form/${formId}/reply`, {
-        method: "PUT",
-        headers: {
-          "Content-Type": "application/json",
-        },
-        body: JSON.stringify({
-          reply: replyText[formId],
-          username: user.userName, // Send the logged-in username
-        }),
+      const response = await ServerApi.put(`/form/${formId}/reply`, {
+        reply: text,
+        username: user.userName,
       });
 
-      const result = await response.json();
+      const result = response.data;
 
       if (result.success) {
         console.log("✅ Reply added:", result.data);
 
-        // Update formData with the new reply immediately
         setFormData((prevData) =>
           prevData.map((form) =>
             form._id === formId ? { ...form, replies: result.data.replies } : form
           )
         );
 
-        // Update openModalPost if it's the current post
         if (openModalPost && openModalPost._id === formId) {
           setOpenModalPost((prevPost) => ({
             ...prevPost,
-            replies: result.data.replies, // Update the replies directly
+            replies: result.data.replies,
           }));
         }
 
         setReplyText((prev) => ({ ...prev, [formId]: "" }));
       } else {
         console.error("❌ Error adding reply:", result.message);
+        // Optionally show a toast here
       }
     } catch (error) {
       console.error("❌ Error adding reply:", error);
+      // Optionally show a toast here too
     }
   };
 
 
+
   // Handle like button click
-  // Handle like button click
+  // Handle like toggle
   const handleLike = async (formId) => {
     if (!user) {
-      navigate("/login"); // Redirect to login page if user is not logged in
+      navigate("/login");
       return;
     }
 
-    const isLiked = likedPosts.has(formId); // Check if the post is already liked
+    const isLiked = likedPosts.has(formId);
 
     try {
-      const response = await fetch(`http://localhost:5000/api/v1/form/${formId}/like`, {
-        method: "PUT",
-        headers: {
-          "Content-Type": "application/json",
-        },
-        body: JSON.stringify({ username: user.userName }), // Send the username
+      const response = await ServerApi.put(`/form/${formId}/like`, {
+        username: user.userName,
       });
 
-      const result = await response.json();
+      const result = response.data;
 
       if (result.success) {
-        console.log(isLiked ? "❌ Like removed:" : "👍 Like added:", result.data);
-
-        // Update the likeCount directly in the modal or the selected form data
         setFormData((prevData) =>
           prevData.map((form) =>
             form._id === formId
@@ -132,18 +121,16 @@ const DisplayBox = () => {
           )
         );
 
-        // Update likedPosts based on whether it's being liked or unliked
         if (isLiked) {
           setLikedPosts((prev) => {
             const newLikedPosts = new Set(prev);
-            newLikedPosts.delete(formId); // Remove the like
+            newLikedPosts.delete(formId);
             return newLikedPosts;
           });
         } else {
-          setLikedPosts((prev) => new Set([...prev, formId])); // Add the like
+          setLikedPosts((prev) => new Set([...prev, formId]));
         }
 
-        // If modal is open, you need to update the modal state as well:
         if (openModalPost && openModalPost._id === formId) {
           setOpenModalPost((prevPost) => ({
             ...prevPost,
@@ -151,13 +138,12 @@ const DisplayBox = () => {
           }));
         }
       } else {
-        console.error("❌ Error updating like:", result.message);
+        console.error("Error updating like:", result.message);
       }
     } catch (error) {
-      console.error("❌ Error updating like:", error);
+      console.error("Error updating like:", error);
     }
   };
-
 
 
   // Open Modal with post data

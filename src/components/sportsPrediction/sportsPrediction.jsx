@@ -5,6 +5,7 @@ import { getFixturesForNext14Days } from '../../Services/FootballService.jsx'
 import OutcomePoll from "../PollPrediction/OutcomePoll.jsx";
 import ScorePrediction from '../PollPrediction/ScorePrediction.jsx'
 import MatchPrediction from '../PollPrediction/MatchPrediction.jsx';
+import Skeleton from "../../utils/skeleton.jsx";
 
 export default function SportsPredictions({ refreshBalance, refreshKey }) {
 
@@ -148,7 +149,7 @@ export default function SportsPredictions({ refreshBalance, refreshKey }) {
 
 
     if (loading) {
-        return 'Loading'
+        return <Skeleton />
     }
 
     const paginatedFixtures = fixtures.data?.slice(startIndex, startIndex + ITEMS_PER_PAGE);
@@ -163,14 +164,13 @@ export default function SportsPredictions({ refreshBalance, refreshKey }) {
             </div> */}
             <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6 py-4">
                 {
-                    !loading ?
+                    !loading &&
 
-                        paginatedFixtures.map((match, index) => (
-                            <PredictionCard key={index} match={match} index={index} refreshBalance={refreshBalance} refreshKey={refreshKey} />
-                        ))
+                    paginatedFixtures.map((match, index) => (
+                        <PredictionCard key={index} match={match} index={index} refreshBalance={refreshBalance} refreshKey={refreshKey} />
+                    ))
 
-                        :
-                        <p className="text-center">Loading fixtures...</p>
+
                 }
             </div>
 
