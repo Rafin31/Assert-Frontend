@@ -1,6 +1,6 @@
 import React, { useState } from "react";
 
-export const PollCard = ({ question, yesVotes: initialYesVotes, noVotes: initialNoVotes, realm, category, subcategory }) => {
+export const PollCard = ({ question, yesVotes: initialYesVotes, noVotes: initialNoVotes, realm, category, subcategory, disabled }) => {
     const [yesVotes, setYesVotes] = useState(initialYesVotes);
     const [noVotes, setNoVotes] = useState(initialNoVotes);
   
@@ -31,15 +31,17 @@ export const PollCard = ({ question, yesVotes: initialYesVotes, noVotes: initial
           
           <div className="flex justify-center gap-2 mt-4 mb-4">
             <button
-              className="bg-[#afd89e] text-custom py-2 px-4 rounded-md font-semibold hover:bg-[#9ec28e] cursor-pointer"
+              className="bg-[#afd89e] text-custom py-2 px-4 rounded-md font-semibold hover:bg-[#9ec28e] cursor-pointer disabled:opacity-50"
               onClick={handleYesClick}
+              disabled={disabled}
               aria-label="Vote Yes"
             >
               Yes
             </button>
             <button
-              className="bg-[#ff7b7a] text-custom py-2 px-4 rounded-md font-semibold hover:bg-[#e66f6e] cursor-pointer"
+              className="bg-[#ff7b7a] text-custom py-2 px-4 rounded-md font-semibold hover:bg-[#e66f6e] cursor-pointer disabled:opacity-50"
               onClick={handleNoClick}
+              disabled={disabled}
               aria-label="Vote No"
             >
               No
@@ -52,8 +54,42 @@ export const PollCard = ({ question, yesVotes: initialYesVotes, noVotes: initial
               style={{ width: `${progressBarPercentage}%` }}
             ></div>
           </div>
-  
-          <p className="text-gray-500 text-xs">Total Votes: {totalVotes}</p>
+          <p className="text-gray-500 text-sm flex flex-wrap justify-center">Total Votes: {totalVotes}</p>
+          <div className="flex flex-row justify-between">
+
+
+            {/* Open the modal using document.getElementById('ID').showModal() method */}
+            <div className="link link-primary" onClick={()=>document.getElementById('my_modal_5').showModal()}>Votes</div>
+            <dialog id="my_modal_5" className="modal modal-bottom sm:modal-middle">
+              <div className="modal-box">
+                <h3 className="font-bold text-lg">Votes History</h3>
+                <p className="py-4">Press ESC key or click the button below to close</p>
+                <div className="modal-action">
+                  <form method="dialog">
+                    {/* if there is a button in form, it will close the modal */}
+                    <button className="btn">Close</button>
+                  </form>
+                </div>
+              </div>
+            </dialog>
+
+
+            {/* Open the modal using document.getElementById('ID').showModal() method */}
+            <div className="link link-primary" onClick={()=>document.getElementById('my_modal_6').showModal()}>Rules</div>
+            <dialog id="my_modal_6" className="modal modal-bottom sm:modal-middle">
+              <div className="modal-box">
+                <h3 className="font-bold text-lg">Rule</h3>
+                <p className="py-4">Press ESC key or click the button below to close</p>
+                <div className="modal-action">
+                  <form method="dialog">
+                    {/* if there is a button in form, it will close the modal */}
+                    <button className="btn">Close</button>
+                  </form>
+                </div>
+              </div>
+            </dialog>
+          </div>
+
         </div>
       </div>
     );
