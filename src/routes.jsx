@@ -14,7 +14,7 @@ import TokenWallet from '../src/Page/Dashboard/TokenWallet';
 import CreateIssue from '../src/Page/Dashboard/CreateIssue';
 import PrivateRoute from './Services/privateAuth';
 import { useState } from 'react';
-import { PoliticsPage } from './Page/Politics/PoliticsPage';
+import PoliticsPage from './Page/Politics/PoliticsPage';
 import { TechnologyPage } from './Page/Technology/TechnologyPage';
 
 
