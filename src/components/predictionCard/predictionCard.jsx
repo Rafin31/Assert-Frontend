@@ -121,8 +121,8 @@ export default function PredictionCard({ match, index, refreshBalance }) {
 
         <div className="flex items-center flex-wrap mt-4 justify-center xl:justify-between">
           {userVote ? (
-            <div className="badge badge-sm badge-success mx-auto mt-4 p-5 lg:badge-lg">
-              ✅ You voted for <span className="font-bold">{userVote}</span> in this match.
+            <div className="badge badge-sm text-center badge-success mx-auto mt-4 p-8 lg:badge-lg">
+              <p>You voted for <span className="font-bold">{userVote}</span> in this match.</p>
             </div>
           ) : (
             <>

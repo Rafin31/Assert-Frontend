@@ -10,7 +10,7 @@ export default function LandingPage({ refreshBalance, refreshKey }) {
     return (
         <div className=''>
             <Hero />
-            <div className="predictionCards max-w-[1450px] mx-auto my-[50px] max-xl:px-5">
+            <div className="predictionCards max-w-[1450px] my-[50px] mx-auto px-10">
                 <SportsPredictions refreshBalance={refreshBalance} refreshKey={refreshKey} />
             </div>
         </div>

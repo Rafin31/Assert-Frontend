@@ -56,54 +56,7 @@ export default function SportsPredictions({ refreshBalance, refreshKey }) {
 
 
     const matchesData = [
-        {
-            league: "La Liga",
-            date: "2025-02-27",
-            time: "20:00",
-            teams: ["Real Madrid", "Barcelona"],
-            category: "Football",
-            subcategory: "La Liga",
-        },
-        {
-            league: "Premier League",
-            date: "2025-03-16",
-            time: "01:30",
-            teams: ["Manchester United", "Chelsea"],
-            category: "Football",
-            subcategory: "Premier League",
-        },
-        {
-            league: "Ligue 1",
-            date: "2025-04-03",
-            time: "19:45",
-            teams: ["Bayern Munich", "PSG"],
-            category: "Football",
-            subcategory: "Ligue 1",
-        },
-        {
-            league: "Serie A",
-            date: "2025-04-05",
-            time: "21:00",
-            teams: ["Juventus", "AC Milan"],
-            category: "Football",
-            subcategory: "Serie A",
-        },
-        {
-            league: "Premier League",
-            date: "2025-03-16",
-            time: "05:30",
-            teams: ["Man City", "Liverpool"],
-            category: "Football",
-            subcategory: "Premier League",
-        },
-        {
-            league: "Premier League",
-            date: "2025-03-11",
-            time: "18:00",
-            teams: ["Arsenal", "Tottenham"],
-            category: "Football",
-            subcategory: "Premier League",
-        },
+
         {
             league: "NBA",
             date: "2025-03-16",
@@ -201,12 +154,13 @@ export default function SportsPredictions({ refreshBalance, refreshKey }) {
             <OutcomePoll data={pollData} />
 
 
-            <div className="">
-                <h1 className="text-center text-3xl font-bold my-8">Upcoming Match Predictions</h1>
+            <div className="mt-15">
+                <h1 className="text-center text-3xl font-bold my-15">Predict Scores</h1>
                 <ScorePrediction data={matchesData} /> {/* Pass the matchesData to the ScorePrediction component */}
             </div>
 
-            <div className="flex flex-wrap gap-5 p-5 justify-center items-center">
+            <h1 className="text-center text-3xl font-bold my-15">Upcoming Match Predictions</h1>
+            <div className="flex flex-wrap justify-center items-center gap-10 md:justify-center">
                 {matchesData.map((match, index) => (
                     <MatchPrediction key={index} matchPredictionData={match} />
                 ))}

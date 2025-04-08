@@ -18,7 +18,7 @@ const OutcomePoll = ({ data }) => {
   };
 
   return (
-    <div className="flex flex-wrap justify-between items-center md:justify-center md:gap-4">
+    <div className="flex flex-wrap justify-center items-center mt-15 gap-10 md:justify-evenly md:gap-4 lg:justify-between">
       {data.map((poll, index) => {
         // Calculate the total votes for this poll from state and initial votes
         const totalVotes = poll.outcome.reduce((total, team) => {
@@ -27,13 +27,13 @@ const OutcomePoll = ({ data }) => {
         }, 0);
 
         return (
-          <div key={index} className="bg-base-100 rounded-xl shadow-lg p-5 w-full sm:w-[400px]">
+          <div key={index} className="rounded-xl shadow-lg p-5 min-h-[500px] w-full lg:w-[30%]">
 
             <div className="text-sm text-gray-500 mb-2">{poll.realm} - {poll.category}</div>
             <div className="text-sm text-gray-500 mb-2">{poll.subcategory}</div>
-            <div className="text-2xl font-bold mb-4">{poll.title}</div>
+            <div className="text-lg font-bold mb-4">{poll.title}</div>
             <div className="flex flex-col gap-2">
-              <div className="flex justify-between font-bold text-lg text-base">
+              <div className="flex justify-between font-bold text-base">
                 <span className="flex-2">Outcome</span>
                 <span className="flex-1">Votes</span>
                 <span className="flex-1">Chance</span>
@@ -46,10 +46,10 @@ const OutcomePoll = ({ data }) => {
 
                 return (
                   <div key={i} className="flex justify-between items-center">
-                    <span className="flex-2 font-bold">{team.name}</span>
-                    <span className="flex-1 text-center font-semibold">{teamVotes}</span>
-                    <span className="flex-1 text-center">{chancePercent.toFixed(2)}%</span>
-                    <span className="flex-1 flex gap-2 justify-end">
+                    <span className="flex-2 font-bold text-sm">{team.name}</span>
+                    <span className="flex-1 text-center font-semibold text-sm">{teamVotes}</span>
+                    <span className="flex-1 text-center text-sm">{chancePercent.toFixed(2)}%</span>
+                    <span className="flex-1 flex gap-2 justify-end text-sm">
                       <button
                         onClick={() => handleVote(poll.title, team.name)}
                         className="px-4 py-2 text-sm rounded-md bg-[#afd89e] text-custom font-semibold hover:bg-[#9ec28e]"

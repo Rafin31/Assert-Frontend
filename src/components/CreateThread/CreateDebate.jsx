@@ -1,70 +1,78 @@
-import React, { useState } from 'react';
-import { useAuth } from "../../Context/AuthContext"; // Adjust path as needed
-import ServerApi from '../../api/ServerAPI'; // Axios instance
+import { useState } from "react";
+import { useAuth } from "../../Context/AuthContext";
+import { Slide, toast } from "react-toastify";
+import { submitDebate } from "../../Services/createService.jsx";
+import { useNavigate } from "react-router-dom";
 
-const CreateDebate = () => {
-  const { user } = useAuth(); // Get user from AuthContext
 
-  const [realm, setRealm] = useState('');
-  const [question, setQuestion] = useState('');
-  const [moreDetails, setMoreDetails] = useState('');
+export default function CreateDebate() {
+  const { user } = useAuth();
+  const [realm, setRealm] = useState("");
+  const [question, setQuestion] = useState("");
+  const [moreDetails, setMoreDetails] = useState("");
   const [submittedQuery, setSubmittedQuery] = useState(null);
-  const [isModalOpen, setIsModalOpen] = useState(false);
+  const [loading, setLoading] = useState(false);
+  const [showPreview, setShowPreview] = useState(false);
+  const modalId = "debate_modal";
 
-  const handleSubmit = async (e) => {
+  const navigate = useNavigate()
+
+  const openConfirmationModal = (e) => {
     e.preventDefault();
 
-    if (!realm || !question) {
-      alert('Please fill out all required fields.');
+    if (!user) {
+      toast.error("You must be logged in to create debates!", {
+        transition: Slide,
+      });
       return;
     }
 
-    const formData = {
-      username: user.userName,
-      realm,
-      question,
-      moreDetails,
-      type: "debate",
-      status: "approved",
-    };
-
-    try {
-      const response = await ServerApi.post('/form/submit', formData); // Axios handles baseURL
-      const result = response.data;
-
-      if (result.success) {
-        setSubmittedQuery(result.data);
-        setIsModalOpen(true);
-      } else {
-        alert('There was an error submitting the query.');
-      }
-    } catch (error) {
-      console.error('Error:', error);
-      alert('An error occurred. Please try again later.');
+    if (!realm || !question) {
+      toast.error("Realm and Question are required!");
+      return;
     }
 
-    // Clear form
-    setRealm('');
-    setQuestion('');
-    setMoreDetails('');
+    document.getElementById(modalId).showModal();
   };
 
-  const closeModal = () => {
-    setIsModalOpen(false);
-  };
+  const handleSubmit = async () => {
+    setLoading(true);
 
+    try {
+      const formData = {
+        username: user.userName,
+        realm,
+        question,
+        moreDetails,
+        type: "debate",
+        status: "approved",
+      };
+
+      const res = await submitDebate(formData);
+      setSubmittedQuery(res.data);
+      setShowPreview(true);
+      setRealm("");
+      setQuestion("");
+      setMoreDetails("");
+      document.getElementById(modalId).close();
+      toast.success('Debate posted successfully')
+      navigate('/thread')
+    } catch (err) {
+      toast.error(err.response?.data?.message || "Submission failed!");
+    } finally {
+      setLoading(false);
+    }
+  };
 
   return (
-    <div className="flex flex-col items-center bg-gray-100 py-10">
+    <div className="flex flex-col items-center py-10 bg-gray-100">
       <div className="bg-white p-8 rounded-lg shadow-lg max-w-lg w-full">
         <h1 className="text-2xl font-semibold mb-6">Spark a Debate</h1>
-        <form onSubmit={handleSubmit} className="space-y-6">
-          {/* Realm Selection */}
+        <form onSubmit={openConfirmationModal} className="space-y-6">
           <div>
-            <label htmlFor="realm" className="block text-sm text-gray-700">Choose a Realm:</label>
+            <label htmlFor="realm" className="block text-sm">Choose a Realm:</label>
             <select
               id="realm"
-              name="realm"
               value={realm}
               onChange={(e) => setRealm(e.target.value)}
               className="w-full p-3 border border-gray-300 rounded-md"
@@ -78,58 +86,71 @@ const CreateDebate = () => {
             </select>
           </div>
 
-          {/* Question Input */}
           <div>
-            <label htmlFor="question" className="block text-sm text-gray-700">Your question:</label>
+            <label htmlFor="question" className="block text-sm">Your Question:</label>
             <textarea
               id="question"
-              name="question"
               value={question}
               onChange={(e) => setQuestion(e.target.value)}
-              rows="3"
-              placeholder="Type your question here..."
               className="w-full p-3 border border-gray-300 rounded-md"
+              rows="3"
               required
-            ></textarea>
+            />
           </div>
 
-          {/* More Details Input */}
           <div>
-            <label htmlFor="moreDetails" className="block text-sm text-gray-700">More Details (Optional):</label>
+            <label htmlFor="moreDetails" className="block text-sm">More Details (Optional):</label>
             <textarea
               id="moreDetails"
-              name="moreDetails"
               value={moreDetails}
               onChange={(e) => setMoreDetails(e.target.value)}
-              rows="4"
-              placeholder="Provide any additional context or details..."
               className="w-full p-3 border border-gray-300 rounded-md"
-            ></textarea>
+              rows="4"
+            />
           </div>
 
-          <button type="submit" className="w-full p-3 bg-[#f17575] text-white rounded-md hover:bg-[#d96969] cursor-pointer">
+          <button
+            type="submit"
+            className="w-full p-3 bg-[#f17575] text-white rounded-md hover:bg-[#d96969]"
+          >
             Submit
           </button>
         </form>
       </div>
 
-      {/* Modal for Submitted Query */}
-      {isModalOpen && (
-        <div className="fixed inset-0 bg-base-100 bg-opacity-50 flex justify-center items-center z-50">
-          <div className="bg-white p-8 rounded-lg shadow-lg max-w-lg w-full">
-            <h2 className="text-xl font-semibold mb-4 text-center">🔥 Let the debate begin! </h2>
-            <div className="p-4 border border-gray-300 rounded-md">
-              <p><strong>Realm:</strong> {submittedQuery.realm.charAt(0).toUpperCase() + submittedQuery.realm.slice(1)}</p>
-              <p><strong>Debate Topic:</strong> {submittedQuery.question}</p>
+      {/* ✅ Confirmation Modal */}
+      <dialog id={modalId} className="modal">
+        <div className="modal-box">
+          <h3 className="font-bold text-lg mb-4">Confirm Submission</h3>
+          <p className="mb-4 text-red-600">This will deduct 5 AT Tokens.</p>
+          <div className="modal-action">
+            <button className="btn btn-success" onClick={handleSubmit} disabled={loading}>
+              {loading ? "Submitting..." : "Confirm"}
+            </button>
+            <button
+              className="btn btn-outline"
+              onClick={() => document.getElementById(modalId).close()}
+            >
+              Cancel
+            </button>
+          </div>
+        </div>
+      </dialog>
+
+      {/* ✅ Preview Modal */}
+      {showPreview && submittedQuery && (
+        <div className="fixed inset-0 bg-black bg-opacity-50 flex justify-center items-center z-50">
+          <div className="bg-white p-6 rounded-lg shadow-lg w-full max-w-md">
+            <h2 className="text-xl font-semibold mb-4 text-center">🔥 Let the Debate Begin!</h2>
+            <div className="space-y-2">
+              <p><strong>Realm:</strong> {submittedQuery.realm}</p>
+              <p><strong>Question:</strong> {submittedQuery.question}</p>
               {submittedQuery.moreDetails && (
-                <p><strong>More Details:</strong> {submittedQuery.moreDetails}</p>
+                <p><strong>Details:</strong> {submittedQuery.moreDetails}</p>
               )}
             </div>
             <div className="mt-4 text-center">
-              <button
-                onClick={closeModal}
-                className="p-2 btn cursor-pointer"
-              >
+              <button onClick={() => setShowPreview(false)} className="btn">
                 Close
               </button>
             </div>
@@ -138,6 +159,4 @@ const CreateDebate = () => {
       )}
     </div>
   );
-};
-
-export default CreateDebate;
+}

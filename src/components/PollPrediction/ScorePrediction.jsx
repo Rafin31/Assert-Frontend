@@ -21,7 +21,7 @@ const ScorePrediction = ({ data }) => {
   }
 
   return (
-    <div className="flex flex-wrap gap-6 justify-center p-6">
+    <div className="flex flex-wrap justify-evenly gap-y-7 md:justify-center md:gap-10">
       {data.map((match, index) => (
         <MatchCardItem key={index} match={match} />
       ))}
@@ -77,12 +77,12 @@ const MatchCardItem = ({ match }) => {
   };
 
   return (
-    <div className="p-5 rounded-lg shadow-lg w-[100%] hover:scale-105 transition-all lg:w-[30%]">
+    <div className="p-5 rounded-lg shadow-lg w-[100%] hover:scale-105 transition-all lg:w-[40%]">
       <span className="text-left text-sm font-bold text-gray-600">{match.category} &gt; {match.subcategory}</span>
       <span className="block text-left text-xs font-semibold text-gray-700 mb-2 mt-2">
         Date: {match.date} | Time: {match.time} (AEDT)
       </span>
-      <h3 className="text-xl font-bold text-gray-700 mb-4 flex justify-center">{match.teams[0]} vs {match.teams[1]}</h3>
+      <p className="text-lg font-bold text-gray-700 mb-4 flex justify-center">{match.teams[0]} vs {match.teams[1]}</p>
 
       <div className="flex gap-4 mb-4 justify-center">
         <input

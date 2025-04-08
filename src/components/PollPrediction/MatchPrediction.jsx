@@ -68,8 +68,8 @@ const MatchPrediction = ({ matchPredictionData }) => {
   };
 
   return (
-    <div className="sm:w-100 p-1 hover:scale-105 transition-all gap-2" style={{ width: "400px" }}>
-      <div className="flex flex-col gap-2 justify-center p-5 w-full shadow-lg rounded-lg transition-transform duration-200 ease-in-out mx-auto">
+    <div className="p-1 hover:scale-105 transition-all gap-2 w-full md:w-[40%]">
+      <div className="min-h-[320px] flex flex-col gap-2 justify-center p-5 w-full shadow-lg rounded-lg transition-transform duration-200 ease-in-out mx-auto">
         <div>
           <span className="text-sm font-bold">
             {matchPredictionData.category} - {matchPredictionData.subcategory}
@@ -78,16 +78,15 @@ const MatchPrediction = ({ matchPredictionData }) => {
           <span className="text-xs pr-2 font-semibold">Date: {matchPredictionData.date}</span>
           <span className="text-xs font-semibold">Time: {matchPredictionData.time}</span>
 
-          
+
 
           {/* Team Selection */}
           <div className="mt-6 mb-2 flex justify-center items-center gap-4">
             <button
-              className={`px-3 py-2 border-2 rounded-md text-lg font-bold cursor-pointer transition-colors duration-200 ${
-                selectedTeam === matchPredictionData.teams[0]
-                  ? "bg-[#f08159] text-white border-none"
-                  : "text-[#34495e] border-[#bdc3c7]"
-              } ${isMatchStarted ? "opacity-50 cursor-not-allowed" : ""}`}
+              className={`px-3 py-2 border-2 rounded-md text-sm font-bold cursor-pointer transition-colors duration-200 ${selectedTeam === matchPredictionData.teams[0]
+                ? "bg-[#f08159] text-white border-none"
+                : "text-[#34495e] border-[#bdc3c7]"
+                } ${isMatchStarted ? "opacity-50 cursor-not-allowed" : ""}`}
               onClick={() => handleTeamSelect(matchPredictionData.teams[0])}
               disabled={isMatchStarted}
             >
@@ -95,11 +94,10 @@ const MatchPrediction = ({ matchPredictionData }) => {
             </button>
             <span>vs</span>
             <button
-              className={`px-3 py-2 border-2 rounded-md text-lg font-bold cursor-pointer transition-colors duration-200 ${
-                selectedTeam === matchPredictionData.teams[1]
-                  ? "bg-[#f08159] text-white border-none"
-                  : "text-[#34495e] border-[#bdc3c7]"
-              } ${isMatchStarted ? "opacity-50 cursor-not-allowed" : ""}`}
+              className={`px-3 py-2 border-2 rounded-md text-sm font-bold cursor-pointer transition-colors duration-200 ${selectedTeam === matchPredictionData.teams[1]
+                ? "bg-[#f08159] text-white border-none"
+                : "text-[#34495e] border-[#bdc3c7]"
+                } ${isMatchStarted ? "opacity-50 cursor-not-allowed" : ""}`}
               onClick={() => handleTeamSelect(matchPredictionData.teams[1])}
               disabled={isMatchStarted}
             >
@@ -110,27 +108,24 @@ const MatchPrediction = ({ matchPredictionData }) => {
           {/* Prediction Outcome */}
           <div className="mt-4 flex justify-center gap-4">
             <button
-              className={`px-3 py-2 rounded-md text-sm font-semibold cursor-pointer transition-all duration-200 ${
-                prediction === "Win" ? "bg-[#4CAF50] text-white scale-105" : "opacity-80"
-              } ${isMatchStarted ? "opacity-50 cursor-not-allowed" : ""}`}
+              className={`px-3 py-2 rounded-md text-sm font-semibold cursor-pointer transition-all duration-200 ${prediction === "Win" ? "bg-[#4CAF50] text-white scale-105" : "opacity-80"
+                } ${isMatchStarted ? "opacity-50 cursor-not-allowed" : ""}`}
               onClick={() => handlePredictionSelect("Win")}
               disabled={isMatchStarted}
             >
               Win
             </button>
             <button
-              className={`px-3 py-2 rounded-md text-sm font-semibold cursor-pointer transition-all duration-200 ${
-                prediction === "Draw" ? "bg-[#bdc3c7] text-white scale-105" : "opacity-80"
-              } ${isMatchStarted ? "opacity-50 cursor-not-allowed" : ""}`}
+              className={`px-3 py-2 rounded-md text-sm font-semibold cursor-pointer transition-all duration-200 ${prediction === "Draw" ? "bg-[#bdc3c7] text-white scale-105" : "opacity-80"
+                } ${isMatchStarted ? "opacity-50 cursor-not-allowed" : ""}`}
               onClick={() => handlePredictionSelect("Draw")}
               disabled={isMatchStarted}
             >
               Draw
             </button>
             <button
-              className={`px-3 py-2 rounded-md text-sm font-semibold cursor-pointer transition-all duration-200 ${
-                prediction === "Lose" ? "bg-[#e74c3c] text-white scale-105" : "opacity-80"
-              } ${isMatchStarted ? "opacity-50 cursor-not-allowed" : ""}`}
+              className={`px-3 py-2 rounded-md text-sm font-semibold cursor-pointer transition-all duration-200 ${prediction === "Lose" ? "bg-[#e74c3c] text-white scale-105" : "opacity-80"
+                } ${isMatchStarted ? "opacity-50 cursor-not-allowed" : ""}`}
               onClick={() => handlePredictionSelect("Lose")}
               disabled={isMatchStarted}
             >
@@ -140,9 +135,8 @@ const MatchPrediction = ({ matchPredictionData }) => {
 
           {/* Submit Button */}
           <button
-            className={`flex justify-center mt-3 w-full max-w-[300px] mx-auto px-4 py-2 bg-[#afd89e] text-base rounded-md text-sm font-semibold transition-colors duration-200 hover:bg-[#9ec28e] ${
-              isMatchStarted ? "opacity-50 cursor-not-allowed" : ""
-            }`}
+            className={`flex justify-center mt-3 w-full max-w-[300px] mx-auto px-4 py-2 bg-[#afd89e] text-base rounded-md text-sm font-semibold transition-colors duration-200 hover:bg-[#9ec28e] ${isMatchStarted ? "opacity-50 cursor-not-allowed" : ""
+              }`}
             onClick={handleSubmit}
             disabled={isMatchStarted}
           >
