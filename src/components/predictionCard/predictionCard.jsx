@@ -113,7 +113,7 @@ export default function PredictionCard({ match, index, refreshBalance }) {
     <div className="card w-full shadow-lg py-4">
       <div className="card-body">
         <h2 className="card-title text-lg font-bold">Who will win?</h2>
-        <p className="text-2xl font-semibold text-accent">{match?.name}</p>
+        <p className="text-xl font-semibold text-accent">{match?.name}</p>
         <p className="text-sm text-gray-500">{`${match?.league?.name}`}</p>
         <p className="text-sm text-gray-500">
           {dayjs(match?.starting_at).format("MMMM D, YYYY h:mm A")}
@@ -121,20 +121,20 @@ export default function PredictionCard({ match, index, refreshBalance }) {
 
         <div className="flex items-center flex-wrap mt-4 justify-center xl:justify-between">
           {userVote ? (
-            <div className="badge badge-lg badge-success mx-auto mt-4 p-5">
-              ✅ You voted for <span className="text-primary font-bold">{userVote}</span> in this match.
+            <div className="badge badge-sm badge-success mx-auto mt-4 p-5 lg:badge-lg">
+              ✅ You voted for <span className="font-bold">{userVote}</span> in this match.
             </div>
           ) : (
             <>
               <button
-                className="btn btn-lg btn-success m-2 w-[40%]"
+                className="btn btn-sm btn-success m-2 w-[40%] lg:btn-md"
                 onClick={() => openVoteModal(teamA)}
                 disabled={isMatchStarted}
               >
                 {teamA}
               </button>
               <button
-                className="btn btn-lg btn-error w-[40%]"
+                className="btn btn-sm btn-error w-[40%] lg:btn-md"
                 onClick={() => openVoteModal(teamB)}
                 disabled={isMatchStarted}
               >

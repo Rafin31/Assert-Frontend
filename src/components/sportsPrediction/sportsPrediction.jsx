@@ -197,11 +197,11 @@ export default function SportsPredictions({ refreshBalance, refreshKey }) {
                 </button>
             </div>
 
-            <div className="flex flex-col items-center bg-base-100">
-                <OutcomePoll data={pollData} />
-            </div>
 
-            <div>
+            <OutcomePoll data={pollData} />
+
+
+            <div className="">
                 <h1 className="text-center text-3xl font-bold my-8">Upcoming Match Predictions</h1>
                 <ScorePrediction data={matchesData} /> {/* Pass the matchesData to the ScorePrediction component */}
             </div>

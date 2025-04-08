@@ -144,7 +144,7 @@ export default function Header({ refreshBalance, refreshKey }) {
                                     d="M4 6h16M4 12h16M4 18h16" />
                             </svg>
                         </label>
-                        <ul tabIndex={0} className="menu menu-sm dropdown-content mt-3 z-[1] p-2 shadow bg-base-100 rounded-box w-52">
+                        <ul tabIndex={0} className="menu menu-md dropdown-content mt-3 z-[1] p-2 shadow bg-base-100 rounded-box w-52">
                             {navLinks.map((link, index) => (
                                 <li key={index}>
                                     <Link to={link.path}>{link.name}</Link>
@@ -251,7 +251,7 @@ export default function Header({ refreshBalance, refreshKey }) {
 
                                             {/* Claim Daily Reward Button */}
                                             <div className="lg:hidden my-2 flex justify-center items-center">
-                                                {!isClaimable ? (
+                                                {isClaimable ? (
                                                     <li className="w-full">
                                                         <button
                                                             className="btn btn-sm text-sm btn-warning"
