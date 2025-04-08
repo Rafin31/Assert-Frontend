@@ -46,42 +46,42 @@ const DisplayBox = () => {
       })
       .catch((error) => console.error("Error fetching form data:", error));
   }, [user, filter, selectedRealm]);
-  
+
 
   // Handle reply submission
   const addReply = async (formId) => {
     const text = replyText[formId]?.trim();
     if (!text) return;
-  
+
     if (!user) {
       navigate("/login");
       return;
     }
-  
+
     try {
       const response = await ServerApi.put(`/form/${formId}/reply`, {
         reply: text,
         username: user.userName,
       });
-  
+
       const result = response.data;
-  
+
       if (result.success) {
         console.log("✅ Reply added:", result.data);
-  
+
         setFormData((prevData) =>
           prevData.map((form) =>
             form._id === formId ? { ...form, replies: result.data.replies } : form
           )
         );
-  
+
         if (openModalPost && openModalPost._id === formId) {
           setOpenModalPost((prevPost) => ({
             ...prevPost,
             replies: result.data.replies,
           }));
         }
-  
+
         setReplyText((prev) => ({ ...prev, [formId]: "" }));
       } else {
         console.error("❌ Error adding reply:", result.message);
@@ -92,10 +92,10 @@ const DisplayBox = () => {
       // Optionally show a toast here too
     }
   };
-  
 
 
-   // Handle like button click
+
+  // Handle like button click
   // Handle like toggle
   const handleLike = async (formId) => {
     if (!user) {
@@ -144,7 +144,7 @@ const DisplayBox = () => {
       console.error("Error updating like:", error);
     }
   };
-  
+
 
   // Open Modal with post data
   const openModal = (post) => {
@@ -158,9 +158,9 @@ const DisplayBox = () => {
 
 
   return (
-    
-    
-    
+
+
+
     <div className="mx-auto rounded-lg overflow-hidden bg-base-50">
 
       {/* Filter Section */}
@@ -328,15 +328,15 @@ const DisplayBox = () => {
             <p className="text-gray-600 mb-2">{openModalPost.realm.charAt(0).toUpperCase() + openModalPost.realm.slice(1)} - {openModalPost.type.charAt(0).toUpperCase() + openModalPost.type.slice(1)}</p>
             {/* Post By */}
             <div className="text-sm text-gray-400 mt-2 mr-2">
-            Posted by: <strong>{openModalPost.username}</strong> <span> - </span>
-            {new Date(openModalPost.timestamp).toLocaleTimeString([], {
+              Posted by: <strong>{openModalPost.username}</strong> <span> - </span>
+              {new Date(openModalPost.timestamp).toLocaleTimeString([], {
                 weekday: "long",    // e.g., "Monday"
                 year: "numeric",    // e.g., "2025"
                 month: "long",      // e.g., "April"
                 day: "numeric",     // e.g., "1"
                 hour: "2-digit",
                 minute: "2-digit",
-            })}
+              })}
             </div>
             <h3 className="text-xl font-semibold mb-2 mt-3">{openModalPost.question}</h3>
             <p className="text-lg font-semibold mb-2 mt-3">{openModalPost.moreDetails}</p>
@@ -397,8 +397,8 @@ const DisplayBox = () => {
                 />
               </svg>
             </button>
-			
-			{/* Replies Section */}
+
+            {/* Replies Section */}
             <div className="mt-4">
               <h4 className="font-semibold mb-2">Replies</h4>
               {openModalPost.replies?.length > 0 ? (

@@ -20,12 +20,12 @@ const CreateDebate = () => {
     }
 
     const formData = {
-      username: user.userName,       // logged-in username
+      username: user.userName,
       realm,
       question,
       moreDetails,
-      type: "debate",               // Explicitly set type
-      status: "approved",           // Set default status
+      type: "debate",
+      status: "approved",
     };
 
     try {

@@ -77,7 +77,7 @@ const MatchCardItem = ({ match }) => {
   };
 
   return (
-    <div className="bg-base-100 p-6 rounded-lg shadow-lg sm:w-80 hover:scale-105 transition-all" style={{ width: '400px' }}>
+    <div className="p-5 rounded-lg shadow-lg w-[100%] hover:scale-105 transition-all lg:w-[30%]">
       <span className="text-left text-sm font-bold text-gray-600">{match.category} &gt; {match.subcategory}</span>
       <span className="block text-left text-xs font-semibold text-gray-700 mb-2 mt-2">
         Date: {match.date} | Time: {match.time} (AEDT)

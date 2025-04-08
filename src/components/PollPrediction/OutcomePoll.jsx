@@ -18,7 +18,7 @@ const OutcomePoll = ({ data }) => {
   };
 
   return (
-    <div className="flex flex-wrap gap-5 justify-center p-5">
+    <div className="flex flex-wrap justify-between items-center md:justify-center md:gap-4">
       {data.map((poll, index) => {
         // Calculate the total votes for this poll from state and initial votes
         const totalVotes = poll.outcome.reduce((total, team) => {
@@ -28,7 +28,7 @@ const OutcomePoll = ({ data }) => {
 
         return (
           <div key={index} className="bg-base-100 rounded-xl shadow-lg p-5 w-full sm:w-[400px]">
-            
+
             <div className="text-sm text-gray-500 mb-2">{poll.realm} - {poll.category}</div>
             <div className="text-sm text-gray-500 mb-2">{poll.subcategory}</div>
             <div className="text-2xl font-bold mb-4">{poll.title}</div>
