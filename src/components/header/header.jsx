@@ -58,7 +58,7 @@ export default function Header({ refreshBalance, refreshKey }) {
                 const response = await userData(user.id);
                 if (!isMounted) return;
 
-                setTokenBalance(response.data.user.totalToken);
+                setTokenBalance(response.data.user.tokenBalance);
 
                 // Check last claim time
                 if (response.data.user?.lastLoginReward) {

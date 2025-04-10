@@ -4,7 +4,7 @@ import React from "react";
 const PostCard = ({ post, onLike, onOpenModal, liked }) => {
     return (
         <div
-            className="p-4 mb-4 shadow-md rounded-lg bg-white hover:shadow-lg cursor-pointer"
+            className="p-4 mb-4 shadow-sm rounded-lg bg-gray-50 hover:bg-gray-200 cursor-pointer"
             onClick={onOpenModal}
         >
             <p className="text-gray-600 mb-2">

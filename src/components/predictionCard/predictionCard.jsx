@@ -16,7 +16,6 @@ export default function PredictionCard({ match, index, refreshBalance }) {
   const [userVote, setUserVote] = useState(null);
   const [isMatchStarted, setIsMatchStarted] = useState(false);
 
-  // Countdown State
   const [days, setDays] = useState(0);
   const [hours, setHours] = useState(0);
   const [minutes, setMinutes] = useState(0);
@@ -28,7 +27,7 @@ export default function PredictionCard({ match, index, refreshBalance }) {
   const matchStartTime = dayjs(match?.starting_at);
 
   useEffect(() => {
-    setUserVote(null); // Reset userVote when match changes
+    setUserVote(null);
     const fetchUserVotes = async () => {
       if (!user) return;
       try {
@@ -48,16 +47,15 @@ export default function PredictionCard({ match, index, refreshBalance }) {
     const updateTimer = () => {
       const now = dayjs();
       const timeDiff = matchStartTime.diff(now);
+      const matchHasStarted = timeDiff <= 0;
+      setIsMatchStarted(matchHasStarted);
 
-      if (timeDiff <= 0) {
-        setIsMatchStarted(true);
-      } else {
+      if (!matchHasStarted) {
         const durationTime = dayjs.duration(timeDiff);
         setDays(durationTime.days());
         setHours(durationTime.hours());
         setMinutes(durationTime.minutes());
         setSeconds(durationTime.seconds());
-        setIsMatchStarted(false);
       }
     };
 
@@ -112,12 +110,14 @@ export default function PredictionCard({ match, index, refreshBalance }) {
   return (
     <div className="card w-full shadow-lg py-4">
       <div className="card-body">
-        <h2 className="card-title text-lg font-bold">Who will win?</h2>
-        <p className="text-xl font-semibold text-accent">{match?.name}</p>
-        <p className="text-sm text-gray-500">{`${match?.league?.name}`}</p>
-        <p className="text-sm text-gray-500">
-          {dayjs(match?.starting_at).format("MMMM D, YYYY h:mm A")}
-        </p>
+        <div className="top">
+          <h2 className="card-title text-lg font-bold">Who will win?</h2>
+          <p className="text-xl font-semibold text-accent">{match?.name}</p>
+          <p className="text-sm text-gray-500">{`${match?.league?.name}`}</p>
+          <p className="text-sm text-gray-500">
+            {dayjs(matchStartTime).format("MMMM D, YYYY h:mm A")}
+          </p>
+        </div>
 
         <div className="flex items-center flex-wrap mt-4 justify-center xl:justify-between">
           {userVote ? (
@@ -125,18 +125,16 @@ export default function PredictionCard({ match, index, refreshBalance }) {
               <p>You voted for <span className="font-bold">{userVote}</span> in this match.</p>
             </div>
           ) : (
-            <>
+            !isMatchStarted && <>
               <button
                 className="btn btn-sm btn-success m-2 w-[40%] lg:btn-md"
                 onClick={() => openVoteModal(teamA)}
-                disabled={isMatchStarted}
               >
                 {teamA}
               </button>
               <button
                 className="btn btn-sm btn-error w-[40%] lg:btn-md"
                 onClick={() => openVoteModal(teamB)}
-                disabled={isMatchStarted}
               >
                 {teamB}
               </button>
@@ -144,11 +142,10 @@ export default function PredictionCard({ match, index, refreshBalance }) {
           )}
         </div>
 
-        {/* Countdown Timer */}
+        {/* Countdown or Match Status */}
         <div className="flex justify-center gap-1 mt-2 text-base font-bold">
-          {isMatchStarted ? (
-            <div className="text-red-500 text-lg font-bold">Match Started</div>
-          ) : (
+          {!isMatchStarted ? (
+            // Countdown
             <>
               <div className="border border-gray-600 px-2 py-2 rounded-md text-center">
                 <span className="text-sm">{days}</span>
@@ -167,9 +164,22 @@ export default function PredictionCard({ match, index, refreshBalance }) {
                 <div className="text-xs">Seconds</div>
               </div>
             </>
+          ) : (
+            // Match started or result published
+            <div
+              className={`text-lg font-bold ${dayjs().isAfter(matchStartTime.add(3, "hour"))
+                ? "text-green-600"
+                : "text-red-500"
+                }`}
+            >
+              {dayjs().isAfter(matchStartTime.add(3, "hour"))
+                ? "Result Published"
+                : "Match Started"}
+            </div>
           )}
         </div>
 
+        {/* Vote Modal */}
         <dialog id={modalId} className="modal">
           <div className="modal-box">
             <h3 className="font-bold text-xl">Confirm Your Vote</h3>

@@ -1,10 +1,15 @@
-// DisplayBox.jsx
-import { useEffect, useState } from "react";
+// 🛠️ Updated DisplayBox.jsx with working dropdown toggle and close on selection
+import { useEffect, useState, useRef } from "react";
 import { useAuth } from "../../Context/AuthContext";
 import { useNavigate } from "react-router-dom";
-import { getAllApproved, toggleLike, addReply } from "../../Services/postService.jsx"; // New service
-import PostCard from "../../utils/postCard.jsx"; // Optional: split post UI into a separate component
-import PostModal from "../../utils/postModal.jsx"; // Optional: modal component for readability
+import {
+  getAllApproved,
+  toggleLike,
+  addReply,
+} from "../../Services/postService.jsx";
+import PostCard from "../../utils/postCard.jsx";
+import PostModal from "../../utils/postModal.jsx";
+import dayjs from "dayjs";
 
 const DisplayBox = () => {
   const { user } = useAuth();
@@ -16,8 +21,28 @@ const DisplayBox = () => {
   const [openModalPost, setOpenModalPost] = useState(null);
   const [filter, setFilter] = useState("all");
   const [selectedRealm, setSelectedRealm] = useState("all");
+  const [searchTerm, setSearchTerm] = useState("");
+  const [dateFilter, setDateFilter] = useState("recent");
+  const [sortOption, setSortOption] = useState("newest");
+  const [showDropdown, setShowDropdown] = useState(false);
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState(null);
+  const [openFilter, setOpenFilter] = useState(false);
+
+
+  const dropdownRef = useRef(null);
+
+
+
+  useEffect(() => {
+    const handleClickOutside = (event) => {
+      if (dropdownRef.current && !dropdownRef.current.contains(event.target)) {
+        setShowDropdown(false);
+      }
+    };
+    document.addEventListener("mousedown", handleClickOutside);
+    return () => document.removeEventListener("mousedown", handleClickOutside);
+  }, []);
 
   useEffect(() => {
     const fetchData = async () => {
@@ -28,17 +53,36 @@ const DisplayBox = () => {
         const result = await getAllApproved();
         if (result.success) {
           const filtered = result.data.filter((form) => {
-            const isTypeMatch =
+            const matchesType =
               filter === "all" || form.type.toLowerCase() === filter.toLowerCase();
-            const isRealmMatch =
-              selectedRealm === "all" || form.realm.toLowerCase() === selectedRealm.toLowerCase();
-            return isTypeMatch && isRealmMatch;
+            const matchesRealm =
+              selectedRealm === "all" ||
+              form.realm.toLowerCase() === selectedRealm.toLowerCase();
+            const matchesSearch =
+              form.moreDetails?.toLowerCase().includes(searchTerm.toLowerCase()) ||
+              form.question?.toLowerCase().includes(searchTerm.toLowerCase());
+            const matchDate =
+              dateFilter === "recent" ||
+              (dateFilter === "past7" &&
+                dayjs(form.createdAt).isAfter(dayjs().subtract(7, "day"))) ||
+              (dateFilter === "past15" &&
+                dayjs(form.createdAt).isAfter(dayjs().subtract(15, "day")));
+
+            return matchesType && matchesRealm && matchesSearch && matchDate;
           });
 
-          setFormData(filtered);
+          const sorted = [...filtered].sort((a, b) => {
+            if (sortOption === "newest") {
+              return new Date(b.createdAt) - new Date(a.createdAt);
+            } else {
+              return b.likeCount - a.likeCount;
+            }
+          });
+
+          setFormData(sorted);
 
           const likedSet = new Set(
-            filtered
+            sorted
               .filter((form) => form.likedBy?.includes(user?.userName))
               .map((form) => form._id)
           );
@@ -55,7 +99,14 @@ const DisplayBox = () => {
     };
 
     fetchData();
-  }, [user, filter, selectedRealm]);
+  }, [user, filter, selectedRealm, searchTerm, dateFilter, sortOption]);
+
+  const resetFilters = () => {
+    setFilter("all");
+    setSelectedRealm("all");
+    setDateFilter("recent");
+    setSearchTerm("");
+  };
 
   const handleLike = async (formId) => {
     if (!user) return navigate("/login");
@@ -112,32 +163,75 @@ const DisplayBox = () => {
 
   return (
     <div className="mx-auto rounded-lg overflow-hidden bg-base-50 min-h-[100vh]">
-      <div className="flex flex-row mb-4">
-        {/* <div className="filter pr-2 border-2 border-[red]">
-          {['all', 'debate', 'query'].map((type) => (
-            <input
-              key={type}
-              className="btn btn-sm mr-1"
-              type="radio"
-              name="postType"
-              aria-label={type}
-              value={type}
-              checked={filter === type}
-              onChange={(e) => setFilter(e.target.value)}
-            />
-          ))}
-        </div> */}
+      <div className="sticky top-0 z-10 bg-base-50 p-2 flex flex-wrap justify-between items-center gap-2 ">
+        <input
+          type="text"
+          placeholder="Search posts..."
+          className="input input-bordered flex-grow max-w-xl"
+          value={searchTerm}
+          onChange={(e) => setSearchTerm(e.target.value)}
+        />
+        <div className="flex gap-2">
+          <button
+            className={`btn btn-sm ${sortOption === "newest" ? "btn-primary" : "btn-outline"}`}
+            onClick={() => setSortOption("newest")}
+          >
+            Newest First
+          </button>
+          <button
+            className={`btn btn-sm ${sortOption === "liked" ? "btn-primary" : "btn-outline"}`}
+            onClick={() => setSortOption("liked")}
+          >
+            Most Liked
+          </button>
 
-        <div className="filter">
-          {['all', 'sports', 'technology'].map((realm) => (
-            <button
-              key={realm}
-              className="btn btn-sm mr-1"
-              onClick={() => setSelectedRealm(realm)}
-            >
-              {realm.charAt(0).toUpperCase() + realm.slice(1)}
-            </button>
-          ))}
+
+          <div className="dropdown dropdown-end" onClick={() => setOpenFilter(!openFilter)}>
+            <label tabIndex={0} className="btn btn-sm">
+              Filters
+            </label>
+
+            {openFilter && (
+              <ul
+                tabIndex={0}
+                className="dropdown-content z-[999] menu p-4 shadow bg-base-100 rounded-box w-64"
+                onClick={(e) => {
+                  e.stopPropagation(); // Prevent parent click
+                  setOpenFilter(false); // Close dropdown on selection
+                }}
+              >
+                {/* Realm Filter */}
+                <li className="mb-1 font-bold text-sm">Realm</li>
+                {["all", "sports", "technology"].map((realm) => (
+                  <li key={realm}>
+                    <button
+                      className={`w-full text-left ${selectedRealm === realm ? "btn-active" : ""}`}
+                      onClick={() => setSelectedRealm(realm)}
+                    >
+                      {realm.charAt(0).toUpperCase() + realm.slice(1)}
+                    </button>
+                  </li>
+                ))}
+
+                <li className="mt-3 mb-1 font-bold text-sm">Type</li>
+                {["all", "debate", "query"].map((type) => (
+                  <li key={type}>
+                    <button
+                      className={`w-full text-left ${filter === type ? "btn-active" : ""}`}
+                      onClick={() => setFilter(type)}
+                    >
+                      {type.charAt(0).toUpperCase() + type.slice(1)}
+                    </button>
+                  </li>
+                ))}
+
+
+              </ul>
+            )}
+          </div>
+          {(filter !== "all" || selectedRealm !== "all" || dateFilter !== "recent" || searchTerm) && (
+            <button className="btn btn-warning btn-sm ml-2" onClick={resetFilters}>Reset Filters</button>
+          )}
         </div>
       </div>
 
@@ -145,7 +239,6 @@ const DisplayBox = () => {
         <div className="space-y-4">
           {[...Array(6)].map((_, idx) => (
             <div key={idx} className="skeleton h-32 w-full rounded-xl"></div>
-
           ))}
         </div>
       ) : error ? (
