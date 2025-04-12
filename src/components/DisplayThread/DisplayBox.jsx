@@ -173,13 +173,13 @@ const DisplayBox = () => {
         />
         <div className="flex gap-2">
           <button
-            className={`btn btn-sm ${sortOption === "newest" ? "btn-primary" : "btn-outline"}`}
+            className={`btn btn-sm ${sortOption === "newest" ? "btn-warning" : "btn-outline"}`}
             onClick={() => setSortOption("newest")}
           >
             Newest First
           </button>
           <button
-            className={`btn btn-sm ${sortOption === "liked" ? "btn-primary" : "btn-outline"}`}
+            className={`btn btn-sm ${sortOption === "liked" ? "btn-warning" : "btn-outline"}`}
             onClick={() => setSortOption("liked")}
           >
             Most Liked

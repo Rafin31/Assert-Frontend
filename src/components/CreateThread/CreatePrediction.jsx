@@ -164,15 +164,11 @@ const CreatePrediction = () => {
                     <div className="bg-white p-8 rounded-lg shadow-lg max-w-lg w-full">
                         <h2 className="text-xl font-semibold mb-4 text-center">Submitted Prediction for Review</h2>
                         <div className="flex justify-center">
-                            <PollCard
-                                question={submittedPrediction.question}
-                                yesVotes={0}
-                                noVotes={0}
-                                realm={submittedPrediction.realm.charAt(0).toUpperCase() + submittedPrediction.realm.slice(1)}
-                                category={submittedPrediction.category}
-                                subcategory={submittedPrediction.subcategory}
-                                disabled={true}
-                            />
+                            
+                            {/* Disable interaction with the PollCard */}
+                            <div className="pointer-events-none opacity-75">
+                                <PollCard data={submittedPrediction} />
+                            </div>
                         </div>
                         <div className="mt-4 text-center">
                             <button
