@@ -116,9 +116,9 @@ export default function SportsPredictions({ refreshBalance, refreshKey }) {
         <div className="mx-auto max-w-[1450px]">
             <div className="flex flex-wrap gap-4 items-center py-4 justify-between">
                 <div className="flex flex-wrap gap-2">
-                    <button className={`btn btn-sm ${filterRange === 'next7' ? 'btn-primary' : 'btn-outline'}`} onClick={() => setFilterRange('next7')}>Next 7 Days</button>
-                    <button className={`btn btn-sm ${filterRange === 'next30' ? 'btn-primary' : 'btn-outline'}`} onClick={() => setFilterRange('next30')}>Next 30 Days</button>
-                    <button className={`btn btn-sm ${filterRange === 'past7' ? 'btn-primary' : 'btn-outline'}`} onClick={() => setFilterRange('past7')}>Past 7 Days</button>
+                    <button className={`btn btn-sm ${filterRange === 'next7' ? 'btn-warning' : 'btn-outline'}`} onClick={() => setFilterRange('next7')}>Next 7 Days</button>
+                    <button className={`btn btn-sm ${filterRange === 'next30' ? 'btn-warning' : 'btn-outline'}`} onClick={() => setFilterRange('next30')}>Next 30 Days</button>
+                    <button className={`btn btn-sm ${filterRange === 'past7' ? 'btn-warning' : 'btn-outline'}`} onClick={() => setFilterRange('past7')}>Past 7 Days</button>
                 </div>
             </div>
 
