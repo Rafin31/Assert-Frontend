@@ -1,229 +1,241 @@
 import React, { useState } from "react";
-import OutcomePoll from "../PollPrediction/OutcomePoll"; // Import OutcomePoll component
+import OutcomePoll from "../PollPrediction/OutcomePoll";
+import { useAuth } from "../../Context/AuthContext";
+import ServerApi from "../../api/ServerAPI";
 
 const categories = {
-    Basketball: [],
-    Boxing: [],
-    Baseball: ["NBA", "MLB"],
-    Cricket: ["Big Bash", "IPL"],
-    Football: ["Premier League", "La Liga", "Ligue 1", "Serie A", "UCL", "UEL", "Others"],
-    Hockey: ["NHL"],
-    Tennis: [],
-    NFL: [],
-    UFC: []
+  Basketball: [],
+  Boxing: [],
+  Baseball: ["NBA", "MLB"],
+  Cricket: ["Big Bash", "IPL"],
+  Football: ["Premier League", "La Liga", "Ligue 1", "Serie A", "UCL", "UEL", "Others"],
+  Hockey: ["NHL"],
+  Tennis: [],
+  NFL: [],
+  UFC: []
 };
 
 const CreatePoll = () => {
-    const [realm, setRealm] = useState('');
-    const [category, setCategory] = useState('');
-    const [subcategory, setSubcategory] = useState('');
-    const [title, setTitle] = useState('');
-    const [outcome, setOutcome] = useState([{ name: '', votes: 0 }]); // Initial state with one option
-    const [userPollData, setUserPollData] = useState([]); // Ensure it's an array
-    const [isModalOpen, setIsModalOpen] = useState(false);
+  const { user } = useAuth();
+  const [realm, setRealm] = useState('');
+  const [category, setCategory] = useState('');
+  const [subcategory, setSubcategory] = useState('');
+  const [question, setQuestion] = useState('');
+  const [options, setOptions] = useState([{ name: '', votes: 0 }]);
+  const [submittedPoll, setSubmittedPoll] = useState(null);
+  const [isModalOpen, setIsModalOpen] = useState(false);
+  const [loading, setLoading] = useState(false);
 
-    // Handle form submission
-    const handleSubmit = (e) => {
-        e.preventDefault();
+  const handleSubmit = async (e) => {
+    e.preventDefault();
 
-        if (!realm || !title || (realm === "sports" && !category)) {
-            alert("Please fill out all required fields.");
-            return;
-        }
+    if (!realm || !question) {
+      alert("Realm and Question are required.");
+      return;
+    }
 
-        const validOutcomes = outcome.filter(opt => opt.name.trim() !== '');
-        if (validOutcomes.length < 2) {
-            alert("Please provide at least two valid options.");
+    const validOptions = options.filter(opt => opt.name.trim() !== '');
+    if (validOptions.length < 2) {
+      alert("At least two valid options are required.");
+      return;
+    }
 
-            return;
-        }
+    const pollData = {
+      username: user.userName,
+      email: user.email,
+      realm,
+      category,
+      subcategory,
+      question,
+      outcome: validOptions.map(opt => ({ name: opt.name.trim(), votes: 0 })),
+    };
 
-        // Create userPollData object
-        const pollData = {
-            realm,
-            category,
-            subcategory,
-            title,
-            outcome: validOutcomes.map(opt => ({ name: opt.name, votes: 0 }))
-        };
+    try {
+      setLoading(true);
+      const response = await ServerApi.post('userPoll/submit', pollData);
+      const result = response.data;
 
-        // Save data as an array
-        setUserPollData([pollData]);
+      if (result.success) {
+        setSubmittedPoll(result.data);
         setIsModalOpen(true);
+        resetForm();
+      } else {
+        alert('There was an error submitting your poll.');
+      }
+    } catch (error) {
+      console.error('Submission Error:', error);
+      alert('An error occurred. Please try again later.');
+    } finally {
+      setLoading(false);
+    }
+  };
 
-        // Clear form
-        setRealm('');
-        setCategory('');
-        setSubcategory('');
-        setTitle('');
-        setOutcome([{ name: '', votes: 0 }]);
-    };
+  const resetForm = () => {
+    setRealm('');
+    setCategory('');
+    setSubcategory('');
+    setQuestion('');
+    setOptions([{ name: '', votes: 0 }]);
+  };
 
-    // Close modal
-    const closeModal = () => {
-        setIsModalOpen(false);
-    };
+  const closeModal = () => {
+    setIsModalOpen(false);
+  };
 
-    // Handle adding new outcome option
-    const addOutcome = () => {
-        setOutcome([...outcome, { name: '', votes: 0 }]);
-    };
+  const addOption = () => setOptions([...options, { name: '', votes: 0 }]);
 
-    // Handle removing an outcome option
-    const removeOutcome = (index) => {
-        if (outcome.length > 1) {
-            setOutcome(outcome.filter((_, i) => i !== index));
-        }
-    };
+  const removeOption = (index) => {
+    if (options.length > 1) {
+      setOptions(options.filter((_, i) => i !== index));
+    }
+  };
 
-    // Handle outcome name change
-    const handleOutcomeChange = (index, value) => {
-        const newOutcome = [...outcome];
-        newOutcome[index].name = value;
-        setOutcome(newOutcome);
-    };
+  const handleOptionChange = (index, value) => {
+    const updated = [...options];
+    updated[index].name = value;
+    setOptions(updated);
+  };
 
-    return (
-        <div className="flex flex-col items-center bg-gray-100 py-10">
-            <div className="bg-white p-8 rounded-lg shadow-lg max-w-lg w-full">
-                <h1 className="text-2xl font-semibold mb-6">Create Poll</h1>
-                <form onSubmit={handleSubmit} className="space-y-6">
-                    {/* Realm Selection */}
-                    <div>
-                        <label htmlFor="realm" className="block text-sm text-gray-700">Choose a Realm:</label>
-                        <select
-                            id="realm"
-                            value={realm}
-                            onChange={(e) => {
-                                setRealm(e.target.value);
-                                setCategory('');
-                                setSubcategory('');
-                            }}
-                            className="w-full p-3 border border-gray-300 rounded-md"
-                            required
-                        >
-                            <option value="">Select a Realm</option>
-                            <option value="politics">Politics</option>
-                            <option value="technology">Technology</option>
-                            <option value="crypto">Crypto</option>
-                            <option value="sports">Sports</option>
-                        </select>
-                    </div>
+  return (
+    <div className="flex flex-col items-center bg-gray-100 py-10">
+      <div className="bg-white p-8 rounded-lg shadow-lg max-w-lg w-full">
+        <h1 className="text-2xl font-semibold mb-6">Create Poll</h1>
 
-                    {/* Category Selection (Only visible when Sports is selected) */}
-                    {realm === "sports" && (
-                        <div>
-                            <label htmlFor="category" className="block text-sm text-gray-700">Choose a Category:</label>
-                            <select
-                                id="category"
-                                value={category}
-                                onChange={(e) => {
-                                    setCategory(e.target.value);
-                                    setSubcategory('');
-                                }}
-                                className="w-full p-3 border border-gray-300 rounded-md"
-                                required
-                            >
-                                <option value="">Select a Category</option>
-                                {Object.keys(categories).map((cat) => (
-                                    <option key={cat} value={cat}>{cat}</option>
-                                ))}
-                            </select>
-                        </div>
-                    )}
+        <form onSubmit={handleSubmit} className="space-y-6">
+          {/* Realm */}
+          <div>
+            <label className="block text-sm text-gray-700">Choose a Realm:</label>
+            <select
+              value={realm}
+              onChange={(e) => {
+                setRealm(e.target.value);
+                setCategory('');
+                setSubcategory('');
+              }}
+              className="w-full p-3 border border-gray-300 rounded-md"
+              required
+            >
+              <option value="">Select a Realm</option>
+              <option value="politics">Politics</option>
+              <option value="technology">Technology</option>
+              <option value="crypto">Crypto</option>
+              <option value="sports">Sports</option>
+            </select>
+          </div>
 
-                    {/* Subcategory Selection (Optional) */}
-                    {category && categories[category].length > 0 && (
-                        <div>
-                            <label htmlFor="subcategory" className="block text-sm text-gray-700">Choose a Subcategory (Optional):</label>
-                            <select
-                                id="subcategory"
-                                value={subcategory}
-                                onChange={(e) => setSubcategory(e.target.value)}
-                                className="w-full p-3 border border-gray-300 rounded-md"
-                            >
-                                <option value="">None</option>
-                                {categories[category].map((sub) => (
-                                    <option key={sub} value={sub}>{sub}</option>
-                                ))}
-                            </select>
-                        </div>
-                    )}
-
-                    {/* Title Input */}
-                    <div>
-                        <label htmlFor="title" className="block text-sm text-gray-700">Poll Title:</label>
-                        <input
-                            id="title"
-                            type="text"
-                            value={title}
-                            onChange={(e) => setTitle(e.target.value)}
-                            placeholder="Enter your poll title..."
-                            className="w-full p-3 border border-gray-300 rounded-md"
-                            required
-                        />
-                    </div>
-
-                    {/* Outcome Options */}
-                    <div>
-                        <label className="block text-sm text-gray-700">Outcome Options:</label>
-                        {outcome.map((opt, index) => (
-                            <div key={index} className="flex items-center space-x-2 mb-2">
-                                <input
-                                    type="text"
-                                    value={opt.name}
-                                    onChange={(e) => handleOutcomeChange(index, e.target.value)}
-                                    placeholder={`Option ${index + 1}`}
-                                    className="w-full p-2 border border-gray-300 rounded-md"
-                                    required
-                                />
-                                {outcome.length > 1 && (
-                                    <button
-                                        type="button"
-                                        onClick={() => removeOutcome(index)}
-                                        className="p-2 bg-[#f17575] text-white text-sm rounded-md cursor-pointer"
-                                    >
-                                        &times;
-                                    </button>
-                                )}
-                            </div>
-                        ))}
-                        <button
-                            type="button"
-                            onClick={addOutcome}
-                            className="btn btn-active cursor-pointer"
-                        >
-                            Add Option
-                        </button>
-                    </div>
-
-                    <button type="submit" className="w-full p-3 bg-[#f17575] text-white rounded-md hover:bg-[#d96969] cursor-pointer">
-                        Submit Poll
-                    </button>
-                </form>
+          {/* Category */}
+          {realm === "sports" && (
+            <div>
+              <label className="block text-sm text-gray-700">Choose a Category:</label>
+              <select
+                value={category}
+                onChange={(e) => {
+                  setCategory(e.target.value);
+                  setSubcategory('');
+                }}
+                className="w-full p-3 border border-gray-300 rounded-md"
+              >
+                <option value="">Select a Category</option>
+                {Object.keys(categories).map((cat) => (
+                  <option key={cat} value={cat}>{cat}</option>
+                ))}
+              </select>
             </div>
+          )}
 
-            {/* Modal for Submitted Prediction */}
-            {isModalOpen && (
-                <div className="fixed inset-0 bg-base-100 bg-opacity-50 flex justify-center items-center z-50">
-                    <div className="bg-white p-8 rounded-lg shadow-lg max-w-lg w-full">
-                        <h2 className="text-xl font-semibold mb-4 text-center">Submitted Poll for Review</h2>
-                        <div className="flex justify-center">
-                            <OutcomePoll data={userPollData} />
-                        </div>
-                        <div className="mt-4 text-center">
-                            <button
-                                onClick={closeModal}
-                                className="p-2 bg-gray-300 rounded-md text-sm text-gray-800 hover:bg-gray-400 cursor-pointer"
-                            >
-                                Close
-                            </button>
-                        </div>
-                    </div>
-                </div>
-            )}
+          {/* Subcategory */}
+          {category && categories[category]?.length > 0 && (
+            <div>
+              <label className="block text-sm text-gray-700">Choose a Subcategory (Optional):</label>
+              <select
+                value={subcategory}
+                onChange={(e) => setSubcategory(e.target.value)}
+                className="w-full p-3 border border-gray-300 rounded-md"
+              >
+                <option value="">None</option>
+                {categories[category].map((sub) => (
+                  <option key={sub} value={sub}>{sub}</option>
+                ))}
+              </select>
+            </div>
+          )}
+
+          {/* Question */}
+          <div>
+            <label className="block text-sm text-gray-700">Poll Question:</label>
+            <textarea
+              value={question}
+              onChange={(e) => setQuestion(e.target.value)}
+              rows="3"
+              placeholder="Type your question..."
+              className="w-full p-3 border border-gray-300 rounded-md"
+              required
+            />
+          </div>
+
+          {/* Outcome Options */}
+          <div>
+            <label className="block text-sm text-gray-700">Options:</label>
+            {options.map((opt, idx) => (
+              <div key={idx} className="flex items-center space-x-2 mb-2">
+                <input
+                  type="text"
+                  value={opt.name}
+                  onChange={(e) => handleOptionChange(idx, e.target.value)}
+                  placeholder={`Option ${idx + 1}`}
+                  className="w-full p-2 border border-gray-300 rounded-md"
+                  required
+                />
+                {options.length > 1 && (
+                  <button
+                    type="button"
+                    onClick={() => removeOption(idx)}
+                    className="p-2 bg-red-400 text-white text-sm rounded-md"
+                  >
+                    &times;
+                  </button>
+                )}
+              </div>
+            ))}
+            <button
+              type="button"
+              onClick={addOption}
+              className="btn btn-active mt-2"
+            >
+              Add Option
+            </button>
+          </div>
+
+          <button
+            type="submit"
+            className={`w-full p-3 ${loading ? 'bg-gray-400' : 'bg-[#f17575]'} text-white rounded-md hover:bg-[#d96969]`}
+            disabled={loading}
+          >
+            {loading ? "Submitting..." : "Submit Poll"}
+          </button>
+        </form>
+      </div>
+
+      {isModalOpen && submittedPoll && (
+        <div className="fixed inset-0 bg-base-100 bg-opacity-50 flex justify-center items-center z-50">
+          <div className="bg-white p-8 rounded-lg shadow-lg max-w-lg w-full">
+            <h2 className="text-xl font-semibold mb-4 text-center">Submitted Poll</h2>
+            <div className="pointer-events-none opacity-75">
+              <OutcomePoll data={[submittedPoll]} />
+            </div>
+            <div className="mt-4 text-center">
+              <button
+                onClick={closeModal}
+                className="p-2 bg-gray-300 rounded-md text-sm text-gray-800 hover:bg-gray-400"
+              >
+                Close
+              </button>
+            </div>
+          </div>
         </div>
-    );
+      )}
+    </div>
+  );
 };
 
 export default CreatePoll;

@@ -15,7 +15,7 @@ import Activity from '../src/Page/Dashboard/Activity';
 import PrivateRoute from './Services/privateAuth';
 import { useState } from 'react';
 import PoliticsPage from './Page/Politics/PoliticsPage';
-import { TechnologyPage } from './Page/Technology/TechnologyPage';
+import TechnologyPage from './Page/Technology/TechnologyPage';
 
 
 import CreateQuery from './components/CreateThread/CreateQuery';

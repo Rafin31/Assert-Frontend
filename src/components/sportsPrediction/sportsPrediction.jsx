@@ -14,7 +14,7 @@ export default function SportsPredictions({ refreshBalance, refreshKey }) {
             realm: "Sports",
             category: "Football",
             subcategory: "La Liga",
-            title: "La Liga Winner 2024-25",
+            question: "La Liga Winner 2024-25",
             outcome: [
                 { name: "Barcelona", votes: 0 },
                 { name: "Real Madrid", votes: 0 },
@@ -27,7 +27,7 @@ export default function SportsPredictions({ refreshBalance, refreshKey }) {
             realm: "Sports",
             category: "Football",
             subcategory: "Premier League",
-            title: "English Premier League Winner 2024-25",
+            question: "English Premier League Winner 2024-25",
             outcome: [
                 { name: "Liverpool", votes: 0 },
                 { name: "Arsenal", votes: 0 },
@@ -40,7 +40,7 @@ export default function SportsPredictions({ refreshBalance, refreshKey }) {
             realm: "Sports",
             category: "Football",
             subcategory: "UCL",
-            title: "UEFA Champions League Winner 2024-25",
+            question: "UEFA Champions League Winner 2024-25",
             outcome: [
                 { name: "Liverpool", votes: 0 },
                 { name: "Real Madrid", votes: 0 },
