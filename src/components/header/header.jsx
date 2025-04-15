@@ -153,7 +153,7 @@ export default function Header({ refreshBalance, refreshKey }) {
                         </ul>
                     </div>
 
-                    <Link to="/" className="text-xl px-[10px] font-bold font-serif">
+                    <Link to="/" className="text-2xl px-[10px] font-bold">
                         Assert
                     </Link>
                 </div>

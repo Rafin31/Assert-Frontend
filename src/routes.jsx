@@ -11,11 +11,11 @@ import DashboardLayout from '../src/Layout/DashboardLayout';
 import Overview from '../src/Page/Dashboard/Overview';
 import MyPredictions from '../src/Page/Dashboard/MyPredictions';
 import TokenWallet from '../src/Page/Dashboard/TokenWallet';
-import CreateIssue from '../src/Page/Dashboard/CreateIssue';
+import Activity from '../src/Page/Dashboard/Activity';
 import PrivateRoute from './Services/privateAuth';
 import { useState } from 'react';
 import PoliticsPage from './Page/Politics/PoliticsPage';
-import { TechnologyPage } from './Page/Technology/TechnologyPage';
+import TechnologyPage from './Page/Technology/TechnologyPage';
 
 
 import CreateQuery from './components/CreateThread/CreateQuery';
@@ -71,8 +71,8 @@ export default function AppRouter() {
                         <Route path="overview" element={<Overview />} />
                         <Route path="predictions" element={<MyPredictions />} />
                         <Route path="wallet" element={<TokenWallet />} />
-                        <Route path="create" element={<CreateIssue />} />
-                        <Route path="football" element={<SportsPredictions />} />
+                        <Route path="activity" element={<Activity/>} />
+
                     </Route>
                 </Route>
             </Routes>

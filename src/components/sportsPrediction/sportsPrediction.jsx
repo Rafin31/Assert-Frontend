@@ -14,7 +14,7 @@ export default function SportsPredictions({ refreshBalance, refreshKey }) {
             realm: "Sports",
             category: "Football",
             subcategory: "La Liga",
-            title: "La Liga Winner 2024-25",
+            question: "La Liga Winner 2024-25",
             outcome: [
                 { name: "Barcelona", votes: 0 },
                 { name: "Real Madrid", votes: 0 },
@@ -27,7 +27,7 @@ export default function SportsPredictions({ refreshBalance, refreshKey }) {
             realm: "Sports",
             category: "Football",
             subcategory: "Premier League",
-            title: "English Premier League Winner 2024-25",
+            question: "English Premier League Winner 2024-25",
             outcome: [
                 { name: "Liverpool", votes: 0 },
                 { name: "Arsenal", votes: 0 },
@@ -40,7 +40,7 @@ export default function SportsPredictions({ refreshBalance, refreshKey }) {
             realm: "Sports",
             category: "Football",
             subcategory: "UCL",
-            title: "UEFA Champions League Winner 2024-25",
+            question: "UEFA Champions League Winner 2024-25",
             outcome: [
                 { name: "Liverpool", votes: 0 },
                 { name: "Real Madrid", votes: 0 },
@@ -116,9 +116,9 @@ export default function SportsPredictions({ refreshBalance, refreshKey }) {
         <div className="mx-auto max-w-[1450px]">
             <div className="flex flex-wrap gap-4 items-center py-4 justify-between">
                 <div className="flex flex-wrap gap-2">
-                    <button className={`btn btn-sm ${filterRange === 'next7' ? 'btn-primary' : 'btn-outline'}`} onClick={() => setFilterRange('next7')}>Next 7 Days</button>
-                    <button className={`btn btn-sm ${filterRange === 'next30' ? 'btn-primary' : 'btn-outline'}`} onClick={() => setFilterRange('next30')}>Next 30 Days</button>
-                    <button className={`btn btn-sm ${filterRange === 'past7' ? 'btn-primary' : 'btn-outline'}`} onClick={() => setFilterRange('past7')}>Past 7 Days</button>
+                    <button className={`btn btn-sm ${filterRange === 'next7' ? 'btn-warning' : 'btn-outline'}`} onClick={() => setFilterRange('next7')}>Next 7 Days</button>
+                    <button className={`btn btn-sm ${filterRange === 'next30' ? 'btn-warning' : 'btn-outline'}`} onClick={() => setFilterRange('next30')}>Next 30 Days</button>
+                    <button className={`btn btn-sm ${filterRange === 'past7' ? 'btn-warning' : 'btn-outline'}`} onClick={() => setFilterRange('past7')}>Past 7 Days</button>
                 </div>
             </div>
 

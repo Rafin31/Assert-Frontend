@@ -1,8 +1,10 @@
-import { NavLink, useNavigate } from 'react-router-dom';
+import { Link, NavLink, useNavigate } from 'react-router-dom';
 import { useAuth } from '../../Context/AuthContext';
+
 
 const links = [
     { name: 'Overview', path: '/dashboard/overview' },
+    { name: 'Activity ', path: '/dashboard/activity' },
     { name: 'My Predictions', path: '/dashboard/predictions' },
     { name: 'Token Wallet', path: '/dashboard/wallet' },
     
@@ -20,7 +22,11 @@ export default function Sidebar() {
 
     return (
         <aside className="w-64 bg-[#13242a] text-white h-full p-4">
-            <h2 className="text-xl font-bold mb-6">ASSERT</h2>
+            <h2 className="text-xl font-bold mb-6">
+                <Link to="/">
+                    ASSERT
+                </Link>
+            </h2>
             <nav className="flex flex-col space-y-4">
                 {links.map((link) => (
                     <NavLink
