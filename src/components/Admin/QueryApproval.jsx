@@ -5,10 +5,17 @@ import { useAuth } from "../../Context/AuthContext.jsx";
 
 const QueryApproval = () => {
     const [predictions, setPredictions] = useState([]);
+    const [loading, setLoading] = useState(true);
     const { user } = useAuth();
 
     useEffect(() => {
         const fetchPredictions = async () => {
+            // If user not available, or not an admin, stop loading
+            if (!user || user.userType !== "admin") {
+                setLoading(false);
+                return;
+            }
+
             try {
                 const response = await ServerApi.get('/userPrediction/adminApproval');
                 if (response.data.success) {
@@ -18,11 +25,13 @@ const QueryApproval = () => {
                     setPredictions(pending);
                 }
             } catch (error) {
-                console.error('Error:', error.message);
+                console.error('Error fetching predictions:', error.message);
+            } finally {
+                setLoading(false);
             }
         };
 
-        if (user?.email) fetchPredictions();
+        fetchPredictions();
     }, [user]);
 
     const handleDecision = async (id, action, condition, closingDate) => {
@@ -34,6 +43,7 @@ const QueryApproval = () => {
                     closingDate
                 }
             });
+
             if (response.data.success) {
                 setPredictions(prev => prev.filter(p => p._id !== id));
             }
@@ -41,6 +51,20 @@ const QueryApproval = () => {
             console.error('Update failed:', error.message);
         }
     };
+
+    if (loading) {
+        return <div className='text-center p-10'>Loading...</div>;
+    }
+
+    if (!user || user.userType !== "admin") {
+        return (
+            <div className='bg-base-50 p-10 text-center'>
+                <h2 className='text-xl font-semibold text-red-600'>
+                    You must be an admin to perform this action.
+                </h2>
+            </div>
+        );
+    }
 
     return (
         <div className='bg-base-50'>
@@ -51,25 +75,31 @@ const QueryApproval = () => {
                         <div key={prediction._id} className="border rounded-xl p-4 w-full max-w-md shadow-md">
                             <PollCard data={prediction} />
                             <div className="mt-4 space-y-2">
-                                <input type="text" placeholder="Result condition" className="input input-bordered w-full" 
-                                  onChange={(e) => prediction.ruleCondition = e.target.value}
-                                required/>
-                             
                                 <input
-                                    
+                                    type="text"
+                                    placeholder="Result condition"
+                                    className="input input-bordered w-full"
+                                    onChange={(e) => prediction.ruleCondition = e.target.value}
+                                    required
+                                />
+                                <input
                                     type="datetime-local"
                                     className="input input-bordered w-full"
                                     onChange={(e) => {
                                         const localDate = new Date(e.target.value);
-                                        
                                         prediction.ruleDate = localDate;
                                     }}
-                                    required 
+                                    required
                                 />
                                 <div className="flex justify-between mt-2">
                                     <button
                                         className="btn btn-success"
-                                        onClick={() => handleDecision(prediction._id, "approved", prediction.ruleCondition, prediction.ruleDate)}
+                                        onClick={() => handleDecision(
+                                            prediction._id,
+                                            "approved",
+                                            prediction.ruleCondition,
+                                            prediction.ruleDate
+                                        )}
                                     >Approve</button>
                                     <button
                                         className="btn btn-error"
