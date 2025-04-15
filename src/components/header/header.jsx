@@ -220,7 +220,7 @@ export default function Header({ refreshBalance, refreshKey }) {
                                             </button>
                                         ) : countdown > 0 ? (
                                             <div>
-                                                <span className="text-[12px] font-semibold text-gray-600">Next claim</span>
+                                                <span className="text-[12px] font-extrabold text-gray-600">Next claim</span>
                                                 <div className="text-[13px] text-gray-500 font-mono leading-tight">
                                                     {dayjs.duration(countdown * 1000).format("HH:mm:ss")}
                                                 </div>
