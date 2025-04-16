@@ -1,9 +1,12 @@
 import { PollCard } from '../../components/PollPrediction/PollCard';
 import React, { useEffect, useState } from "react";
 import ServerApi from '../../api/ServerAPI';
+import Skeleton from '../../utils/skeleton';
 
 const PoliticsPage = () => {
   const [predictions, setPredictions] = useState([]);
+
+  const [loading, setLoading] = useState(true)
 
   useEffect(() => {
     const fetchPredictions = async () => {
@@ -14,7 +17,7 @@ const PoliticsPage = () => {
             status: 'approved'
           }
         });
-  
+
         if (response.data.success) {
           setPredictions(response.data.data);
         } else {
@@ -23,11 +26,22 @@ const PoliticsPage = () => {
       } catch (error) {
         console.error('Error fetching predictions:', error.message);
       }
+
+      setLoading(false)
     };
-  
+
     fetchPredictions();
   }, []);
-  
+
+
+  if (loading) {
+    return (
+      <div className="max-w-[1450px] mx-auto min-h-[80vh]">
+        <Skeleton />
+      </div>
+    )
+  }
+
 
   return (
     <div className='bg-base-100 p-10 mx-auto flex flex-wrap justify-center gap-6'>

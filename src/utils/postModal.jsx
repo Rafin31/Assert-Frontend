@@ -23,15 +23,23 @@ const PostModal = ({ post, onClose, onLike, onReply, replyText, setReplyText, li
                 <p className="text-base text-gray-600 mt-1">{post.moreDetails}</p>
 
                 <div className="flex items-center mt-4">
-                    <button
-                        onClick={() => onLike(post._id)}
-                        className={`btn btn-sm mr-2 ${liked ? "btn-info" : ""}`}
-                    >
-                        ❤️ <span className="badge badge-sm ml-1">{post.likeCount}</span>
-                    </button>
+                    <div className="flex items-center mt-3">
+                        <button
+                            onClick={(e) => {
+                                e.stopPropagation();
+                                onLike(post._id);
+                            }}
+                            className={`cursor-pointer mr-2 `}
+                        >
+                            <span>
+                                {liked ? '❤️ ' : '🤍 '}   {post.likeCount}
 
-                    <div className="btn btn-sm">
-                        💬 <span className="badge badge-sm ml-1">{post?.replies?.length || 0}</span>
+                            </span>
+                        </button>
+
+                        <div className="cursor-pointer">
+                            💬 <span className="">{post?.replies?.length || 0}</span>
+                        </div>
                     </div>
                 </div>
 
@@ -86,11 +94,6 @@ const PostModal = ({ post, onClose, onLike, onReply, replyText, setReplyText, li
                     </button>
                 </div>
 
-                <div className="modal-action">
-                    <button onClick={onClose} className="btn btn-error btn-sm">
-                        Close
-                    </button>
-                </div>
             </div>
         </dialog>
     );

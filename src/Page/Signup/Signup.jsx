@@ -33,8 +33,8 @@ export default function SignupPage() {
             });
             navigate("/login"); navigate('/login')
         },
-        onError: (err) => {
-            toast.success(err.response?.data.error.split(":")[2], {
+        onError: () => {
+            toast.error("Signup failed", {
                 position: "top-center",
                 autoClose: 2000,
             });
@@ -49,6 +49,8 @@ export default function SignupPage() {
         e.preventDefault();
         mutate(formData);
     };
+
+
 
     return (
         <div className="flex flex-col items-center justify-center min-h-screen bg-base-200">
@@ -81,7 +83,12 @@ export default function SignupPage() {
 
                 <label className="input validator w-full">
                     <svg className="h-[1em] opacity-50" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><g strokeLinejoin="round" strokeLinecap="round" strokeWidth="2.5" fill="none" stroke="currentColor"><path d="M2.586 17.414A2 2 0 0 0 2 18.828V21a1 1 0 0 0 1 1h3a1 1 0 0 0 1-1v-1a1 1 0 0 1 1-1h1a1 1 0 0 0 1-1v-1a1 1 0 0 1 1-1h.172a2 2 0 0 0 1.414-.586l.814-.814a6.5 6.5 0 1 0-4-4z"></path><circle cx="16.5" cy="7.5" r=".5" fill="currentColor"></circle></g></svg>
-                    <input type="password" required placeholder="Password" minLength="8" pattern="(?=.*\d)(?=.*[a-z])(?=.*[A-Z]).{8,}" title="Must be more than 8 characters, including number, lowercase letter, uppercase letter"
+                    <input type="password"
+                        required
+                        placeholder="Password"
+                        minLength="8"
+                        pattern="(?=.*\d)(?=.*[a-z])(?=.*[A-Z])(?=.*[!@#$%^&*()_+\-=\[\]{};':&quot;\\|,.<>\/?]).{8,}"
+                        title="Must include uppercase, lowercase, number, special character & 8+ characters."
                         value={formData.password}
                         onChange={handleChange}
                         name="password"
@@ -113,11 +120,17 @@ export default function SignupPage() {
 
                 {
                     error &&
-                    <div role="alert" className="alert alert-error mt-5">
+                    <div role="alert" className="alert alert-error">
                         <svg xmlns="http://www.w3.org/2000/svg" className="h-6 w-6 shrink-0 stroke-current" fill="none" viewBox="0 0 24 24">
                             <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M10 14l2-2m0 0l2-2m-2 2l-2-2m2 2l2 2m7-2a9 9 0 11-18 0 9 9 0 0118 0z" />
                         </svg>
-                        <span>{error?.response?.data?.message || 'Signup failed'}</span>
+                        <span>
+                            {
+                                error.response.data?.error ? error.response.data?.error.split("password:")[1] :
+                                    error.response.data?.message ? error.response.data?.message : "Signup failed"
+
+                            }
+                        </span>
                     </div>
                 }
 

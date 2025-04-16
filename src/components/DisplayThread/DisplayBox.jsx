@@ -162,7 +162,7 @@ const DisplayBox = () => {
   };
 
   return (
-    <div className="mx-auto rounded-lg overflow-hidden bg-base-50 min-h-[100vh]">
+    <div className="max-w-[1450px] mx-auto rounded-lg overflow-hidden bg-base-50 min-h-[100vh]">
       <div className="sticky top-0 z-10 bg-base-50 p-2 flex flex-wrap justify-between items-center gap-2 ">
         <input
           type="text"
@@ -173,13 +173,13 @@ const DisplayBox = () => {
         />
         <div className="flex gap-2">
           <button
-            className={`btn btn-sm ${sortOption === "newest" ? "btn-warning" : "btn-outline"}`}
+            className={`btn btn-sm ${sortOption === "newest" ? 'bg-[#E64800] text-white' : "btn-outline"}`}
             onClick={() => setSortOption("newest")}
           >
             Newest First
           </button>
           <button
-            className={`btn btn-sm ${sortOption === "liked" ? "btn-warning" : "btn-outline"}`}
+            className={`btn btn-sm ${sortOption === "liked" ? 'bg-[#E64800] text-white' : "btn-outline"}`}
             onClick={() => setSortOption("liked")}
           >
             Most Liked

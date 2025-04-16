@@ -1,118 +1,142 @@
-import React, { useState, useEffect } from "react";
+import { useEffect, useState } from "react";
+import { getFixturesForDateRange } from "../../Services/FootballService";
+import dayjs from "dayjs";
 
-// Utility function to calculate time left or check if match started
-const getMatchTimeStatus = (match) => {
-  if (!match) return { countdown: null, hasStarted: false };
+export default function ScorePrediction() {
+  const [fixtures, setFixtures] = useState([]);
+  const [loading, setLoading] = useState(true);
+  const [filterRange, setFilterRange] = useState("next30");
+  const [currentPage, setCurrentPage] = useState(1);
+  const ITEMS_PER_PAGE = 8;
 
-  const matchDateTime = new Date(`${match.date}T${match.time}:00`);
-  const now = new Date();
-  const timeDiff = matchDateTime - now;
-
-  if (timeDiff > 0) {
-    return { countdown: timeDiff, hasStarted: false };
-  }
-
-  return { countdown: null, hasStarted: true };
-};
-
-const ScorePrediction = ({ data }) => {
-  if (!data || data.length === 0) {
-    return <div className="w-full h-48 flex justify-center items-center">No Matches Available</div>;
-  }
-
-  return (
-    <div className="flex flex-wrap justify-evenly gap-y-7 md:justify-center md:gap-10">
-      {data.map((match, index) => (
-        <MatchCardItem key={index} match={match} />
-      ))}
-    </div>
-  );
-};
-
-const MatchCardItem = ({ match }) => {
-  const [timeStatus, setTimeStatus] = useState(getMatchTimeStatus(match));
-
-  useEffect(() => {
-    const updateTimeStatus = () => {
-      setTimeStatus(getMatchTimeStatus(match));
-    };
-
-    updateTimeStatus();
-
-    // Update every second
-    const interval = setInterval(() => {
-      updateTimeStatus();
-    }, 1000);
-
-    return () => clearInterval(interval);
-  }, [match]);
-
-  // Format countdown in a visually appealing way
-  const formatCountdown = (time) => {
-    const days = Math.floor(time / (24 * 60 * 60 * 1000));
-    const hours = Math.floor((time % (24 * 60 * 60 * 1000)) / (60 * 60 * 1000));
-    const minutes = Math.floor((time % (60 * 60 * 1000)) / (60 * 1000));
-    const seconds = Math.floor((time % (60 * 1000)) / 1000);
-
-    return (
-      <div className="flex justify-center gap-2 mt-2 text-base font-bold">
-        <div className="border border-gray-600 px-2 py-2 rounded-md text-center">
-          <span className="text-sm">{days}</span>
-          <div className="text-xs">Days</div>
-        </div>
-        <div className="border border-gray-600 px-2 py-2 rounded-md text-center">
-          <span className="text-sm">{hours.toString().padStart(2, "0")}</span>
-          <div className="text-xs">Hours</div>
-        </div>
-        <div className="border border-gray-600 px-2 py-2 rounded-md text-center">
-          <span className="text-sm">{minutes.toString().padStart(2, "0")}</span>
-          <div className="text-xs">Minutes</div>
-        </div>
-        <div className="border border-gray-600 px-2 py-2 rounded-md text-center">
-          <span className="text-sm">{seconds.toString().padStart(2, "0")}</span>
-          <div className="text-xs">Seconds</div>
-        </div>
-      </div>
-    );
+  const today = dayjs().format("YYYY-MM-DD");
+  const dateRanges = {
+    next30: { from: today, to: dayjs().add(30, "day").format("YYYY-MM-DD") },
+    next7: { from: today, to: dayjs().add(7, "day").format("YYYY-MM-DD") },
+    past7: { from: dayjs().subtract(7, "day").format("YYYY-MM-DD"), to: today },
   };
 
-  return (
-    <div className="p-5 rounded-lg shadow-lg w-[100%] hover:scale-105 transition-all lg:w-[40%]">
-      <span className="text-left text-sm font-bold text-gray-600">{match.category} &gt; {match.subcategory}</span>
-      <span className="block text-left text-xs font-semibold text-gray-700 mb-2 mt-2">
-        Date: {match.date} | Time: {match.time} (AEDT)
-      </span>
-      <p className="text-lg font-bold text-gray-700 mb-4 flex justify-center">{match.teams[0]} vs {match.teams[1]}</p>
+  useEffect(() => {
+    const fetchFixtures = async () => {
+      try {
+        setLoading(true);
+        const range = dateRanges[filterRange];
+        const data = await getFixturesForDateRange(range.from, range.to);
+        setFixtures(data);
+      } catch (err) {
+        console.error("Error loading fixtures:", err);
+      } finally {
+        setLoading(false);
+      }
+    };
+    fetchFixtures();
+  }, [filterRange]);
 
-      <div className="flex gap-4 mb-4 justify-center">
-        <input
-          type="number"
-          placeholder={match.teams[0]}
-          disabled={timeStatus.hasStarted}
-          min="0"
-          className="p-2 border border-gray-300 rounded-md w-25"
-        />
-        <input
-          type="number"
-          placeholder={match.teams[1]}
-          disabled={timeStatus.hasStarted}
-          min="0"
-          className="p-2 border border-gray-300 rounded-md w-25"
-        />
+  const paginatedFixtures = fixtures?.data?.slice(
+    (currentPage - 1) * ITEMS_PER_PAGE,
+    currentPage * ITEMS_PER_PAGE
+  );
+  const totalPages = Math.ceil(fixtures?.data?.length / ITEMS_PER_PAGE);
+
+  return (
+    <div className="mx-auto max-w-[1450px] py-4">
+      <h1 className="text-center text-3xl font-bold mb-4">Predict Scores</h1>
+
+      {/* Filter Buttons */}
+      <div className="flex justify-center gap-2 mb-6">
+        {Object.keys(dateRanges).map((range) => (
+          <button
+            key={range}
+            className={`btn btn-sm ${filterRange === range ? "bg-[#E64800] text-white" : "btn-outline"}`}
+            onClick={() => setFilterRange(range)}
+          >
+            {range === "next30" ? "Next 30 Days" : range === "next7" ? "Next 7 Days" : "Past 7 Days"}
+          </button>
+        ))}
       </div>
 
-      <button
-        className={`w-full py-2 text-base font-semibold rounded-md ${timeStatus.hasStarted ? 'bg-[#e6e3e1] cursor-not-allowed text-gray-400' : 'bg-[#afd89e] hover:bg-[#9ec28e]'}`}
-        disabled={timeStatus.hasStarted}
-      >
-        Submit Prediction
-      </button>
+      {/* Score Prediction Cards */}
+      <div className="max-w-[1450px] mx-auto grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-6 py-4 px-10">
+        {loading ? (
+          [...Array(ITEMS_PER_PAGE)].map((_, i) => (
+            <div key={i} className="skeleton h-[280px] w-full rounded-lg"></div>
+          ))
+        ) : (
+          paginatedFixtures?.map((match, idx) => {
+            const teamA = match.name.split("vs")[0]?.trim();
+            const teamB = match.name.split("vs")[1]?.trim();
+            const matchStart = dayjs(match.starting_at);
+            const now = dayjs();
+            const hasStarted = now.isAfter(matchStart);
+            const resultPublished = now.isAfter(matchStart.add(3, "hour"));
 
-      <p className="text-sm font-semibold mt-4 text-gray-600 flex justify-center">
-        {timeStatus.hasStarted ? "Match Started" : formatCountdown(timeStatus.countdown)}
-      </p>
+            return (
+              <div key={idx} className="card bg-base p-5 rounded-xl shadow-md">
+                <div className="top min-h-[110px] ">
+                  <p className="text-sm text-gray-500 font-semibold">
+                    {match?.league?.name || "League"}
+                  </p>
+                  <p className="text-sm text-gray-500 mb-1">
+                    {dayjs(match?.starting_at).format("YYYY-MM-DD | hh:mm A (AEDT)")}
+                  </p>
+                  <h2 className="font-bold text-center text-lg mb-3">{match.name}</h2>
+                </div>
+                <div className="flex gap-2 mb-3">
+                  <input
+                    type="number"
+                    min="0"
+                    placeholder={`${teamA} Goals`}
+                    className="input input-bordered w-full"
+                    disabled={hasStarted}
+                  />
+                  <input
+                    type="number"
+                    min="0"
+                    placeholder={`${teamB} Goals`}
+                    className="input input-bordered w-full"
+                    disabled={hasStarted}
+                  />
+                </div>
+
+
+                <button
+                  className="btn btn-block bg-[#27AE6080] text-custom font-semibold hover:bg-[#27AE60] hover:text-white transition-all duration-200"
+                  disabled={hasStarted}
+                >
+                  Submit Prediction
+                </button>
+
+                <p className="text-center text-sm font-medium mt-2">
+                  {resultPublished ? "Result Published" : hasStarted ? "Match Started" : ""}
+                </p>
+              </div>
+            );
+          })
+        )}
+      </div>
+
+      {/* Pagination */}
+      {totalPages > 1 && (
+        <div className="flex justify-center mt-6 gap-2">
+          <button
+            className="btn btn-outline btn-sm"
+            onClick={() => setCurrentPage((prev) => Math.max(prev - 1, 1))}
+            disabled={currentPage === 1}
+          >
+            Prev
+          </button>
+          <span className="btn btn-ghost btn-sm cursor-default">
+            Page {currentPage} of {totalPages}
+          </span>
+          <button
+            className="btn btn-outline btn-sm"
+            onClick={() => setCurrentPage((prev) => Math.min(prev + 1, totalPages))}
+            disabled={currentPage === totalPages}
+          >
+            Next
+          </button>
+        </div>
+      )}
     </div>
   );
-};
-
-export default ScorePrediction;
+}

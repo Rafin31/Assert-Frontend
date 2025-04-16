@@ -220,8 +220,8 @@ const CreatePoll = () => {
         <div className="fixed inset-0 bg-base-100 bg-opacity-50 flex justify-center items-center z-50">
           <div className="bg-white p-8 rounded-lg shadow-lg max-w-lg w-full">
             <h2 className="text-xl font-semibold mb-4 text-center">Submitted Poll</h2>
-            <div className="pointer-events-none opacity-75">
-              <OutcomePoll data={[submittedPoll]} />
+            <div className="flex justify-center items-center">
+              <OutcomePoll data={[submittedPoll]} from={'create'} />
             </div>
             <div className="mt-4 text-center">
               <button

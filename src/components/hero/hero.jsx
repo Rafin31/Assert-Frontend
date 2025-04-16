@@ -13,7 +13,7 @@ export default function Hero() {
                         Join the revolution and make informed predictions with transparency and security.
                     </p>
 
-                    <Link className="text-[black] font-bold btn btn-md btn-outline btn-success w-[150px]">Start Winning</Link>
+                    <Link to={'/sports'} className="text-[black] font-bold btn btn-md btn-outline btn-success w-[150px]">Start Winning</Link>
                 </div>
             </div>
         </div>

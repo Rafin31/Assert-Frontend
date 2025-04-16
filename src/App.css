@@ -4,3 +4,60 @@
     themes: all;
 }
 
+
+.btn-grad-blue {
+    background-image: linear-gradient(to right, #2BC0E4 0%, #EAECC6 51%, #2BC0E4 100%)
+}
+
+.btn-grad-blue {
+
+    padding: 10px 25px;
+    text-align: center;
+    text-transform: uppercase;
+    transition: 0.5s;
+    background-size: 200% auto;
+    color: white;
+    font-weight: 500;
+    box-shadow: 0 0 20px #eee;
+    border-radius: 10px;
+    display: block;
+}
+
+.btn-grad-blue:hover {
+    background-position: right center;
+    color: #fff;
+    text-decoration: none;
+}
+
+
+
+.btn-grad-orange {
+    background-image: linear-gradient(to right, #FF5F6D 0%, #FFC371 51%, #FF5F6D 100%)
+}
+
+.btn-grad-orange {
+    padding: 5px 25px;
+    text-align: center;
+    text-transform: uppercase;
+    transition: 0.5s;
+    background-size: 200% auto;
+    color: white;
+    box-shadow: 0 0 20px #eee;
+    border-radius: 10px;
+    font-weight: 500;
+    display: block;
+}
+
+.btn-grad-orange:hover {
+    background-position: right center;
+    color: #fff;
+    text-decoration: none;
+}
+
+@media only screen and (max-width: 780px) {
+    .btn-grad-orange {
+        padding: 5px 5px;
+        font-weight: 500;
+        font-size: medium;
+    }
+}

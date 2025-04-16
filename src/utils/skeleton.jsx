@@ -2,37 +2,11 @@ import React from 'react'
 
 export default function Skeleton() {
     return (
-        <div className="mt-10 max-w-[1450px] min-h-[50vh] flex justify-center items-center flex-wrap lg:justify-evenly gap-10">
-            <div className="flex w-[90%] flex-col gap-4 lg:w-100">
-                <div className="skeleton h-32 w-[full]"></div>
-                <div className="skeleton h-4 w-28"></div>
-                <div className="skeleton h-4 w-full"></div>
-                <div className="skeleton h-4 w-full"></div>
-            </div>
-            <div className="flex w-[90%] flex-col gap-4 lg:w-100">
-                <div className="skeleton h-32 w-full"></div>
-                <div className="skeleton h-4 w-28"></div>
-                <div className="skeleton h-4 w-full"></div>
-                <div className="skeleton h-4 w-full"></div>
-            </div>
-            <div className="flex w-[90%] flex-col gap-4 lg:w-100">
-                <div className="skeleton h-32 w-full"></div>
-                <div className="skeleton h-4 w-28"></div>
-                <div className="skeleton h-4 w-full"></div>
-                <div className="skeleton h-4 w-full"></div>
-            </div>
-            <div className="flex w-[90%] flex-col gap-4 lg:w-100">
-                <div className="skeleton h-32 w-full"></div>
-                <div className="skeleton h-4 w-28"></div>
-                <div className="skeleton h-4 w-full"></div>
-                <div className="skeleton h-4 w-full"></div>
-            </div>
-            <div className="flex w-[90%] flex-col gap-4 lg:w-100">
-                <div className="skeleton h-32 w-full"></div>
-                <div className="skeleton h-4 w-28"></div>
-                <div className="skeleton h-4 w-full"></div>
-                <div className="skeleton h-4 w-full"></div>
-            </div>
+        <div className="mt-10 max-w-[1450px] min-h-[50vh] mx-auto grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-6">
+            {[...Array(8)].map((_, idx) => (
+                <div key={idx} className="skeleton h-[260px] w-full rounded-sm" />
+            ))}
         </div>
+
     )
 }

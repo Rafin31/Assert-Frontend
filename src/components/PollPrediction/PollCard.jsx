@@ -14,7 +14,6 @@ export const PollCard = ({ data }) => {
     expired: false,
   });
 
-  if (!data) return <div>Error: No prediction data available</div>;
 
   const {
     question,
@@ -25,7 +24,7 @@ export const PollCard = ({ data }) => {
     username,
     email,
     timestamp,
-    rule= {},
+    rule = {},
     _id,
   } = data;
 
@@ -51,11 +50,11 @@ export const PollCard = ({ data }) => {
   useEffect(() => {
     if (Array.isArray(rule) && rule.length > 0) {
       const nextClosingDate = new Date(Math.min(...rule.map(r => new Date(r.closingDate))));
-  
+
       const interval = setInterval(() => {
         const now = new Date();
         const distance = nextClosingDate - now;
-  
+
         if (distance <= 0) {
           clearInterval(interval);
           setCountdown({ days: 0, hours: 0, minutes: 0, seconds: 0, expired: true });
@@ -64,15 +63,17 @@ export const PollCard = ({ data }) => {
           const hours = Math.floor((distance % (1000 * 60 * 60 * 24)) / (1000 * 60 * 60));
           const minutes = Math.floor((distance % (1000 * 60 * 60)) / (1000 * 60));
           const seconds = Math.floor((distance % (1000 * 60)) / 1000);
-        
+
           setCountdown({ days, hours, minutes, seconds, expired: false });
         }
       }, 1000);
-  
+
       return () => clearInterval(interval);
     }
   }, [rule]);
-  
+
+  if (!data) return <div>Error: No prediction data available</div>;
+
 
   const totalVotes = votes.yesVotes.length + votes.noVotes.length;
   const yesPercentage = totalVotes > 0 ? ((votes.yesVotes.length / totalVotes) * 100).toFixed(0) : 0;
@@ -83,7 +84,7 @@ export const PollCard = ({ data }) => {
   const handleVote = async (voteType) => {
     if (!user?.userName || !user?.email) {
       return navigate("/login"); // redirect to login if not authenticated
-      
+
     }
 
     if (userVote) return; // already voted
@@ -137,7 +138,7 @@ export const PollCard = ({ data }) => {
 
   const capitalize = (text) => text?.charAt(0).toUpperCase() + text?.slice(1);
 
-  
+
 
   return (
     <div className="flex flex-wrap gap-3 justify-center mt-5 w-full sm:w-90 m-1 transform transition-transform hover:scale-102">
@@ -159,18 +160,16 @@ export const PollCard = ({ data }) => {
 
         <div className="flex justify-center gap-2 mt-4 mb-4">
           <button
-            className={`py-2 px-4 rounded-md font-semibold ${
-              userVote === "yes" ? "bg-[#afd89e] cursor-not-allowed opacity-70" : "bg-[#afd89e] hover:bg-[#9ec28e]"
-            }`}
+            className={`py-2 px-4 rounded-md font-semibold ${userVote === "yes" ? "bg-[#afd89e] cursor-not-allowed opacity-70" : "bg-[#afd89e] hover:bg-[#9ec28e]"
+              }`}
             disabled={!!userVote}
             onClick={() => handleVote("yes")}
           >
             Yes
           </button>
           <button
-            className={`py-2 px-4 rounded-md font-semibold ${
-              userVote === "no" ? "bg-[#ff7b7a] cursor-not-allowed opacity-70" : "bg-[#ff7b7a] hover:bg-[#e66f6e]"
-            }`}
+            className={`py-2 px-4 rounded-md font-semibold ${userVote === "no" ? "bg-[#ff7b7a] cursor-not-allowed opacity-70" : "bg-[#ff7b7a] hover:bg-[#e66f6e]"
+              }`}
             disabled={!!userVote}
             onClick={() => handleVote("no")}
           >
@@ -178,7 +177,7 @@ export const PollCard = ({ data }) => {
           </button>
         </div>
 
-        
+
 
         <div className="w-4/5 bg-gray-300 h-2 rounded-full mx-auto my-4">
           <div
@@ -186,7 +185,7 @@ export const PollCard = ({ data }) => {
             style={{ width: `${progressBarPercentage}%` }}
           ></div>
         </div>
-        
+
 
 
         {userVote && (
@@ -245,11 +244,10 @@ export const PollCard = ({ data }) => {
                   <button
                     key={index}
                     onClick={() => setCurrentPage(index + 1)}
-                    className={`px-3 py-1 rounded ${
-                      currentPage === index + 1
-                        ? "bg-gray-500 text-white"
-                        : "bg-gray-200 hover:bg-gray-300"
-                    }`}
+                    className={`px-3 py-1 rounded ${currentPage === index + 1
+                      ? "bg-gray-500 text-white"
+                      : "bg-gray-200 hover:bg-gray-300"
+                      }`}
                   >
                     {index + 1}
                   </button>
@@ -268,14 +266,14 @@ export const PollCard = ({ data }) => {
         {/* Rules Modal */}
         <dialog id={`rules_${_id}`} className="modal modal-bottom sm:modal-middle">
           <div className="modal-box">
-            
+
             <h3 className="font-bold text-xl mb-4">{question}</h3>
-            
+
             {Array.isArray(data.rule) && data.rule.length > 0 ? (
               data.rule.map((r, index) => (
                 <div key={index} className="mb-4 ">
                   <p><span className="font-semibold">Condition:</span> {r.condition}</p>
-                  <br/>
+                  <br />
                   <p><span className="font-semibold">Closing Date:</span> {formatTimestamp(r.closingDate)}</p>
                 </div>
               ))

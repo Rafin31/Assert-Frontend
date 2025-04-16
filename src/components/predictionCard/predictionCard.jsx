@@ -108,44 +108,46 @@ export default function PredictionCard({ match, index, refreshBalance }) {
   };
 
   return (
-    <div className="card w-full shadow-lg py-4">
+    <div className="card w-full shadow-[0px_2px_3px_-1px_rgba(0,0,0,0.1),0px_1px_0px_0px_rgba(25,28,33,0.02),0px_0px_0px_1px_rgba(25,28,33,0.08)] flex flex-col justify-between min-h-[260px]">
       <div className="card-body">
-        <div className="top">
-          <h2 className="card-title text-lg font-bold">Who will win?</h2>
-          <p className="text-xl font-semibold text-accent">{match?.name}</p>
-          <p className="text-sm text-gray-500">{`${match?.league?.name}`}</p>
-          <p className="text-sm text-gray-500">
-            {dayjs(matchStartTime).format("MMMM D, YYYY h:mm A")}
-          </p>
+
+        <div className="flex flex-col gap-2 min-h-[200px]">
+          <div className="cardTop min-h-[150px] lg:min-h-[120px]">
+            <h2 className="card-title text-base font-bold">Who will win?</h2>
+            <p className="text-base font-semibold text-accent">{match?.name}</p>
+            <p className="text-sm text-gray-500">{match?.league?.name}</p>
+            <p className="text-sm text-gray-500">
+              {dayjs(matchStartTime).format("MMMM D, YYYY h:mm A")}
+            </p>
+          </div>
+
+          <div className="flex items-center flex-wrap mt-2 justify-center xl:justify-between">
+            {userVote ? (
+              <div className="badge badge-soft badge-sm text-center mx-auto badge-success mt-4 px-2 py-5 lg:badge-md">
+                <p>You voted for <span className="font-bold">{userVote}</span> in this match.</p>
+              </div>
+            ) : (
+              !isMatchStarted && <>
+                <button
+                  className="hover:bg-[#219653] bg-[#27AE601A] text-[#27AE60] hover:text-white btn btn-sm m-2 w-[45%] lg:btn-md"
+                  onClick={() => openVoteModal(teamA)}
+                >
+                  {teamA}
+                </button>
+                <button
+                  className="hover:bg-[#E64800] bg-[#FFCDCB] text-[#EB5757] hover:text-white btn btn-sm w-[45%] lg:btn-md"
+                  onClick={() => openVoteModal(teamB)}
+                >
+                  {teamB}
+                </button>
+              </>
+            )}
+          </div>
+
         </div>
 
-        <div className="flex items-center flex-wrap mt-4 justify-center xl:justify-between">
-          {userVote ? (
-            <div className="badge badge-sm text-center badge-success mx-auto mt-4 p-8 lg:badge-lg">
-              <p>You voted for <span className="font-bold">{userVote}</span> in this match.</p>
-            </div>
-          ) : (
-            !isMatchStarted && <>
-              <button
-                className="btn btn-sm btn-success m-2 w-[40%] lg:btn-md"
-                onClick={() => openVoteModal(teamA)}
-              >
-                {teamA}
-              </button>
-              <button
-                className="btn btn-sm btn-error w-[40%] lg:btn-md"
-                onClick={() => openVoteModal(teamB)}
-              >
-                {teamB}
-              </button>
-            </>
-          )}
-        </div>
-
-        {/* Countdown or Match Status */}
-        <div className="flex justify-center gap-1 mt-2 text-base font-bold">
+        <div className="flex justify-center gap-1 text-base font-bold min-h-[50px] ">
           {!isMatchStarted ? (
-            // Countdown
             <>
               <div className="border border-gray-600 px-2 py-2 rounded-md text-center">
                 <span className="text-sm">{days}</span>
@@ -165,21 +167,12 @@ export default function PredictionCard({ match, index, refreshBalance }) {
               </div>
             </>
           ) : (
-            // Match started or result published
-            <div
-              className={`text-lg font-bold ${dayjs().isAfter(matchStartTime.add(3, "hour"))
-                ? "text-green-600"
-                : "text-red-500"
-                }`}
-            >
-              {dayjs().isAfter(matchStartTime.add(3, "hour"))
-                ? "Result Published"
-                : "Match Started"}
+            <div className={`text-lg font-bold ${dayjs().isAfter(matchStartTime.add(3, "hour")) ? "text-green-600" : "text-red-500"}`}>
+              {dayjs().isAfter(matchStartTime.add(3, "hour")) ? "Result Published" : "Match Started"}
             </div>
           )}
         </div>
 
-        {/* Vote Modal */}
         <dialog id={modalId} className="modal">
           <div className="modal-box">
             <h3 className="font-bold text-xl">Confirm Your Vote</h3>

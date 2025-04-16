@@ -6,84 +6,27 @@ import ScorePrediction from '../PollPrediction/ScorePrediction.jsx';
 import MatchPrediction from '../PollPrediction/MatchPrediction.jsx';
 import Skeleton from "../../utils/skeleton.jsx";
 import dayjs from "dayjs";
+import { useLocation } from "react-router-dom";
 
 export default function SportsPredictions({ refreshBalance, refreshKey }) {
 
-    const pollData = [
-        {
-            realm: "Sports",
-            category: "Football",
-            subcategory: "La Liga",
-            question: "La Liga Winner 2024-25",
-            outcome: [
-                { name: "Barcelona", votes: 0 },
-                { name: "Real Madrid", votes: 0 },
-                { name: "Atletico Madrid", votes: 0 },
-                { name: "Athletic Club", votes: 0 },
-                { name: "Villareal", votes: 0 },
-            ],
-        },
-        {
-            realm: "Sports",
-            category: "Football",
-            subcategory: "Premier League",
-            question: "English Premier League Winner 2024-25",
-            outcome: [
-                { name: "Liverpool", votes: 0 },
-                { name: "Arsenal", votes: 0 },
-                { name: "Nottingham Forest", votes: 0 },
-                { name: "Manchester City", votes: 0 },
-                { name: "Bournemouth", votes: 0 },
-            ],
-        },
-        {
-            realm: "Sports",
-            category: "Football",
-            subcategory: "UCL",
-            question: "UEFA Champions League Winner 2024-25",
-            outcome: [
-                { name: "Liverpool", votes: 0 },
-                { name: "Real Madrid", votes: 0 },
-                { name: "Barcelona", votes: 0 },
-                { name: "Inter Milan", votes: 0 },
-                { name: "Atletico Madrid", votes: 0 },
-            ],
-        },
-    ];
+    const location = useLocation();
+    const isSportsPage = location.pathname.startsWith('/sports');
 
 
-    const matchesData = [
-
-        {
-            league: "NBA",
-            date: "2025-03-16",
-            time: "15:00",
-            teams: ["Los Angeles Lakers", "Chicago Bulls"],
-            category: "Basketball",
-            subcategory: "NBA",
-        },
-        {
-            league: "MLB",
-            date: "2025-04-10",
-            time: "18:30",
-            teams: ["New York Yankees", "Boston Red Sox"],
-            category: "Baseball",
-            subcategory: "MLB",
-        }
-    ];
 
 
     const [fixtures, setFixtures] = useState([]);
     const [loading, setLoading] = useState(true);
     const [currentPage, setCurrentPage] = useState(1);
     const [searchTerm, setSearchTerm] = useState("");
-    const [filterRange, setFilterRange] = useState("next7");
+    const [filterRange, setFilterRange] = useState("next30");
 
-    const ITEMS_PER_PAGE = 6;
+    const ITEMS_PER_PAGE = 8;
     const today = dayjs().format('YYYY-MM-DD');
     const dateRanges = {
-        next7: { from: today, to: dayjs().add(7, 'day').format('YYYY-MM-DD') },
         next30: { from: today, to: dayjs().add(30, 'day').format('YYYY-MM-DD') },
+        next7: { from: today, to: dayjs().add(7, 'day').format('YYYY-MM-DD') },
         past7: { from: dayjs().subtract(7, 'day').format('YYYY-MM-DD'), to: today },
     };
 
@@ -113,12 +56,13 @@ export default function SportsPredictions({ refreshBalance, refreshKey }) {
     const paginatedFixtures = filteredFixtures?.slice(startIndex, startIndex + ITEMS_PER_PAGE);
 
     return (
-        <div className="mx-auto max-w-[1450px]">
+        <div className={`mx-auto max-w-[1450px] ${isSportsPage && "px-10"}`}>
             <div className="flex flex-wrap gap-4 items-center py-4 justify-between">
                 <div className="flex flex-wrap gap-2">
-                    <button className={`btn btn-sm ${filterRange === 'next7' ? 'btn-warning' : 'btn-outline'}`} onClick={() => setFilterRange('next7')}>Next 7 Days</button>
-                    <button className={`btn btn-sm ${filterRange === 'next30' ? 'btn-warning' : 'btn-outline'}`} onClick={() => setFilterRange('next30')}>Next 30 Days</button>
-                    <button className={`btn btn-sm ${filterRange === 'past7' ? 'btn-warning' : 'btn-outline'}`} onClick={() => setFilterRange('past7')}>Past 7 Days</button>
+                    <button className={`btn btn-sm ${filterRange === 'past7' ? 'bg-[#E64800] text-white' : 'btn-outline'}`} onClick={() => setFilterRange('past7')}>Past 7 Days</button>
+                    <button className={`btn btn-sm ${filterRange === 'next30' ? 'bg-[#E64800] text-white' : 'btn-outline'}`} onClick={() => setFilterRange('next30')}>Next 30 Days</button>
+                    <button className={`btn btn-sm ${filterRange === 'next7' ? 'bg-[#E64800] text-white' : 'btn-outline'}`} onClick={() => setFilterRange('next7')}>Next 7 Days</button>
+
                 </div>
             </div>
 
@@ -133,7 +77,7 @@ export default function SportsPredictions({ refreshBalance, refreshKey }) {
                 <Skeleton />
             ) : (
                 <>
-                    <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6 py-4">
+                    <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-6 py-4">
                         {paginatedFixtures.map((match, index) => (
                             <PredictionCard key={index} match={match} index={index} refreshBalance={refreshBalance} refreshKey={refreshKey} />
                         ))}
@@ -160,20 +104,6 @@ export default function SportsPredictions({ refreshBalance, refreshKey }) {
                     </div>
                 </>
             )}
-
-            <OutcomePoll data={pollData} />
-
-            <div className="mt-15">
-                <h1 className="text-center text-3xl font-bold my-15">Predict Scores</h1>
-                <ScorePrediction data={matchesData} />
-            </div>
-
-            <h1 className="text-center text-3xl font-bold my-15">Upcoming Match Predictions</h1>
-            <div className="flex flex-wrap justify-center items-center gap-10 md:justify-center">
-                {matchesData?.map((match, index) => (
-                    <MatchPrediction key={index} matchPredictionData={match} />
-                ))}
-            </div>
         </div>
     );
 }

@@ -1,9 +1,11 @@
 import { useEffect, useState } from 'react';
 import ServerApi from '../../api/ServerAPI';
 import OutcomePoll from '../../components/PollPrediction/OutcomePoll';
+import Skeleton from '../../utils/skeleton';
 
 const TechnologyPage = () => {
   const [polls, setPolls] = useState([]);
+  const [loading, setLoading] = useState(true)
 
   useEffect(() => {
     const fetchPolls = async () => {
@@ -23,14 +25,22 @@ const TechnologyPage = () => {
       } catch (error) {
         console.error('Error fetching polls:', error.message);
       }
+      setLoading(false)
     };
 
     fetchPolls();
   }, []);
 
+  if (loading) {
+    return (
+      <div className="max-w-[1450px] mx-auto min-h-[80vh]">
+        <Skeleton />
+      </div>
+    )
+  }
+
   return (
     <div className="py-10 px-4">
-      <h1 className="text-2xl font-bold mb-6">Technology Polls</h1>
       <OutcomePoll data={polls} />
     </div>
   );

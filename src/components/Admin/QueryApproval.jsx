@@ -19,6 +19,7 @@ const QueryApproval = () => {
             try {
                 const response = await ServerApi.get('/userPrediction/adminApproval');
                 if (response.data.success) {
+                    console.log(response.data.data)
                     const pending = response.data.data
                         .filter(pred => pred.status === "pending")
                         .sort((a, b) => new Date(b.timestamp) - new Date(a.timestamp));
@@ -33,6 +34,7 @@ const QueryApproval = () => {
 
         fetchPredictions();
     }, [user]);
+
 
     const handleDecision = async (id, action, condition, closingDate) => {
         try {

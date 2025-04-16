@@ -25,6 +25,7 @@ import CreatePoll from './components/CreateThread/CreatePoll';
 import DisplayThread from './components/DisplayThread/DisplayThread';
 import Reward from './components/Reward/Reward'
 import AdminPanel from './components/Admin/AdminPanel'
+import InfoBanner from './utils/infoBanner';
 
 export default function AppRouter() {
     const location = useLocation();
@@ -44,6 +45,8 @@ export default function AppRouter() {
     return (
         <>
             <ScrollToTop />
+
+            {!isDashboard && <InfoBanner />}
             {!isDashboard && <Header refreshBalance={refreshBalance} refreshKey={refreshKey} />}
 
             <Routes>
@@ -71,7 +74,7 @@ export default function AppRouter() {
                         <Route path="overview" element={<Overview />} />
                         <Route path="predictions" element={<MyPredictions />} />
                         <Route path="wallet" element={<TokenWallet />} />
-                        <Route path="activity" element={<Activity/>} />
+                        <Route path="activity" element={<Activity />} />
 
                     </Route>
                 </Route>

@@ -2,7 +2,7 @@ import React, { useState, useEffect } from "react";
 import { useAuth } from "../../Context/AuthContext";
 import ServerApi from "../../api/ServerAPI";
 
-const OutcomePoll = ({ data = [] }) => {
+const OutcomePoll = ({ data = [], from }) => {
   const { user } = useAuth();
   const [polls, setPolls] = useState([]);
   const [modalType, setModalType] = useState(null);
@@ -45,7 +45,7 @@ const OutcomePoll = ({ data = [] }) => {
   const openModal = (poll, type) => {
     setSelectedPoll(poll);
     setModalType(type);
-  
+
     const modal = document.getElementById("global_modal");
     if (modal && typeof modal.showModal === "function") {
       modal.close(); // Close first if already open
@@ -54,57 +54,79 @@ const OutcomePoll = ({ data = [] }) => {
   };
 
   return (
-    <div className="flex flex-wrap justify-center gap-6 mt-10">
+    <div className={`${from !== 'create' ? "mx-auto max-w-[1450px] grid grid-cols-1 gap-6 py-4 px-10 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4" : ""}`}>
+
       {polls.map((poll) => {
         if (!poll || !Array.isArray(poll.outcome)) return null;
 
         const totalVotes = poll.outcome.reduce((acc, o) => acc + o.votes, 0);
 
         return (
-          <div key={poll._id} className="min-w-[350px] w-full max-w-sm rounded-xl shadow-lg p-5">
-            <div className="text-sm text-gray-500 mb-2">
-              {capitalize(poll.realm)} {capitalize(poll.category)} {capitalize(poll.subcategory)}
+          <div key={poll._id} className="w-full max-w-sm rounded-sm shadow-[0px_2px_3px_-1px_rgba(0,0,0,0.1),0px_1px_0px_0px_rgba(25,28,33,0.02),0px_0px_0px_1px_rgba(25,28,33,0.08)]  p-5 flex flex-col justify-between min-h-[320px]">
+            {/* Top Section */}
+            <div className="text-xs text-gray-500 font-semibold uppercase tracking-wide mb-3">
+              {capitalize(poll.realm)}
             </div>
 
-            <div className="text-lg font-bold mb-4">{poll.question}</div>
+            {/* Question */}
+            <h2 className="text-lg font-bold mb-4 text-custom leading-tight">
+              {poll.question}
+            </h2>
 
-            <div className="flex flex-col gap-2">
-              <div className="flex justify-between font-bold text-base">
-                <span className="flex-2">Outcome</span>
-                <span className="flex-1 text-center">Votes</span>
-                <span className="flex-1 text-center">Chance</span>
-                <span className="flex-1"></span>
+            {/* Middle Section */}
+            <div className="flex flex-col gap-2 flex-grow overflow-y-auto max-h-[180px] px-1">
+              <div className="grid grid-cols-4 text-xs font-semibold text-gray-600 pb-2 border-b border-gray-200">
+                <span className="col-span-2">Outcome</span>
+                <span className="text-center">Votes</span>
+                <span className="text-center">Chance</span>
               </div>
 
               {poll.outcome.map((opt) => {
+
                 const chance = totalVotes > 0 ? (opt.votes / totalVotes) * 100 : 0;
                 return (
-                  <div key={opt._id} className="flex justify-between items-center">
-                    <span className="flex-2 font-bold text-sm">{opt.name}</span>
-                    <span className="flex-1 text-center font-semibold text-sm">{opt.votes}</span>
-                    <span className="flex-1 text-center text-sm">{chance.toFixed(1)}%</span>
-                    <span className="flex-1 flex gap-2 justify-end text-sm">
+                  <div key={opt._id} className="grid grid-cols-4 items-center text-sm text-custom gap-2">
+                    <span className="font-medium">{opt.name}</span>
+                    <span className="text-center">{opt.votes}</span>
+                    <span className="text-center">{chance.toFixed(1)}%</span>
+
+                    <div className="flex justify-end">
                       <button
                         onClick={() => handleVote(poll._id, opt._id)}
-                        className="px-4 py-2 text-sm rounded-md bg-[#afd89e] text-custom font-semibold hover:bg-[#9ec28e]"
+                        className="cursor-pointer px-4 py-[6px] text-sm rounded-md bg-[#27AE6080] text-custom font-semibold hover:bg-[#27AE60] hover:text-white transition-all duration-200"
                       >
                         Vote
                       </button>
-                    </span>
+                    </div>
                   </div>
                 );
               })}
+            </div>
 
-              <div className="mt-2 text-sm font-semibold text-center">
-                Total Votes: {totalVotes}
+            <div className="mt-4 pt-3">
+              <p className="text-gray-500 text-sm text-center">
+                Total Votes: <span className="font-semibold">{totalVotes}</span>
+              </p>
+
+              <div className="mt-3 flex justify-between bg-base-200 rounded-lg overflow-hidden text-blue-600 font-semibold text-sm">
+                <button
+                  className="w-1/2 cursor-pointer py-2 hover:bg-gray-200 border-r border-gray-300"
+                  onClick={() => openModal(poll, "votes")}
+                >
+                  Votes
+                </button>
+                <button
+                  className="w-1/2 py-2 cursor-pointer hover:bg-gray-300"
+                  onClick={() => openModal(poll, "rules")}
+                >
+                  Rules
+                </button>
               </div>
             </div>
 
-            <div className="flex justify-between mt-3">
-              <span className="link link-primary cursor-pointer" onClick={() => openModal(poll, "votes")}>Votes</span>
-              <span className="link link-primary cursor-pointer" onClick={() => openModal(poll, "rules")}>Rules</span>
-            </div>
           </div>
+
+
         );
       })}
 
@@ -116,19 +138,19 @@ const OutcomePoll = ({ data = [] }) => {
               <h3 className="font-bold text-lg mt-2 mb-2">Vote Summary</h3>
               <p className="mb-4">{selectedPoll?.question}</p>
               <ul className=" pl-5 text-sm mb-4">
-                {selectedPoll.outcome.map((opt, i) => (
-                  
-                    
-                    <ul className="list-inside ml-4 mt-1">
-                      {opt.voters.length > 0 ? (
-                        opt.voters.map((voter, index) => (
-                          <div key={index}>{voter.username} voted for <strong>{opt.name}</strong></div>
-                        ))
-                      ) : (
-                        <li className="italic text-gray-500"></li>
-                      )}
-                    </ul>
-                  
+                {selectedPoll?.outcome?.map((opt) => (
+
+
+                  <ul className="list-inside ml-4 mt-1">
+                    {opt.voters?.length > 0 ? (
+                      opt.voters.map((voter, index) => (
+                        <div key={index}>{voter.username} voted for <strong>{opt.name}</strong></div>
+                      ))
+                    ) : (
+                      <li className="italic text-gray-500"></li>
+                    )}
+                  </ul>
+
                 ))}
               </ul>
             </>

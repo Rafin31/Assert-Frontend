@@ -22,13 +22,16 @@ const PostCard = ({ post, onLike, onOpenModal, liked }) => {
                         e.stopPropagation();
                         onLike(post._id);
                     }}
-                    className={`btn btn-sm mr-2 ${liked ? "btn-info" : ""}`}
+                    className={`cursor-pointer mr-2 `}
                 >
-                    ❤️ <span className="badge badge-sm ml-1">{post.likeCount}</span>
+                    <span>
+                        {liked ? '❤️ ' : '🤍 '}   {post.likeCount}
+
+                    </span>
                 </button>
 
-                <div className="btn btn-sm">
-                    💬 <span className="badge badge-sm ml-1">{post?.replies?.length || 0}</span>
+                <div className="cursor-pointer">
+                    💬 <span className="">{post?.replies?.length || 0}</span>
                 </div>
             </div>
         </div>

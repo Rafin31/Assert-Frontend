@@ -1,9 +1,9 @@
 import React from 'react'
-import { Link, useNavigate } from "react-router-dom"; // Import useNavigate
+import { Link } from "react-router-dom"; // Import useNavigate
 
 export default function Footer() {
     return (
-        <footer className="footer footer-horizontal footer-center bg-base-200 text-base-content rounded p-10">
+        <footer className="footer footer-horizontal footer-center bg-base-200 text-base-content rounded p-10 mt-20">
             <nav className="grid grid-flow-col gap-4">
                 <a className="link link-hover">About us</a>
                 <a className="link link-hover">Contact</a>

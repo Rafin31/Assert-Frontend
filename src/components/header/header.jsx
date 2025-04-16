@@ -212,11 +212,11 @@ export default function Header({ refreshBalance, refreshKey }) {
                                     <div className="text-right">
                                         {isClaimable ? (
                                             <button
-                                                className="btn btn-warning btn-sm text-xs px-3 py-1"
+                                                className="btn-grad-orange cursor-pointer text-xs"
                                                 onClick={handleClaimReward}
                                                 disabled={loading}
                                             >
-                                                Claim
+                                                Claim Reward
                                             </button>
                                         ) : countdown > 0 ? (
                                             <div>
@@ -254,7 +254,7 @@ export default function Header({ refreshBalance, refreshKey }) {
                                                 {isClaimable ? (
                                                     <li className="w-full">
                                                         <button
-                                                            className="btn btn-sm text-sm btn-warning"
+                                                            className="btn-grad-orange cursor-pointer"
                                                             onClick={handleClaimReward}
                                                             disabled={loading}
                                                         >
@@ -293,7 +293,7 @@ export default function Header({ refreshBalance, refreshKey }) {
 
                     {!user && <Link to="/login" className="font-bold">Login</Link>}
                     {!user && <div class="divider divider-horizontal m-0 p-0"></div>}
-                    {!user && <Link to="/signUp" className="btn btn-sm btn-secondary lg:btn-md">Sign Up</Link>}
+                    {!user && <Link to="/signUp" className="btn-grad-blue lg:btn-md">Sign Up</Link>}
                 </div>
             </div>
 
