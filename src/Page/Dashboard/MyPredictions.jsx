@@ -1,47 +1,57 @@
-import { PollCard } from '../../components/PollPrediction/PollCard';
 import React, { useEffect, useState } from "react";
 import ServerApi from '../../api/ServerAPI';
 import { useAuth } from "../../Context/AuthContext.jsx";
+import { PollCard } from '../../components/PollPrediction/PollCard';
+import OutcomePoll from '../../components/PollPrediction/OutcomePoll';
+import { Link, useNavigate } from "react-router-dom"; // Import useNavigate
 
 export default function MyPredictions() {
     const [predictions, setPredictions] = useState([]);
     const [filteredPredictions, setFilteredPredictions] = useState([]);
+    const [polls, setPolls] = useState([]);
+    const [filteredPolls, setFilteredPolls] = useState([]);
     const [selectedStatus, setSelectedStatus] = useState("approved"); // default filter
     const { user } = useAuth();
+    
 
     useEffect(() => {
-        const fetchPredictions = async () => {
+        const fetchUserContent = async () => {
             try {
-                const response = await ServerApi.get('/userPrediction/participatedPredictions');
+                const [predRes, pollRes] = await Promise.all([
+                    ServerApi.get('/userPrediction/participatedPredictions'),
+                    ServerApi.get('/userPoll/participatedPolls')
+                ]);
 
-                if (response.data.success) {
-                    const allPredictions = response.data.data;
-                    const userEmail = user?.email;
+                const userEmail = user?.email;
 
-                    const userPredictions = allPredictions
+                if (predRes.data.success) {
+                    const userPredictions = predRes.data.data
                         .filter(pred => pred.email === userEmail)
                         .sort((a, b) => new Date(b.timestamp) - new Date(a.timestamp));
-
                     setPredictions(userPredictions);
-                } else {
-                    console.error('Error fetching predictions:', response.data.message);
                 }
+
+                if (pollRes.data.success) {
+                    const userPolls = pollRes.data.data
+                        .filter(poll => poll.email === userEmail)
+                        .sort((a, b) => new Date(b.timestamp) - new Date(a.timestamp));
+                    setPolls(userPolls);
+                }
+
             } catch (error) {
-                console.error('Error fetching predictions:', error.message);
+                console.error('Error fetching data:', error.message);
             }
         };
 
         if (user?.email) {
-            fetchPredictions();
+            fetchUserContent();
         }
     }, [user]);
 
     useEffect(() => {
-        if (selectedStatus) {
-            const filtered = predictions.filter(pred => pred.status === selectedStatus);
-            setFilteredPredictions(filtered);
-        }
-    }, [selectedStatus, predictions]);
+        setFilteredPredictions(predictions.filter(pred => pred.status === selectedStatus));
+        setFilteredPolls(polls.filter(poll => poll.status === selectedStatus));
+    }, [selectedStatus, predictions, polls]);
 
     const buttonStyles = (status) =>
         `btn ${selectedStatus === status ? 'btn-success' : 'btn-outline'} transition-all`;
@@ -62,12 +72,9 @@ export default function MyPredictions() {
                     Rejected
                 </button>
             </div>
-            
-            
+
             {/* Predictions */}
-            <div className={`p-2 sm:p-5 mx-auto flex flex-wrap justify-center gap-3 ${
-            selectedStatus !== "approved" ? "opacity-50 cursor-not-allowed " : ""
-            }`}>
+            <div className={`p-2 sm:p-5 mx-auto flex flex-wrap justify-center gap-3 ${selectedStatus !== "approved" ? "opacity-50 cursor-not-allowed" : ""}`}>
                 {filteredPredictions.length > 0 ? (
                     filteredPredictions.map((prediction, index) => (
                         <PollCard key={index} data={prediction} />
@@ -77,8 +84,12 @@ export default function MyPredictions() {
                 )}
             </div>
 
-            <h2 className="mt-10 font-bold text-lg">Poll</h2>
-            <h2 className="font-bold text-lg">Thread</h2>
+            {/* Polls */}
+            <h2 className="mt-10 font-bold text-lg">My Polls</h2>
+            <OutcomePoll data={filteredPolls} from="myPolls" />
+
+            {/* Thread Placeholder */}
+            <h2 className="mt-10 font-bold text-lg">Thread</h2>
         </div>
     );
 }
