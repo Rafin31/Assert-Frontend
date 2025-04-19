@@ -26,6 +26,7 @@ import DisplayThread from './components/DisplayThread/DisplayThread';
 import Reward from './components/Reward/Reward'
 import AdminPanel from './components/Admin/AdminPanel'
 import InfoBanner from './utils/infoBanner';
+import Result from './Page/Dashboard/Result';
 
 export default function AppRouter() {
     const location = useLocation();
@@ -73,6 +74,7 @@ export default function AppRouter() {
                         <Route index element={<Overview />} />
                         <Route path="overview" element={<Overview />} />
                         <Route path="predictions" element={<MyPredictions />} />
+                        <Route path="results" element={<Result />} />
                         <Route path="wallet" element={<TokenWallet />} />
                         <Route path="activity" element={<Activity />} />
 

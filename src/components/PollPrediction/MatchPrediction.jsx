@@ -57,11 +57,6 @@ const MatchPrediction = ({ matchPredictionData }) => {
   const handleSubmit = () => {
     if (!isMatchStarted && (prediction === "Draw" || (selectedTeam && prediction))) {
       setSubmitted(true);
-      console.log("Submitted Prediction:", {
-        team: selectedTeam,
-        outcome: prediction,
-        match: matchPredictionData,
-      });
     } else {
       alert("Please select a team and prediction outcome before submitting.");
     }

@@ -112,6 +112,7 @@ export default function PredictionCard({ match, index, refreshBalance }) {
       <div className="card-body">
 
         <div className="flex flex-col gap-2 min-h-[200px]">
+          {match.id}
           <div className="cardTop min-h-[150px] lg:min-h-[120px]">
             <h2 className="card-title text-base font-bold">Who will win?</h2>
             <p className="text-base font-semibold text-accent">{match?.name}</p>

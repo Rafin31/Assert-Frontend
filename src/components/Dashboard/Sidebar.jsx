@@ -1,43 +1,51 @@
-import { Link, NavLink, useNavigate } from 'react-router-dom';
-import { useAuth } from '../../Context/AuthContext';
+// src/components/Dashboard/Sidebar.jsx – fixed/ sticky sidebar that works in and out of drawer
 
+import { Link, NavLink, useNavigate } from "react-router-dom";
+import { useAuth } from "../../Context/AuthContext";
 
 const links = [
-    { name: 'Overview', path: '/dashboard/overview' },
-    { name: 'Activity ', path: '/dashboard/activity' },
-    { name: 'My Predictions', path: '/dashboard/predictions' },
-    { name: 'Token Wallet', path: '/dashboard/wallet' },
-    
-    
+    { name: "Overview", path: "/dashboard/overview" },
+    { name: "My Results", path: "/dashboard/results" },
+    { name: "Activity", path: "/dashboard/activity" },
+    // { name: "My Predictions", path: "/dashboard/predictions" },
+    // { name: "Token Wallet", path: "/dashboard/wallet" },
 ];
 
 export default function Sidebar() {
     const navigate = useNavigate();
     const { logout } = useAuth();
 
+    // Close DaisyUI drawer on mobile
+    const closeDrawer = () => {
+        const cb = document.getElementById("dash-drawer");
+        if (cb) cb.checked = false;
+    };
+
     const handleLogout = () => {
-        logout()
-        navigate('/login');
+        logout();
+        closeDrawer();
+        navigate("/login");
     };
 
     return (
-        <aside className="w-64 bg-[#13242a] text-white h-full p-4">
+        <div className="w-50 bg-[#13242a] text-white p-4">
             <h2 className="text-xl font-bold mb-6">
-                <Link to="/">
+                <Link to="/" onClick={closeDrawer}>
                     ASSERT
                 </Link>
             </h2>
+
             <nav className="flex flex-col space-y-4">
-                {links.map((link) => (
+                {links.map((l) => (
                     <NavLink
-                        key={link.name}
-                        to={link.path}
+                        key={l.name}
+                        to={l.path}
+                        onClick={closeDrawer}
                         className={({ isActive }) =>
-                            `px-4 py-2 rounded hover:bg-accent/80 ${isActive ? 'bg-accent' : ''
-                            }`
+                            `px-4 py-2 rounded hover:bg-accent/80 ${isActive ? "bg-accent" : ""}`
                         }
                     >
-                        {link.name}
+                        {l.name}
                     </NavLink>
                 ))}
 
@@ -48,6 +56,6 @@ export default function Sidebar() {
                     Logout
                 </button>
             </nav>
-        </aside>
+        </div>
     );
 }

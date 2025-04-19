@@ -24,3 +24,20 @@ export const getUserVotes = async (userId) => {
     return [];
   }
 };
+
+
+export const processFixtureResult = async (fixtureId) => {
+  try {
+    if (!fixtureId) throw new Error("Fixture ID is required");
+
+    const response = await ServerApi.post(`/football/process-result/${fixtureId}`);
+
+    return response.data;
+
+  } catch (error) {
+    console.error("Error fetching user votes:", error);
+    return [];
+  }
+};
+
+
