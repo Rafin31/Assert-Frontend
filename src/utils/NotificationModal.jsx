@@ -16,8 +16,8 @@ const NotificationModal = ({ id }) => {
 
 
     return (
-        <dialog id={id} className="modal">
-            <div className="modal-box bg-base-100 shadow-xl border border-base-300">
+        <dialog id={id} className="modal backdrop-brightness-100 backdrop-blur-xs">
+            <div className="modal-box bg-base-100 shadow-xl border border-base-300 ">
                 {/* Header */}
                 <div className="flex items-center justify-between mb-4">
                     <h3 className="text-lg font-bold flex items-center gap-2">

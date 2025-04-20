@@ -4,6 +4,10 @@
     themes: all;
 }
 
+.custom-modal-backdrop::backdrop {
+    background-color: rgba(0, 0, 0, 0.6) !important;
+}
+
 
 .btn-grad-blue {
     background-image: linear-gradient(to right, #2BC0E4 0%, #EAECC6 51%, #2BC0E4 100%)

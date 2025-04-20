@@ -3,7 +3,7 @@ import React from "react";
 
 const PostModal = ({ post, onClose, onLike, onReply, replyText, setReplyText, liked }) => {
     return (
-        <dialog open className="modal modal-open">
+        <dialog open className="modal modal-open backdrop-brightness-100 backdrop-blur-xs">
             <div className="modal-box w-3/4 max-w-4xl bg-white">
                 <button
                     className="btn btn-sm btn-circle btn-ghost absolute right-2 top-2"

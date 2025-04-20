@@ -75,11 +75,10 @@ const OutcomePoll = ({ data = [], from }) => {
 
   return (
     <div
-      className={`${
-        from !== "create"
+      className={`${from !== "create"
           ? "mx-auto max-w-[1450px] grid grid-cols-1 gap-6 py-4 px-10 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4"
           : ""
-      }`}
+        }`}
     >
       {polls.map((poll) => {
         if (!poll || !Array.isArray(poll.outcome)) return null;
@@ -136,13 +135,12 @@ const OutcomePoll = ({ data = [], from }) => {
                       <button
                         onClick={() => handleVote(poll._id, opt._id)}
                         disabled={userHasVoted}
-                        className={`cursor-pointer px-4 py-[6px] text-sm rounded-md font-semibold transition-all duration-200 ${
-                          userVotedThisOption
+                        className={`cursor-pointer px-4 py-[6px] text-sm rounded-md font-semibold transition-all duration-200 ${userVotedThisOption
                             ? "bg-[#27AE60] text-white"
                             : userHasVoted
-                            ? "bg-gray-300 text-gray-500 cursor-not-allowed"
-                            : "bg-[#27AE6080] text-custom hover:bg-[#27AE60] hover:text-white"
-                        }`}
+                              ? "bg-gray-300 text-gray-500 cursor-not-allowed"
+                              : "bg-[#27AE6080] text-custom hover:bg-[#27AE60] hover:text-white"
+                          }`}
                       >
                         {userVotedThisOption ? "Voted" : "Vote"}
                       </button>
@@ -176,7 +174,7 @@ const OutcomePoll = ({ data = [], from }) => {
         );
       })}
 
-      <dialog id="global_modal" className="modal modal-bottom sm:modal-middle">
+      <dialog id="global_modal" className="modal modal-bottom sm:modal-middle backdrop-brightness-100 backdrop-blur-xs">
         <div className="modal-box">
           {modalType === "votes" && selectedPoll?.outcome && (
             <>

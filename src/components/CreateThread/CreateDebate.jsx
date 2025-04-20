@@ -119,7 +119,7 @@ export default function CreateDebate() {
       </div>
 
       {/* ✅ Confirmation Modal */}
-      <dialog id={modalId} className="modal">
+      <dialog id={modalId} className="modal backdrop-brightness-100 backdrop-blur-xs">
         <div className="modal-box">
           <h3 className="font-bold text-lg mb-4">Confirm Submission</h3>
           <p className="mb-4 text-red-600">This will deduct 5 AT Tokens.</p>

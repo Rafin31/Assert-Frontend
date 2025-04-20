@@ -36,7 +36,7 @@ const PoliticsPage = () => {
 
   if (loading) {
     return (
-      <div className="max-w-[1450px] mx-auto min-h-[80vh]">
+      <div className="max-w-[1450px] mx-auto px-5 min-h-[80vh]">
         <Skeleton />
       </div>
     )

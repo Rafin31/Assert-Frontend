@@ -222,7 +222,7 @@ export const PollCard = ({ data }) => {
 
 
         {/* Votes Modal */}
-        <dialog id={`modal_${_id}`} className="modal modal-bottom sm:modal-middle">
+        <dialog id={`modal_${_id}`} className="modal modal-bottom sm:modal-middle backdrop-brightness-100 backdrop-blur-xs">
           <div className="modal-box">
             <h3 className="font-bold text-lg mt-2 mb-2">{question}</h3>
             <p className="font-semibold text-md mb-2">Votes History Yes: {votes.yesVotes.length}, No: {votes.noVotes.length}</p>
@@ -264,7 +264,7 @@ export const PollCard = ({ data }) => {
         </dialog>
 
         {/* Rules Modal */}
-        <dialog id={`rules_${_id}`} className="modal modal-bottom sm:modal-middle">
+        <dialog id={`rules_${_id}`} className="modal modal-bottom sm:modal-middle backdrop-brightness-100 backdrop-blur-xs">
           <div className="modal-box">
 
             <h3 className="font-bold text-xl mb-4">{question}</h3>

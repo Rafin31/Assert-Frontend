@@ -20,7 +20,7 @@ const navLinks = [
     { name: "Politics", path: "/politics" },
     { name: "Sports", path: "/sports" },
     { name: "Thread", path: "/thread" },
-    { name: "Reward", path: "/reward" },
+    // { name: "Reward", path: "/reward" },
 ];
 
 export default function Header({ refreshBalance, refreshKey }) {
@@ -185,11 +185,13 @@ export default function Header({ refreshBalance, refreshKey }) {
                                 </div>
                                 <div className="text-right">
                                     {isClaimable ? (
-                                        <button className="btn-grad-orange text-xs cursor-pointer" onClick={handleClaimReward} disabled={loading}>Claim Reward</button>
+                                        <button className="btn-grad-orange text-xs cursor-pointer" onClick={handleClaimReward} disabled={loading} >Claim Reward</button>
                                     ) : countdown > 0 ? (
-                                        <div>
+                                        <div className="text-center">
                                             <span className="text-[12px] font-extrabold text-gray-600">Next claim</span>
-                                            <div className="text-[13px] text-gray-500 font-mono leading-tight">
+                                            <div className="text-[13px] text-gray-500 font-mono leading-tight"
+                                                style={{ letterSpacing: '3px' }}
+                                            >
                                                 {dayjs.duration(countdown * 1000).format("HH:mm:ss")}
                                             </div>
                                         </div>
@@ -210,6 +212,22 @@ export default function Header({ refreshBalance, refreshKey }) {
                                     </div>
                                 </div>
                                 <ul className="menu menu-lg dropdown-content bg-base-100 rounded-box z-1 mt-3 w-52 p-2 shadow">
+                                    <li>
+                                        <div className="block lg:hidden">
+                                            {isClaimable ? (
+                                                <button className="btn-grad-orange text-xs cursor-pointer w-full" onClick={handleClaimReward} disabled={loading}>Claim Reward</button>
+                                            ) : countdown > 0 ? (
+                                                <div className="text-center">
+                                                    <span className="text-[12px] font-extrabold text-gray-600"
+                                                        style={{ letterSpacing: '2px' }}>Next claim</span>
+                                                    <div className="text-[13px] text-gray-500 font-mono leading-tight"
+                                                        style={{ letterSpacing: '5px' }}>
+                                                        {dayjs.duration(countdown * 1000).format("HH:mm:ss")}
+                                                    </div>
+                                                </div>
+                                            ) : null}
+                                        </div>
+                                    </li>
                                     <li><Link to="/dashboard">Dashboard</Link></li>
                                     <li>
                                         <button onClick={handleOpenNotifications}>
@@ -222,6 +240,7 @@ export default function Header({ refreshBalance, refreshKey }) {
                                     <li>
                                         <button onClick={handleLogout}>Logout</button>
                                     </li>
+
                                 </ul>
                             </div>
                         </div>
@@ -232,6 +251,6 @@ export default function Header({ refreshBalance, refreshKey }) {
                 </div>
             </div>
             <NotificationModal id="notification_modal" unreadCount={unreadCount} />
-        </div>
+        </div >
     );
 }
