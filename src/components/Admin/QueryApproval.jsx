@@ -158,7 +158,7 @@ const QueryApproval = () => {
                             <div key={poll._id} className="border rounded-xl p-4 shadow-md ">
                                                 {/* Fix: Ensure OutcomePoll takes full width */}
                                 <div className="w-full">
-                                    <OutcomePoll data={[poll]} />
+                                    <OutcomePoll data={[poll]} from="QueryApproval" />
                                 </div>
                                 
 

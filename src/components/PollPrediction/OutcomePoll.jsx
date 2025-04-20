@@ -75,10 +75,13 @@ const OutcomePoll = ({ data = [], from }) => {
 
   return (
     <div
-      className={`${from !== "create"
-          ? "mx-auto max-w-[1450px] grid grid-cols-1 gap-6 py-4 px-10 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4"
+      className={`${
+        from === "QueryApproval"
+          ? ""
+          : from !== "create"
+          ? "mx-auto max-w-[1280px] grid justify-center grid-cols-1 gap-6 py-4 px-10 md:grid-cols-2 lg:grid-cols-2 xl:grid-cols-3"
           : ""
-        }`}
+      }`}
     >
       {polls.map((poll) => {
         if (!poll || !Array.isArray(poll.outcome)) return null;
@@ -115,39 +118,44 @@ const OutcomePoll = ({ data = [], from }) => {
                 <span className="text-center">Chance</span>
               </div>
 
-              {poll.outcome.map((opt) => {
-                const chance =
-                  totalVotes > 0 ? (opt.votes / totalVotes) * 100 : 0;
-                const userVotedThisOption = opt.voters?.some(
-                  (voter) => voter.email === user?.email
-                );
+              {[...poll.outcome]
+                .sort((a, b) => b.votes - a.votes)
+                .map((opt) => {
+                  const chance =
+                    totalVotes > 0 ? (opt.votes / totalVotes) * 100 : 0;
+                  const userVotedThisOption = opt.voters?.some(
+                    (voter) => voter.email === user?.email
+                  );
 
-                return (
-                  <div
-                    key={opt._id}
-                    className="grid grid-cols-4 items-center text-sm text-custom gap-2"
-                  >
-                    <span className="font-medium">{opt.name}</span>
-                    <span className="text-center">{opt.votes}</span>
-                    <span className="text-center">{chance.toFixed(1)}%</span>
+                  return (
+                    <div
+                      key={opt._id}
+                      className="grid grid-cols-4 items-center text-sm text-custom gap-2"
+                    >
+                      <span className="font-medium ">{opt.name}</span>
+                      <span className="text-center">{opt.votes}</span>
+                      <span className="text-center">
+                        {chance.toFixed(1)}%
+                      </span>
 
-                    <div className="flex justify-end">
-                      <button
-                        onClick={() => handleVote(poll._id, opt._id)}
-                        disabled={userHasVoted}
-                        className={`cursor-pointer px-4 py-[6px] text-sm rounded-md font-semibold transition-all duration-200 ${userVotedThisOption
-                            ? "bg-[#27AE60] text-white"
-                            : userHasVoted
+                      <div className="flex justify-end">
+                        <button
+                          onClick={() => handleVote(poll._id, opt._id)}
+                          disabled={userHasVoted}
+                          className={`cursor-pointer px-4 py-[6px] text-sm rounded-md font-semibold transition-all duration-200 ${
+                            userVotedThisOption
+                              ? "bg-[#27AE60] text-white"
+                              : userHasVoted
                               ? "bg-gray-300 text-gray-500 cursor-not-allowed"
                               : "bg-[#27AE6080] text-custom hover:bg-[#27AE60] hover:text-white"
                           }`}
-                      >
-                        {userVotedThisOption ? "Voted" : "Vote"}
-                      </button>
+                        >
+                          {userVotedThisOption ? "Voted" : "Vote"}
+                        </button>
+                      </div>
                     </div>
-                  </div>
-                );
-              })}
+                  );
+                })}
             </div>
 
             <div className="mt-4 pt-3">
@@ -181,21 +189,23 @@ const OutcomePoll = ({ data = [], from }) => {
               <h3 className="font-bold text-lg mt-2 mb-2">Vote Summary</h3>
               <p className="mb-4">{selectedPoll?.question}</p>
               <ul className="pl-5 text-sm mb-4">
-                {selectedPoll?.outcome?.map((opt) => (
-                  <ul key={opt._id} className="mt-1">
-                    {opt.voters?.length > 0 ? (
-                      opt.voters.map((voter, index) => (
-                        <div key={index}>
-                          <strong>{voter.username}</strong> voted for{" "}
-                          <strong>{opt.name}</strong> at{" "}
-                          {formatTimestamp(voter.votedAt)}
-                        </div>
-                      ))
-                    ) : (
-                      <li className="italic text-gray-500"></li>
-                    )}
-                  </ul>
-                ))}
+                {[...selectedPoll.outcome]
+                  .sort((a, b) => b.votes - a.votes)
+                  .map((opt) => (
+                    <ul key={opt._id} className="mt-1">
+                      {opt.voters?.length > 0 ? (
+                        opt.voters.map((voter, index) => (
+                          <div key={index}>
+                            <strong>{voter.username}</strong> voted for{" "}
+                            <strong>{opt.name}</strong> at{" "}
+                            {formatTimestamp(voter.votedAt)}
+                          </div>
+                        ))
+                      ) : (
+                        <li className="italic text-gray-500"></li>
+                      )}
+                    </ul>
+                  ))}
               </ul>
             </>
           )}
