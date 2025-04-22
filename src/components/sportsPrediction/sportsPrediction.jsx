@@ -2,11 +2,11 @@ import { useState, useEffect } from "react";
 import PredictionCard from "../predictionCard/predictionCard";
 import { getFixturesForDateRange } from '../../Services/FootballService.jsx';
 import OutcomePoll from "../PollPrediction/OutcomePoll.jsx";
-import ScorePrediction from '../PollPrediction/ScorePrediction.jsx';
-import MatchPrediction from '../PollPrediction/MatchPrediction.jsx';
 import Skeleton from "../../utils/skeleton.jsx";
 import dayjs from "dayjs";
 import { useLocation } from "react-router-dom";
+import { PollCard } from '../PollPrediction/PollCard.jsx';
+
 
 export default function SportsPredictions({ refreshBalance, refreshKey }) {
 
