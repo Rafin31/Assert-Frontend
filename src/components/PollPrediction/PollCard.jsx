@@ -268,18 +268,32 @@ export const PollCard = ({ data }) => {
           </div>
         </dialog>
 
+ 
         {/* Rules Modal */}
         <dialog id={`rules_${_id}`} className="modal modal-bottom sm:modal-middle backdrop-brightness-100 backdrop-blur-xs">
-          <div className="modal-box">
-            <h3 className="font-bold text-lg mt-2 mb-2">Prediction Rules</h3>
-            <pre>{JSON.stringify(rule, null, 2)}</pre>
-            <div className="modal-action">
-              <form method="dialog">
-                <button className="btn">Close</button>
-              </form>
-            </div>
+        <div className="modal-box">
+
+          <h3 className="font-bold text-xl mb-4">{question}</h3>
+
+          {Array.isArray(data.rule) && data.rule.length > 0 ? (
+            data.rule.map((r, index) => (
+              <div key={index} className="mb-4 ">
+                <p><span className="font-semibold">Condition:</span> {r.condition}</p>
+                <br />
+                <p><span className="font-semibold">Closing Date:</span> {formatTimestamp(r.closingDate)}</p>
+              </div>
+            ))
+          ) : (
+            <p className="text-gray-500">No rules provided.</p>
+          )}
+
+          <div className="modal-action">
+            <form method="dialog">
+              <button className="btn">Close</button>
+            </form>
           </div>
-        </dialog>
+        </div>
+      </dialog>
       </div>
     </div>
   );

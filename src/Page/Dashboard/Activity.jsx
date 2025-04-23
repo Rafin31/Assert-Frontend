@@ -137,6 +137,7 @@ export default function Activity() {
                                     <th>Options&nbsp;(%)</th>
                                     <th className="w-24">Total Votes</th>
                                     <th className="w-56">Rules</th>
+                                    <th className="w-24">Status</th>
                                     <th className="w-40">Created</th>
                                 </tr>
                             </thead>
@@ -154,6 +155,7 @@ export default function Activity() {
                                             <td>{optionPercentStr(poll.outcome)}</td>
                                             <td>{totalVotes}</td>
                                             <td>{ruleString(poll.rule)}</td>
+                                            <td className="capitalize">{poll.status}</td>
                                             <td>{fmt(poll.timestamp)}</td>
                                         </tr>
                                     );

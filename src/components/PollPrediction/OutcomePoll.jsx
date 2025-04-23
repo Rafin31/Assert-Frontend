@@ -34,7 +34,7 @@ const OutcomePoll = ({ data = [], from }) => {
             const seconds = Math.floor((diff / 1000) % 60);
             updatedCountdowns[poll._id] = `${days}d ${hours}h ${minutes}m ${seconds}s`;
           } else {
-            updatedCountdowns[poll._id] = "Closed";
+            updatedCountdowns[poll._id] = "Poll Closed";
           }
         }
       });
@@ -113,6 +113,7 @@ const OutcomePoll = ({ data = [], from }) => {
         );
 
         const countdown = countdowns[poll._id] || "";
+        const pollClosed = countdown === "Poll Closed";
 
         return (
           <div
@@ -163,16 +164,16 @@ const OutcomePoll = ({ data = [], from }) => {
                       <div className="flex justify-end">
                         <button
                           onClick={() => handleVote(poll._id, opt._id)}
-                          disabled={userHasVoted}
+                          disabled={userHasVoted || pollClosed}
                           className={`cursor-pointer px-4 py-[6px] text-sm rounded-md font-semibold transition-all duration-200 ${
                             userVotedThisOption
                               ? "bg-[#27AE60] text-white"
-                              : userHasVoted
+                              : userHasVoted || pollClosed
                               ? "bg-gray-300 text-gray-500 cursor-not-allowed"
                               : "bg-[#27AE6080] text-custom hover:bg-[#27AE60] hover:text-white"
                           }`}
                         >
-                          {userVotedThisOption ? "Voted" : "Vote"}
+                          {userVotedThisOption ? "Voted" : pollClosed ? "Vote" : "Vote"}
                         </button>
                       </div>
                     </div>
@@ -188,11 +189,10 @@ const OutcomePoll = ({ data = [], from }) => {
                 </p>
               )}
               
+
               <p className="text-gray-500 text-sm text-center">
                 Total Votes: <span className="font-semibold">{totalVotes}</span>
               </p>
-
-             
 
               <div className="mt-3 flex justify-between bg-base-200 rounded-lg overflow-hidden text-blue-600 font-semibold text-sm">
                 <button
