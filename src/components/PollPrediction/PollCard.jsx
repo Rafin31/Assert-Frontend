@@ -14,7 +14,6 @@ export const PollCard = ({ data }) => {
     expired: false,
   });
 
-
   const {
     question,
     outcome = {},
@@ -72,19 +71,43 @@ export const PollCard = ({ data }) => {
     }
   }, [rule]);
 
-  if (!data) return <div>Error: No prediction data available</div>;
+  // New useEffect to update states when the data prop changes
+  useEffect(() => {
+    setVotes({
+      yesVotes: data.outcome?.yesVotes || [],
+      noVotes: data.outcome?.noVotes || [],
+    });
+    setUserVote(null); // Reset the vote (optional: recheck if user has already voted)
+    setCurrentPage(1); // Reset pagination
 
+    if (Array.isArray(data.rule) && data.rule.length > 0) {
+      const nextClosingDate = new Date(Math.min(...data.rule.map(r => new Date(r.closingDate))));
+
+      const now = new Date();
+      const distance = nextClosingDate - now;
+
+      if (distance <= 0) {
+        setCountdown({ days: 0, hours: 0, minutes: 0, seconds: 0, expired: true });
+      } else {
+        const days = Math.floor(distance / (1000 * 60 * 60 * 24));
+        const hours = Math.floor((distance % (1000 * 60 * 60 * 24)) / (1000 * 60 * 60));
+        const minutes = Math.floor((distance % (1000 * 60 * 60)) / (1000 * 60));
+        const seconds = Math.floor((distance % (1000 * 60)) / 1000);
+
+        setCountdown({ days, hours, minutes, seconds, expired: false });
+      }
+    }
+  }, [data]); // Dependency on `data` prop
+
+  if (!data) return <div>Error: No prediction data available</div>;
 
   const totalVotes = votes.yesVotes.length + votes.noVotes.length;
   const yesPercentage = totalVotes > 0 ? ((votes.yesVotes.length / totalVotes) * 100).toFixed(0) : 0;
   const noPercentage = totalVotes > 0 ? ((votes.noVotes.length / totalVotes) * 100).toFixed(0) : 0;
 
-
-
   const handleVote = async (voteType) => {
     if (!user?.userName || !user?.email) {
       return navigate("/login"); // redirect to login if not authenticated
-
     }
 
     if (userVote) return; // already voted
@@ -138,8 +161,6 @@ export const PollCard = ({ data }) => {
 
   const capitalize = (text) => text?.charAt(0).toUpperCase() + text?.slice(1);
 
-
-
   return (
     <div className="flex flex-wrap gap-3 justify-center mt-5 w-full sm:w-90 m-1 transform transition-transform hover:scale-102">
       <div className="bg-base-100 rounded-lg p-4 shadow-lg w-90 flex-1 sm:flex-1 md:flex-none">
@@ -159,25 +180,21 @@ export const PollCard = ({ data }) => {
         </div>
 
         <div className="flex justify-center gap-2 mt-4 mb-4">
-          <button
-            className={`py-2 px-4 rounded-md font-semibold ${userVote === "yes" ? "bg-[#afd89e] cursor-not-allowed opacity-70" : "bg-[#afd89e] hover:bg-[#9ec28e]"
-              }`}
-            disabled={!!userVote}
-            onClick={() => handleVote("yes")}
-          >
-            Yes
-          </button>
-          <button
-            className={`py-2 px-4 rounded-md font-semibold ${userVote === "no" ? "bg-[#ff7b7a] cursor-not-allowed opacity-70" : "bg-[#ff7b7a] hover:bg-[#e66f6e]"
-              }`}
-            disabled={!!userVote}
-            onClick={() => handleVote("no")}
-          >
-            No
-          </button>
+        <button
+          className={`py-2 px-4 rounded-md font-semibold ${userVote ? "bg-[#afd89e] cursor-not-allowed opacity-70" : "bg-[#afd89e] hover:bg-[#9ec28e]"} `}
+          disabled={!!userVote}  // Disable both buttons if the user has already voted
+          onClick={() => handleVote("yes")}
+        >
+          Yes
+        </button>
+        <button
+          className={`py-2 px-4 rounded-md font-semibold ${userVote ? "bg-[#ff7b7a] cursor-not-allowed opacity-70" : "bg-[#ff7b7a] hover:bg-[#e66f6e]"} `}
+          disabled={!!userVote}  // Disable both buttons if the user has already voted
+          onClick={() => handleVote("no")}
+        >
+          No
+        </button>
         </div>
-
-
 
         <div className="w-4/5 bg-gray-300 h-2 rounded-full mx-auto my-4">
           <div
@@ -186,47 +203,35 @@ export const PollCard = ({ data }) => {
           ></div>
         </div>
 
-
-
         {userVote && (
           <p className="text-center text-lg ">
             You predicted <span className={userVote === "yes" ? "text-green-600" : "text-red-600"}>{userVote === "yes" ? "Yes" : "No"}</span>
           </p>
         )}
 
-
         <p className="text-lg text-base mt-2 countdown font-mono flex justify-center">
           {countdown.expired
-            ? "Prediction closed<"
+            ? "Prediction Closed"
             : `${countdown.days}d ${countdown.hours}h ${countdown.minutes}m ${countdown.seconds}s`}
         </p>
 
         <p className="text-gray-500 text-sm text-center mt-2">Total Votes: {totalVotes}</p>
-
-
-
-
 
         <div className="flex justify-between mt-3">
           <div className="link link-primary cursor-pointer" onClick={() => openModal(`modal_${_id}`)}>
             Votes
           </div>
 
-
-
           <div className="link link-primary cursor-pointer" onClick={() => openModal(`rules_${_id}`)}>
             Rules
           </div>
         </div>
-
-
 
         {/* Votes Modal */}
         <dialog id={`modal_${_id}`} className="modal modal-bottom sm:modal-middle backdrop-brightness-100 backdrop-blur-xs">
           <div className="modal-box">
             <h3 className="font-bold text-lg mt-2 mb-2">{question}</h3>
             <p className="font-semibold text-md mb-2">Votes History Yes: {votes.yesVotes.length}, No: {votes.noVotes.length}</p>
-
 
             {paginatedVotes.map((vote, i) => (
               <div key={i} className="mb-2">
@@ -257,37 +262,38 @@ export const PollCard = ({ data }) => {
 
             <div className="modal-action">
               <form method="dialog">
-                <button className="btn" onClick={() => setCurrentPage(1)}>Close</button>
-              </form>
-            </div>
-          </div>
-        </dialog>
-
-        {/* Rules Modal */}
-        <dialog id={`rules_${_id}`} className="modal modal-bottom sm:modal-middle backdrop-brightness-100 backdrop-blur-xs">
-          <div className="modal-box">
-
-            <h3 className="font-bold text-xl mb-4">{question}</h3>
-
-            {Array.isArray(data.rule) && data.rule.length > 0 ? (
-              data.rule.map((r, index) => (
-                <div key={index} className="mb-4 ">
-                  <p><span className="font-semibold">Condition:</span> {r.condition}</p>
-                  <br />
-                  <p><span className="font-semibold">Closing Date:</span> {formatTimestamp(r.closingDate)}</p>
-                </div>
-              ))
-            ) : (
-              <p className="text-gray-500">No rules provided.</p>
-            )}
-
-            <div className="modal-action">
-              <form method="dialog">
                 <button className="btn">Close</button>
               </form>
             </div>
           </div>
         </dialog>
+
+ 
+        {/* Rules Modal */}
+        <dialog id={`rules_${_id}`} className="modal modal-bottom sm:modal-middle backdrop-brightness-100 backdrop-blur-xs">
+        <div className="modal-box">
+
+          <h3 className="font-bold text-xl mb-4">{question}</h3>
+
+          {Array.isArray(data.rule) && data.rule.length > 0 ? (
+            data.rule.map((r, index) => (
+              <div key={index} className="mb-4 ">
+                <p><span className="font-semibold">Condition:</span> {r.condition}</p>
+                <br />
+                <p><span className="font-semibold">Closing Date:</span> {formatTimestamp(r.closingDate)}</p>
+              </div>
+            ))
+          ) : (
+            <p className="text-gray-500">No rules provided.</p>
+          )}
+
+          <div className="modal-action">
+            <form method="dialog">
+              <button className="btn">Close</button>
+            </form>
+          </div>
+        </div>
+      </dialog>
       </div>
     </div>
   );

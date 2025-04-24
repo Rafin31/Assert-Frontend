@@ -7,7 +7,8 @@ import { useAuth } from "../../Context/AuthContext.jsx";
 const QueryApproval = () => {
     const [predictions, setPredictions] = useState([]);
     const [polls, setPolls] = useState([]);
-    const [pollRuleData, setPollRuleData] = useState({}); // store per-poll rule info
+    const [pollRuleData, setPollRuleData] = useState({});
+    const [predictionRuleData, setPredictionRuleData] = useState({});
     const [loading, setLoading] = useState(true);
     const { user } = useAuth();
 
@@ -50,13 +51,23 @@ const QueryApproval = () => {
 
     const handlePredictionDecision = async (id, action, condition, closingDate) => {
         try {
+            const rule = {
+                condition: condition || "No condition provided",  // Default to "No condition provided" if empty
+                closingDate: closingDate || null  // Default to null if not provided
+            };
+
             const response = await ServerApi.put(`/userPrediction/updateStatus/${id}`, {
                 status: action,
-                rule: { condition, closingDate }
+                rule: rule
             });
 
             if (response.data.success) {
                 setPredictions(prev => prev.filter(p => p._id !== id));
+                setPredictionRuleData(prev => {
+                    const copy = { ...prev };
+                    delete copy[id];
+                    return copy;
+                });
             }
         } catch (error) {
             console.error('Prediction update failed:', error.message);
@@ -65,13 +76,16 @@ const QueryApproval = () => {
 
     const handlePollDecision = async (id, action) => {
         const ruleData = pollRuleData[id];
+        
+        const rule = {
+            condition: ruleData?.condition || "No condition provided",  // Default to "No condition provided" if empty
+            closingDate: ruleData?.closingDate || null  // Default to null if not provided
+        };
+
         try {
             const response = await ServerApi.put(`/userPoll/updateStatus/${id}`, {
                 status: action,
-                rule: {
-                    condition: ruleData?.condition || "",
-                    closingDate: ruleData?.closingDate || null
-                }
+                rule: rule
             });
 
             if (response.data.success) {
@@ -109,21 +123,34 @@ const QueryApproval = () => {
                 {predictions.length > 0 ? (
                     predictions.map(prediction => (
                         <div key={prediction._id} className="border rounded-xl p-4 w-full max-w-md shadow-md">
-                            
                             <PollCard data={prediction} />
                             <div className="mt-4 space-y-2">
                                 <input
                                     type="text"
                                     placeholder="Result condition"
                                     className="input input-bordered w-full"
-                                    onChange={(e) => prediction.ruleCondition = e.target.value}
+                                    onChange={(e) =>
+                                        setPredictionRuleData(prev => ({
+                                            ...prev,
+                                            [prediction._id]: {
+                                                ...prev[prediction._id],
+                                                condition: e.target.value
+                                            }
+                                        }))
+                                    }
                                 />
                                 <input
                                     type="datetime-local"
                                     className="input input-bordered w-full"
-                                    onChange={(e) => {
-                                        prediction.ruleDate = new Date(e.target.value);
-                                    }}
+                                    onChange={(e) =>
+                                        setPredictionRuleData(prev => ({
+                                            ...prev,
+                                            [prediction._id]: {
+                                                ...prev[prediction._id],
+                                                closingDate: new Date(e.target.value)
+                                            }
+                                        }))
+                                    }
                                 />
                                 <div className="flex justify-between mt-2">
                                     <button
@@ -132,15 +159,26 @@ const QueryApproval = () => {
                                             handlePredictionDecision(
                                                 prediction._id,
                                                 "approved",
-                                                prediction.ruleCondition,
-                                                prediction.ruleDate
-                                            )}
-                                    >Approve</button>
+                                                predictionRuleData[prediction._id]?.condition || "No condition provided",
+                                                predictionRuleData[prediction._id]?.closingDate || null
+                                            )
+                                        }
+                                    >
+                                        Approve
+                                    </button>
                                     <button
                                         className="btn btn-error"
                                         onClick={() =>
-                                            handlePredictionDecision(prediction._id, "rejected", "", null)}
-                                    >Reject</button>
+                                            handlePredictionDecision(
+                                                prediction._id,
+                                                "rejected",
+                                                predictionRuleData[prediction._id]?.condition || "No condition provided",
+                                                predictionRuleData[prediction._id]?.closingDate || null
+                                            )
+                                        }
+                                    >
+                                        Reject
+                                    </button>
                                 </div>
                             </div>
                         </div>
@@ -150,72 +188,76 @@ const QueryApproval = () => {
                 )}
             </div>
 
+            {/* Polls */}
             <h2 className='text-lg text-center my-4'>Pending Polls for Approval</h2>
-            <div className='p-6 mx-auto flex flex-wrap justify-center gap-6 '>
+            <div className='p-6 mx-auto flex flex-wrap justify-center gap-6'>
                 {polls.length > 0 ? (
-                    <>
-                        {polls.map((poll) => (
-                            <div key={poll._id} className="border rounded-xl p-4 shadow-md ">
-                                                {/* Fix: Ensure OutcomePoll takes full width */}
-                                <div className="w-full">
-                                    <OutcomePoll data={[poll]} from="QueryApproval" />
-                                </div>
-                                
-
-                                {/* Rule Condition and Closing Date inputs */}
-                                <div className=" flex flex-wrap flex-col space-y-2 mt-2 ">
-                                    <input
-                                        type="text"
-                                        placeholder="Result condition"
-                                        className="input input-bordered"
-                                        onChange={(e) =>
-                                            setPollRuleData(prev => ({
-                                                ...prev,
-                                                [poll._id]: {
-                                                    ...prev[poll._id],
-                                                    condition: e.target.value
-                                                }
-                                            }))
-                                        }
-                                    />
-                                    <input
-                                        type="datetime-local"
-                                        className="input input-bordered"
-                                        onChange={(e) =>
-                                            setPollRuleData(prev => ({
-                                                ...prev,
-                                                [poll._id]: {
-                                                    ...prev[poll._id],
-                                                    closingDate: new Date(e.target.value)
-                                                }
-                                            }))
-                                        }
-                                    />
-                                </div>
-
-                                {/* Approve and Reject buttons */}
-                                <div className="flex flex-wrap mt-3 justify-between">
-                                    <button
-                                        className="btn btn-success"
-                                        onClick={() => handlePollDecision(poll._id, "approved")}
-                                    >
-                                        Approve
-                                    </button>
-                                    <button
-                                        className="btn btn-error"
-                                        onClick={() => handlePollDecision(poll._id, "rejected")}
-                                    >
-                                        Reject
-                                    </button>
-                                </div>
+                    polls.map((poll) => (
+                        <div key={poll._id} className="border rounded-xl p-4 shadow-md">
+                            <div className="w-full">
+                                <OutcomePoll data={[poll]} from="QueryApproval" />
                             </div>
-                        ))}
-                    </>
+
+                            <div className="flex flex-wrap flex-col space-y-2 mt-2">
+                                <input
+                                    type="text"
+                                    placeholder="Result condition"
+                                    className="input input-bordered"
+                                    onChange={(e) =>
+                                        setPollRuleData(prev => ({
+                                            ...prev,
+                                            [poll._id]: {
+                                                ...prev[poll._id],
+                                                condition: e.target.value
+                                            }
+                                        }))
+                                    }
+                                />
+                                <input
+                                    type="datetime-local"
+                                    className="input input-bordered"
+                                    onChange={(e) =>
+                                        setPollRuleData(prev => ({
+                                            ...prev,
+                                            [poll._id]: {
+                                                ...prev[poll._id],
+                                                closingDate: new Date(e.target.value)
+                                            }
+                                        }))
+                                    }
+                                />
+                            </div>
+
+                            <div className="flex flex-wrap mt-3 justify-between">
+                                <button
+                                    className="btn btn-success"
+                                    onClick={() =>
+                                        handlePollDecision(
+                                            poll._id,
+                                            "approved"
+                                        )
+                                    }
+                                >
+                                    Approve
+                                </button>
+                                <button
+                                    className="btn btn-error"
+                                    onClick={() =>
+                                        handlePollDecision(
+                                            poll._id,
+                                            "rejected"
+                                        )
+                                    }
+                                >
+                                    Reject
+                                </button>
+                            </div>
+                        </div>
+                    ))
                 ) : (
                     <p className="text-center text-gray-500">No polls found.</p>
                 )}
             </div>
-
         </div>
     );
 };
