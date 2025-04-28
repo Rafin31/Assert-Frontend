@@ -37,15 +37,16 @@ export default function CreateDebate() {
 
   const handleSubmit = async () => {
     setLoading(true);
-
+   
     try {
       const formData = {
         username: user.userName,
+        email: user.email,
         realm,
         question,
         moreDetails,
         type: "debate",
-        status: "approved",
+        status: "pending",
       };
 
       const res = await submitDebate(formData);
