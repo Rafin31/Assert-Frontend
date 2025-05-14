@@ -48,6 +48,7 @@ const ResultApproval = () => {
         setSelectedOutcome(prev => ({ ...prev, [id]: outcome }));
     };
 
+
     const handleRewardPrediction = async (predictionId) => {
         const outcome = selectedOutcome[predictionId];
         if (!outcome) {
@@ -56,7 +57,7 @@ const ResultApproval = () => {
         }
 
         try {
-            const res = await ServerApi.post('/userPrediction/resolvePrediction', {
+            const res = await ServerApi.put(`/userPrediction/markOutcome/${predictionId}`, {
                 predictionId,
                 winningOutcome: outcome
             });
@@ -73,16 +74,15 @@ const ResultApproval = () => {
     };
 
     const handleRewardPoll = async (pollId) => {
-        const outcome = selectedOutcome[pollId];
-        if (!outcome) {
+        const winningOptionId = selectedOutcome[pollId];
+        if (!winningOptionId) {
             alert("Please select a winning outcome before rewarding.");
             return;
         }
 
         try {
-            const res = await ServerApi.post('/userPoll/resolvePoll', {
-                pollId,
-                winningOutcome: outcome
+            const res = await ServerApi.put(`/userPoll/markOutcome/${pollId}`, {
+                winningOptionId: winningOptionId
             });
 
             if (res.data.success) {
@@ -121,7 +121,7 @@ const ResultApproval = () => {
                             <div className="space-y-2">
                                 <p className="font-medium text-center">Select Winning Outcome</p>
                                 <div className="flex flex-wrap gap-2 justify-center">
-                                    {["Yes", "No", "Undecided"].map(option => (
+                                    {["Yes", "No", "No Result"].map(option => (
                                         <button
                                             key={option}
                                             onClick={() => handleSelectOutcome(prediction._id, option)}
@@ -166,8 +166,8 @@ const ResultApproval = () => {
                                     onChange={(e) => handleSelectOutcome(poll._id, e.target.value)}
                                 >
                                     <option value="" disabled>Select outcome</option>
-                                    {(poll.outcome || []).map((opt, idx) => (
-                                        <option key={idx} value={opt.name}>{opt.name}</option>
+                                    {(poll.outcome || []).map((opt) => (
+                                        <option key={opt._id} value={opt._id}>{opt.name}</option>
                                     ))}
                                     <option value="No Result">No Result</option>
                                 </select>

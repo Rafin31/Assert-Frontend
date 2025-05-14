@@ -3,10 +3,12 @@ import OutcomePoll from '../../components/PollPrediction/OutcomePoll';
 import React, { useEffect, useState } from "react";
 import ServerApi from '../../api/ServerAPI';
 import { useAuth } from "../../Context/AuthContext.jsx";
+import DisplayBox from '../../components/DisplayThread/DisplayBox.jsx';
 
 const QueryApproval = () => {
     const [predictions, setPredictions] = useState([]);
     const [polls, setPolls] = useState([]);
+    const [query, setQuery] = useState([]);
     const [pollRuleData, setPollRuleData] = useState({});
     const [predictionRuleData, setPredictionRuleData] = useState({});
     const [loading, setLoading] = useState(true);
@@ -20,9 +22,10 @@ const QueryApproval = () => {
             }
 
             try {
-                const [predRes, pollRes] = await Promise.all([
+                const [predRes, pollRes, queryRes] = await Promise.all([
                     ServerApi.get('/userPrediction/adminApproval'),
-                    ServerApi.get('/userPoll/adminApprovalPoll')
+                    ServerApi.get('/userPoll/adminApprovalPoll'),
+                    ServerApi.get('/form/adminApproval')
                 ]);
 
                 if (predRes.data.success) {
@@ -37,6 +40,13 @@ const QueryApproval = () => {
                         .filter(poll => poll.status === "pending")
                         .sort((a, b) => new Date(b.timestamp) - new Date(a.timestamp));
                     setPolls(pendingPolls);
+                }
+
+                if (queryRes.data.success) {
+                    const pendingQuery = queryRes.data.data
+                        .filter(query => query.status === "pending")
+                        .sort((a, b) => new Date(b.timestamp) - new Date(a.timestamp));
+                    setQuery(pendingQuery);
                 }
 
             } catch (error) {
@@ -258,6 +268,66 @@ const QueryApproval = () => {
                     <p className="text-center text-gray-500">No polls found.</p>
                 )}
             </div>
+
+            {/* Queries */}
+            <h2 className='text-lg text-center my-4'>Pending Queries for Approval</h2>
+            <div className='p-6 mx-auto flex flex-wrap justify-center gap-6'>
+                {query.length > 0 ? (
+                    query.map((item) => (
+                        <div key={item._id} className="border rounded-xl p-4 w-full max-w-xl shadow-md">
+                            <div className="flex flex-col">
+                                {/* Displaying the query details */}
+                                <p><strong>Posted by:</strong> {item.username}</p>
+                                <p> {item.realm} <span>{item.timestamp}</span></p> 
+                                <h2><strong>Question:</strong> <span className='text-xl font-bold'>{item.question}</span> </h2>
+                                {item.moreDetails && <p><strong>More Details:</strong> <span className='text-lg font-semibold'>{item.moreDetails}</span></p>}
+                                <p><strong>Type:</strong> {item.type}</p>
+                                <p><strong>Status:</strong> {item.status}</p>
+                            </div>
+
+                            <div className="flex flex-wrap mt-3 justify-between">
+                                <button
+                                    className="btn btn-success"
+                                    onClick={async () => {
+                                        try {
+                                            const res = await ServerApi.put(`/form/updateStatus/${item._id}`, {
+                                                action: "approve" // Changed to use "approve" for clarity in controller
+                                            });
+                                            if (res.data.success) {
+                                                setQuery(prev => prev.filter(q => q._id !== item._id));
+                                            }
+                                        } catch (err) {
+                                            console.error('Query approval failed:', err.message);
+                                        }
+                                    }}
+                                >
+                                    Approve
+                                </button>
+                                <button
+                                    className="btn btn-error"
+                                    onClick={async () => {
+                                        try {
+                                            const res = await ServerApi.put(`/form/updateStatus/${item._id}`, {
+                                                action: "reject" // Changed to use "reject" for clarity in controller
+                                            });
+                                            if (res.data.success) {
+                                                setQuery(prev => prev.filter(q => q._id !== item._id));
+                                            }
+                                        } catch (err) {
+                                            console.error('Query rejection failed:', err.message);
+                                        }
+                                    }}
+                                >
+                                    Reject
+                                </button>
+                            </div>
+                        </div>
+                    ))
+                ) : (
+                    <p className="text-center text-gray-500 w-full">No pending queries found.</p>
+                )}
+            </div>
+
         </div>
     );
 };

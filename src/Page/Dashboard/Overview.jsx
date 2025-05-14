@@ -2,11 +2,18 @@ import React from 'react'
 import { useEffect, useState } from "react";
 import { useAuth } from "../../Context/AuthContext.jsx"; // Import auth context
 import { userData } from "../../Services/userService.jsx"; // Import API function
+import ServerApi from '../../api/ServerAPI';
 
 export default function Overview() {
     const { user } = useAuth();
     const [balance, setBalance] = useState(null);
+    const [predictionCount, setPredictionCount] = useState(null);
+    const [predictionWinCount, setPredictionWinCount] = useState(null);
+    const [predictionLoseCount, setPredictionLoseCount] = useState(null);
+    const [predictionPendingCount, setPredictionPendingCount] = useState(null);
+    predictionPendingCount
 
+    // Fetch token balance
     useEffect(() => {
         const fetchTokenBalance = async () => {
             if (!user?.id) return;
@@ -15,6 +22,24 @@ export default function Overview() {
         };
 
         fetchTokenBalance();
+    }, [user?.id]);
+
+    // Fetch prediction count
+    useEffect(() => {
+        const fetchPredictionCount = async () => {
+            if (!user?.id) return;
+            try {
+                const response = await ServerApi.get(`/prediction/getPredictionCount/${user.id}`);
+                setPredictionCount(response.data.predictionCount);  // Set prediction count
+                setPredictionWinCount(response.data.predictionWinCount);  // Set prediction Win count
+                setPredictionLoseCount(response.data.predictionLoseCount);  // Set prediction Lose count
+                setPredictionPendingCount(response.data.predictionPendingCount); // Set prediction pending count
+            } catch (error) {
+                console.error("Error fetching prediction count:", error);
+            }
+        };
+
+        fetchPredictionCount();
     }, [user?.id]);
 
 
@@ -30,7 +55,7 @@ export default function Overview() {
                     </div>
                     <div className="stat-title text-base">Tokens</div>
                     <div className="stat-value">{balance}</div>
-                    <div className="stat-desc">Earned Today:</div>
+                    
                 </div>
 
                 <div className="stat">
@@ -42,7 +67,7 @@ export default function Overview() {
 
                     </div>
                     <div className="stat-title text-base">Total Predictions</div>
-                    <div className="stat-value">15</div>
+                    <div className="stat-value">{predictionCount}</div>
 
 
                 </div>
@@ -55,7 +80,8 @@ export default function Overview() {
 
                     </div>
                     <div className="stat-title text-base">Win/Loss Record</div>
-                    <div className="stat-value">5/3</div>
+                    <div className="stat-value">{predictionWinCount}/{predictionLoseCount}</div>
+                    <div className="stat-desc">Pending: {predictionPendingCount}</div>
 
                 </div>
 
