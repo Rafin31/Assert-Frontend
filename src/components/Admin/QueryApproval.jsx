@@ -109,7 +109,7 @@ const QueryApproval = () => {
                 {predictions.length > 0 ? (
                     predictions.map(prediction => (
                         <div key={prediction._id} className="border rounded-xl p-4 w-full max-w-md shadow-md">
-                            
+
                             <PollCard data={prediction} />
                             <div className="mt-4 space-y-2">
                                 <input
@@ -156,11 +156,11 @@ const QueryApproval = () => {
                     <>
                         {polls.map((poll) => (
                             <div key={poll._id} className="border rounded-xl p-4 shadow-md ">
-                                                {/* Fix: Ensure OutcomePoll takes full width */}
+                                {/* Fix: Ensure OutcomePoll takes full width */}
                                 <div className="w-full">
-                                    <OutcomePoll data={[poll]} />
+                                    <OutcomePoll data={[poll]} from={'adminpanel'} />
                                 </div>
-                                
+
 
                                 {/* Rule Condition and Closing Date inputs */}
                                 <div className=" flex flex-wrap flex-col space-y-2 mt-2 ">

@@ -174,7 +174,7 @@ const OutcomePoll = ({ data = [], from }) => {
         );
       })}
 
-      <dialog id="global_modal" className="modal modal-bottom sm:modal-middle backdrop-brightness-100 backdrop-blur-xs">
+      <dialog id="global_modal" className="modal modal-bottom sm:modal-middle">
         <div className="modal-box">
           {modalType === "votes" && selectedPoll?.outcome && (
             <>
