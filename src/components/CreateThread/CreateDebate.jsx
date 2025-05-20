@@ -41,6 +41,7 @@ export default function CreateDebate() {
     try {
       const formData = {
         username: user.userName,
+        email: user.email,
         realm,
         question,
         moreDetails,

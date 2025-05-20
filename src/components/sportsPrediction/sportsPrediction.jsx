@@ -2,19 +2,17 @@ import { useState, useEffect } from "react";
 import PredictionCard from "../predictionCard/predictionCard";
 import { getFixturesForDateRange } from '../../Services/FootballService.jsx';
 import OutcomePoll from "../PollPrediction/OutcomePoll.jsx";
-import ScorePrediction from '../PollPrediction/ScorePrediction.jsx';
-import MatchPrediction from '../PollPrediction/MatchPrediction.jsx';
 import Skeleton from "../../utils/skeleton.jsx";
 import dayjs from "dayjs";
 import { useLocation } from "react-router-dom";
+import { PollCard } from '../PollPrediction/PollCard.jsx';
+import { motion } from "framer-motion";
+
 
 export default function SportsPredictions({ refreshBalance, refreshKey }) {
 
     const location = useLocation();
     const isSportsPage = location.pathname.startsWith('/sports');
-
-
-
 
     const [fixtures, setFixtures] = useState([]);
     const [loading, setLoading] = useState(true);
@@ -79,7 +77,19 @@ export default function SportsPredictions({ refreshBalance, refreshKey }) {
                 <>
                     <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-6 py-4">
                         {paginatedFixtures.map((match, index) => (
-                            <PredictionCard key={index} match={match} index={index} refreshBalance={refreshBalance} refreshKey={refreshKey} />
+                            <motion.div
+                                key={index}
+                                initial={{ opacity: 0, y: 40 }}
+                                animate={{ opacity: 1, y: 0 }}
+                                transition={{ delay: index * 0.1, duration: 0.4, ease: "easeOut" }}
+                            >
+                                <PredictionCard
+                                    match={match}
+                                    index={index}
+                                    refreshBalance={refreshBalance}
+                                    refreshKey={refreshKey}
+                                />
+                            </motion.div>
                         ))}
                     </div>
 

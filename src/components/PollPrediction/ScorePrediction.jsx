@@ -2,6 +2,7 @@ import { useEffect, useState } from "react";
 import { getFixturesForDateRange } from "../../Services/FootballService";
 import dayjs from "dayjs";
 
+
 export default function ScorePrediction() {
   const [fixtures, setFixtures] = useState([]);
   const [loading, setLoading] = useState(true);
@@ -23,6 +24,7 @@ export default function ScorePrediction() {
         const range = dateRanges[filterRange];
         const data = await getFixturesForDateRange(range.from, range.to);
         setFixtures(data);
+        setCurrentPage(1); // Reset to page 1 on filter change
       } catch (err) {
         console.error("Error loading fixtures:", err);
       } finally {
@@ -32,11 +34,10 @@ export default function ScorePrediction() {
     fetchFixtures();
   }, [filterRange]);
 
-  const paginatedFixtures = fixtures?.data?.slice(
-    (currentPage - 1) * ITEMS_PER_PAGE,
-    currentPage * ITEMS_PER_PAGE
-  );
-  const totalPages = Math.ceil(fixtures?.data?.length / ITEMS_PER_PAGE);
+  const filteredFixtures = fixtures?.data || [];
+  const totalPages = Math.ceil(filteredFixtures.length / ITEMS_PER_PAGE);
+  const startIndex = (currentPage - 1) * ITEMS_PER_PAGE;
+  const paginatedFixtures = filteredFixtures.slice(startIndex, startIndex + ITEMS_PER_PAGE);
 
   return (
     <div className="mx-auto max-w-[1450px] py-4">
@@ -62,7 +63,7 @@ export default function ScorePrediction() {
             <div key={i} className="skeleton h-[280px] w-full rounded-lg"></div>
           ))
         ) : (
-          paginatedFixtures?.map((match, idx) => {
+          paginatedFixtures.map((match) => {
             const teamA = match.name.split("vs")[0]?.trim();
             const teamB = match.name.split("vs")[1]?.trim();
             const matchStart = dayjs(match.starting_at);
@@ -71,8 +72,8 @@ export default function ScorePrediction() {
             const resultPublished = now.isAfter(matchStart.add(3, "hour"));
 
             return (
-              <div key={idx} className="card bg-base p-5 rounded-xl shadow-md">
-                <div className="top min-h-[110px] ">
+              <div className="card bg-base p-5 rounded-xl shadow-md">
+                <div className="top min-h-[110px]">
                   <p className="text-sm text-gray-500 font-semibold">
                     {match?.league?.name || "League"}
                   </p>
@@ -98,7 +99,6 @@ export default function ScorePrediction() {
                   />
                 </div>
 
-
                 <button
                   className="btn btn-block bg-[#27AE6080] text-custom font-semibold hover:bg-[#27AE60] hover:text-white transition-all duration-200"
                   disabled={hasStarted}
@@ -110,6 +110,7 @@ export default function ScorePrediction() {
                   {resultPublished ? "Result Published" : hasStarted ? "Match Started" : ""}
                 </p>
               </div>
+
             );
           })
         )}

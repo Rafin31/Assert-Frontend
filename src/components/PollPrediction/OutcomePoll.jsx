@@ -1,33 +1,54 @@
 import React, { useState, useEffect } from "react";
 import { useAuth } from "../../Context/AuthContext";
 import ServerApi from "../../api/ServerAPI";
-import { Link, useNavigate } from "react-router-dom"; // Import useNavigate
+import { Link, useNavigate } from "react-router-dom";
 
 const OutcomePoll = ({ data = [], from }) => {
-  const { user, login } = useAuth();  // Assuming the useAuth hook provides the login method
+  const { user } = useAuth();
   const [polls, setPolls] = useState([]);
   const [modalType, setModalType] = useState(null);
   const [selectedPoll, setSelectedPoll] = useState(null);
-  const navigate = useNavigate();  // Initialize useNavigate
+  const [countdowns, setCountdowns] = useState({});
+  const navigate = useNavigate();
 
   useEffect(() => {
     setPolls(data);
   }, [data]);
 
+  // Countdown logic
   useEffect(() => {
-    if (selectedPoll && modalType) {
-      const modal = document.getElementById("global_modal");
-      if (modal && typeof modal.showModal === "function") {
-        modal.showModal();
-      }
-    }
-  }, [selectedPoll, modalType]);
+    const interval = setInterval(() => {
+      const updatedCountdowns = {};
+
+      polls.forEach((poll) => {
+        const closingDateStr = poll.rule?.[0]?.closingDate;
+        if (closingDateStr) {
+          const closingDate = new Date(closingDateStr);
+          const now = new Date();
+          const diff = closingDate - now;
+
+          if (diff > 0) {
+            const days = Math.floor(diff / (1000 * 60 * 60 * 24));
+            const hours = Math.floor((diff / (1000 * 60 * 60)) % 24);
+            const minutes = Math.floor((diff / (1000 * 60)) % 60);
+            const seconds = Math.floor((diff / 1000) % 60);
+            updatedCountdowns[poll._id] = `${days}d ${hours}h ${minutes}m ${seconds}s`;
+          } else {
+            updatedCountdowns[poll._id] = "Poll Closed";
+          }
+        }
+      });
+
+      setCountdowns(updatedCountdowns);
+    }, 1000);
+
+    return () => clearInterval(interval);
+  }, [polls]);
 
   const handleVote = async (pollId, optionId) => {
     if (!user) {
-      // If the user is not logged in, redirect them to the login page
       navigate("/login");
-      return;  // Prevent further execution
+      return;
     }
 
     try {
@@ -35,7 +56,7 @@ const OutcomePoll = ({ data = [], from }) => {
         optionId,
         username: user.userName,
         email: user.email,
-        votedAt: new Date().toISOString(), // include timestamp
+        votedAt: new Date().toISOString(),
       });
 
       const updatedPoll = res.data.updatedPoll;
@@ -75,26 +96,30 @@ const OutcomePoll = ({ data = [], from }) => {
 
   return (
     <div
-      className={`${from !== "create"
-          ? "mx-auto max-w-[1450px] grid grid-cols-1 gap-6 py-4 px-10 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4"
-          : ""
+      className={`${from === "QueryApproval"
+          ? ""
+          : from !== "create"
+            ? "mx-auto max-w-[1280px] grid justify-center grid-cols-1 gap-6 py-4 px-10 md:grid-cols-2 lg:grid-cols-2 xl:grid-cols-3"
+            : ""
         }`}
     >
       {polls.map((poll) => {
         if (!poll || !Array.isArray(poll.outcome)) return null;
 
         const totalVotes = poll.outcome.reduce((acc, o) => acc + o.votes, 0);
-
         const userHasVoted = poll.outcome.some((opt) =>
           opt.voters?.some((v) => v.email === user?.email)
         );
 
+        const countdown = countdowns[poll._id] || "";
+        const pollClosed = countdown === "Poll Closed";
+
         return (
           <div
             key={poll._id}
-            className="w-full bg-base-100 rounded-sm shadow-[0px_2px_3px_-1px_rgba(0,0,0,0.1),0px_1px_0px_0px_rgba(25,28,33,0.02),0px_0px_0px_1px_rgba(25,28,33,0.08)] p-5 flex flex-col justify-between min-h-[350px]"
+            className="w-full bg-base-100 rounded-sm shadow p-5 flex flex-col justify-between min-h-[370px]"
           >
-            <div className="text-xs text-gray-500 font-semibold uppercase tracking-wide mb-3">
+            <div className="text-xs text-gray-500 font-semibold uppercase tracking-wide">
               {capitalize(poll.realm)}
             </div>
             <span className="text-sm mb-1">
@@ -115,42 +140,54 @@ const OutcomePoll = ({ data = [], from }) => {
                 <span className="text-center">Chance</span>
               </div>
 
-              {poll.outcome.map((opt) => {
-                const chance =
-                  totalVotes > 0 ? (opt.votes / totalVotes) * 100 : 0;
-                const userVotedThisOption = opt.voters?.some(
-                  (voter) => voter.email === user?.email
-                );
+              {[...poll.outcome]
+                .sort((a, b) => b.votes - a.votes)
+                .map((opt) => {
+                  const chance =
+                    totalVotes > 0 ? (opt.votes / totalVotes) * 100 : 0;
+                  const userVotedThisOption = opt.voters?.some(
+                    (voter) => voter.email === user?.email
+                  );
 
-                return (
-                  <div
-                    key={opt._id}
-                    className="grid grid-cols-4 items-center text-sm text-custom gap-2"
-                  >
-                    <span className="font-medium">{opt.name}</span>
-                    <span className="text-center">{opt.votes}</span>
-                    <span className="text-center">{chance.toFixed(1)}%</span>
+                  return (
+                    <div
+                      key={opt._id}
+                      className="grid grid-cols-4 items-center text-sm text-custom gap-2"
+                    >
+                      <span className="font-medium">{opt.name}</span>
+                      <span className="text-center">{opt.votes}</span>
+                      <span className="text-center">
+                        {chance.toFixed(1)}%
+                      </span>
 
-                    <div className="flex justify-end">
-                      <button
-                        onClick={() => handleVote(poll._id, opt._id)}
-                        disabled={userHasVoted}
-                        className={`cursor-pointer px-4 py-[6px] text-sm rounded-md font-semibold transition-all duration-200 ${userVotedThisOption
-                            ? "bg-[#27AE60] text-white"
-                            : userHasVoted
-                              ? "bg-gray-300 text-gray-500 cursor-not-allowed"
-                              : "bg-[#27AE6080] text-custom hover:bg-[#27AE60] hover:text-white"
-                          }`}
-                      >
-                        {userVotedThisOption ? "Voted" : "Vote"}
-                      </button>
+                      <div className="flex justify-end">
+                        <button
+                          onClick={() => handleVote(poll._id, opt._id)}
+                          disabled={userHasVoted || pollClosed}
+                          className={`cursor-pointer px-4 py-[6px] text-sm rounded-md font-semibold transition-all duration-200 ${userVotedThisOption
+                              ? "bg-[#27AE60] text-white"
+                              : userHasVoted || pollClosed
+                                ? "bg-gray-300 text-gray-500 cursor-not-allowed"
+                                : "bg-[#27AE6080] text-custom hover:bg-[#27AE60] hover:text-white"
+                            }`}
+                        >
+                          {userVotedThisOption ? "Voted" : pollClosed ? "Vote" : "Vote"}
+                        </button>
+                      </div>
                     </div>
-                  </div>
-                );
-              })}
+                  );
+                })}
             </div>
 
-            <div className="mt-4 pt-3">
+            <div className="mt-3">
+              {/* Countdown Timer */}
+              {countdown && (
+                <p className="countdown font-mono text-lg mb-2 flex justify-center">
+                  {countdown}
+                </p>
+              )}
+
+
               <p className="text-gray-500 text-sm text-center">
                 Total Votes: <span className="font-semibold">{totalVotes}</span>
               </p>
@@ -174,28 +211,31 @@ const OutcomePoll = ({ data = [], from }) => {
         );
       })}
 
-      <dialog id="global_modal" className="modal modal-bottom sm:modal-middle">
+      {/* Modal remains unchanged */}
+      <dialog id="global_modal" className="modal modal-bottom sm:modal-middle backdrop-brightness-100 backdrop-blur-xs">
         <div className="modal-box">
           {modalType === "votes" && selectedPoll?.outcome && (
             <>
-              <h3 className="font-bold text-lg mt-2 mb-2">Vote Summary</h3>
-              <p className="mb-4">{selectedPoll?.question}</p>
+              <h3 className="font-semibold text-lg mt-2 mb-2">Vote Summary</h3>
+              <p className="mb-4 font-bold text-lg">{selectedPoll?.question}</p>
               <ul className="pl-5 text-sm mb-4">
-                {selectedPoll?.outcome?.map((opt) => (
-                  <ul key={opt._id} className="mt-1">
-                    {opt.voters?.length > 0 ? (
-                      opt.voters.map((voter, index) => (
-                        <div key={index}>
-                          <strong>{voter.username}</strong> voted for{" "}
-                          <strong>{opt.name}</strong> at{" "}
-                          {formatTimestamp(voter.votedAt)}
-                        </div>
-                      ))
-                    ) : (
-                      <li className="italic text-gray-500"></li>
-                    )}
-                  </ul>
-                ))}
+                {[...selectedPoll.outcome]
+                  .sort((a, b) => b.votes - a.votes)
+                  .map((opt) => (
+                    <ul key={opt._id} className="mt-1">
+                      {opt.voters?.length > 0 ? (
+                        opt.voters.map((voter, index) => (
+                          <div key={index}>
+                            <strong>{voter.username}</strong> voted for{" "}
+                            <strong>{opt.name}</strong> at{" "}
+                            {formatTimestamp(voter.votedAt)}
+                          </div>
+                        ))
+                      ) : (
+                        <li className="italic text-gray-500"></li>
+                      )}
+                    </ul>
+                  ))}
               </ul>
             </>
           )}
@@ -205,7 +245,12 @@ const OutcomePoll = ({ data = [], from }) => {
               <h3 className="font-bold text-lg mb-2">Rules</h3>
               <p className="mb-4">{selectedPoll.question}</p>
               <ul className="list-disc pl-5 text-sm">
-                <li>One vote per user per poll</li>
+                {selectedPoll.rule?.map((r, idx) => (
+                  <li key={idx}>
+                    {r.condition} — Closes on{" "}
+                    {new Date(r.closingDate).toLocaleString()}
+                  </li>
+                ))}
               </ul>
             </>
           )}

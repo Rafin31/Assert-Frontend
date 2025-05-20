@@ -1,4 +1,4 @@
-// 🛠️ Updated DisplayBox.jsx with working dropdown toggle and close on selection
+// 🛠️ Updated DisplayBox.jsx with Pagination
 import { useEffect, useState, useRef } from "react";
 import { useAuth } from "../../Context/AuthContext";
 import { useNavigate } from "react-router-dom";
@@ -10,6 +10,7 @@ import {
 import PostCard from "../../utils/postCard.jsx";
 import PostModal from "../../utils/postModal.jsx";
 import dayjs from "dayjs";
+import { motion } from "framer-motion";
 
 const DisplayBox = () => {
   const { user } = useAuth();
@@ -29,10 +30,10 @@ const DisplayBox = () => {
   const [error, setError] = useState(null);
   const [openFilter, setOpenFilter] = useState(false);
 
+  const [currentPage, setCurrentPage] = useState(1);
+  const postsPerPage = 5;
 
   const dropdownRef = useRef(null);
-
-
 
   useEffect(() => {
     const handleClickOutside = (event) => {
@@ -80,12 +81,16 @@ const DisplayBox = () => {
           });
 
           setFormData(sorted);
+          setCurrentPage(1); // Reset to page 1 on filter/sort change
 
           const likedSet = new Set(
             sorted
-              .filter((form) => form.likedBy?.includes(user?.userName))
-              .map((form) => form._id)
+              .filter((form) =>
+                form.likedBy?.some((liker) => liker.email === user?.email)
+              )
+              .map((form) => form._id) // ✅ extract IDs
           );
+
           setLikedPosts(likedSet);
         } else {
           setError("Failed to load data.");
@@ -108,21 +113,35 @@ const DisplayBox = () => {
     setSearchTerm("");
   };
 
+
+
+
   const handleLike = async (formId) => {
     if (!user) return navigate("/login");
+
     const isLiked = likedPosts.has(formId);
 
     try {
-      const result = await toggleLike(formId, user.userName);
+      const result = await toggleLike(formId, user.userName, user.email);
+
       if (result.success) {
         setFormData((prev) =>
           prev.map((form) =>
-            form._id === formId ? { ...form, likeCount: result.data.likeCount } : form
+            form._id === formId
+              ? { ...form, likeCount: result.data.likeCount }
+              : form
           )
         );
-        const updatedSet = new Set(likedPosts);
-        isLiked ? updatedSet.delete(formId) : updatedSet.add(formId);
-        setLikedPosts(updatedSet);
+
+        setLikedPosts((prevSet) => {
+          const updatedSet = new Set(prevSet);
+          if (isLiked) {
+            updatedSet.delete(formId);
+          } else {
+            updatedSet.add(formId);
+          }
+          return updatedSet;
+        });
 
         if (openModalPost?._id === formId) {
           setOpenModalPost((prev) => ({
@@ -133,6 +152,7 @@ const DisplayBox = () => {
       }
     } catch (err) {
       console.error("Like failed:", err);
+      setError("Failed to toggle like.");
     }
   };
 
@@ -141,7 +161,7 @@ const DisplayBox = () => {
     if (!text || !user) return navigate("/login");
 
     try {
-      const result = await addReply(formId, user.userName, text);
+      const result = await addReply(formId, user.userName, user.email, text);
       if (result.success) {
         setFormData((prev) =>
           prev.map((form) =>
@@ -160,6 +180,11 @@ const DisplayBox = () => {
       console.error("Reply failed:", err);
     }
   };
+
+  const indexOfLastPost = currentPage * postsPerPage;
+  const indexOfFirstPost = indexOfLastPost - postsPerPage;
+  const currentPosts = formData.slice(indexOfFirstPost, indexOfLastPost);
+  const totalPages = Math.ceil(formData.length / postsPerPage);
 
   return (
     <div className="max-w-[1450px] mx-auto rounded-lg overflow-hidden bg-base-50 min-h-[100vh]">
@@ -185,7 +210,6 @@ const DisplayBox = () => {
             Most Liked
           </button>
 
-
           <div className="dropdown dropdown-end" onClick={() => setOpenFilter(!openFilter)}>
             <label tabIndex={0} className="btn btn-sm">
               Filters
@@ -196,11 +220,10 @@ const DisplayBox = () => {
                 tabIndex={0}
                 className="dropdown-content z-[999] menu p-4 shadow bg-base-100 rounded-box w-64"
                 onClick={(e) => {
-                  e.stopPropagation(); // Prevent parent click
-                  setOpenFilter(false); // Close dropdown on selection
+                  e.stopPropagation();
+                  setOpenFilter(false);
                 }}
               >
-                {/* Realm Filter */}
                 <li className="mb-1 font-bold text-sm">Realm</li>
                 {["all", "sports", "technology"].map((realm) => (
                   <li key={realm}>
@@ -224,13 +247,11 @@ const DisplayBox = () => {
                     </button>
                   </li>
                 ))}
-
-
               </ul>
             )}
           </div>
           {(filter !== "all" || selectedRealm !== "all" || dateFilter !== "recent" || searchTerm) && (
-            <button className="btn btn-warning btn-sm text-white " onClick={resetFilters}>Reset Filters</button>
+            <button className="btn btn-warning btn-sm text-white" onClick={resetFilters}>Reset Filters</button>
           )}
         </div>
       </div>
@@ -248,15 +269,48 @@ const DisplayBox = () => {
           <p className="text-center text-gray-500">No posts found in this category / Thread.</p>
         </div>
       ) : (
-        formData.map((post) => (
-          <PostCard
-            key={post._id}
-            post={post}
-            onLike={handleLike}
-            onOpenModal={() => setOpenModalPost(post)}
-            liked={likedPosts.has(post._id)}
-          />
-        ))
+        <>
+          {currentPosts.map((post, index) => (
+
+            <motion.div
+              key={post._id}
+              initial={{ opacity: 0, y: 40 }}
+              animate={{ opacity: 1, y: 0 }}
+              transition={{ delay: index * 0.1, duration: 0.4, ease: "easeOut" }}
+            >
+              <PostCard
+                key={post._id}
+                post={post}
+                onLike={handleLike}
+                onOpenModal={() => setOpenModalPost(post)}
+                liked={likedPosts.has(post._id)}
+              />
+            </motion.div>
+          ))}
+
+          {/* Pagination Controls */}
+          {totalPages > 1 && (
+            <div className="flex justify-center mt-6 mb-10 gap-4">
+              <button
+                className="btn btn-outline btn-sm"
+                onClick={() => setCurrentPage((prev) => Math.max(prev - 1, 1))}
+                disabled={currentPage === 1}
+              >
+                Previous
+              </button>
+              <span className="self-center text-sm font-semibold">
+                Page {currentPage} of {totalPages}
+              </span>
+              <button
+                className="btn btn-outline btn-sm"
+                onClick={() => setCurrentPage((prev) => Math.min(prev + 1, totalPages))}
+                disabled={currentPage === totalPages}
+              >
+                Next
+              </button>
+            </div>
+          )}
+        </>
       )}
 
       {openModalPost && (

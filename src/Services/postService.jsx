@@ -3,7 +3,7 @@ import ServerApi from "../api/ServerAPI";
 
 export const getAllApproved = async () => {
     try {
-        const response = await ServerApi.get("/form");
+        const response = await ServerApi.get("/form/userPosts");
         if (response.data) {
             const sortedData = response.data.data
                 .filter(form => form.status === "approved")
@@ -19,9 +19,9 @@ export const getAllApproved = async () => {
     }
 };
 
-export const toggleLike = async (formId, username) => {
+export const toggleLike = async (formId, username, email) => {
     try {
-        const response = await ServerApi.put(`/form/${formId}/like`, { username });
+        const response = await ServerApi.put(`/form/${formId}/like`, { username, email });
         return response.data;
     } catch (error) {
         console.error("Error toggling like:", error);
@@ -29,10 +29,11 @@ export const toggleLike = async (formId, username) => {
     }
 };
 
-export const addReply = async (formId, username, reply) => {
+export const addReply = async (formId, username, email, reply) => {
     try {
         const response = await ServerApi.put(`/form/${formId}/reply`, {
             username,
+            email,
             reply,
         });
         return response.data;
