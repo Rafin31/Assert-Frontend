@@ -4,6 +4,9 @@ import ServerApi from "../../api/ServerAPI";
 import { useQuery } from "@tanstack/react-query";
 
 const ITEMS_PER_PAGE = 5;
+const visibleCount = 90;
+
+
 
 export default function Activity() {
     const { user } = useAuth();
@@ -11,6 +14,39 @@ export default function Activity() {
     const [predPage, setPredPage] = useState(1);
     const [pollPage, setPollPage] = useState(1);
     const [postPage, setPostPage] = useState(1);
+    const [expanded, setExpanded] = useState(false)
+
+
+    const spliceLongText = (text) => {
+        if (expanded || text.length <= visibleCount) {
+            return (
+                <>
+                    {text}
+                    {text.length > visibleCount && (
+                        <span
+                            className="text-blue-600 cursor-pointer ml-1 text-xs"
+                            onClick={() => setExpanded(p => !p)}
+                        >
+                            See less
+                        </span>
+                    )}
+                </>
+            );
+        } else {
+            return (
+                <>
+                    {text.slice(0, visibleCount)}...
+                    <span
+                        className="text-blue-600 cursor-pointer ml-1 text-xs"
+                        onClick={() => setExpanded(p => !p)}
+                    >
+                        See more
+                    </span>
+                </>
+            );
+        }
+    };
+
 
     const fmt = (ts) =>
         new Date(ts).toLocaleString("en-GB", {
@@ -126,9 +162,7 @@ export default function Activity() {
 
                                         return (
                                             <tr key={p._id} className="hover:bg-gray-50 transition">
-                                                <td>{
-
-                                                }</td>
+                                                <td>{spliceLongText(p.question)}</td>
                                                 <td>{p.category || p.realm}</td>
                                                 <td>{yesPct}%</td>
                                                 <td>{noPct}%</td>

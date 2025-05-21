@@ -129,49 +129,53 @@ export default function PoliticsPage() {
 
       {visibleCount < sortedPredictions.length && sortedPredictions.length != 0 && (
         <div className="flex justify-center mt-4">
-          <div
-            onClick={() => setVisibleCount((prev) => prev + 3)}
-            className="link-primary cursor-pointer hover:link-primary/90 transition"
+          <motion.div
+            key={1}
+            custom={1}
+            initial="hidden"
+            animate="visible"
+            variants={fadeUpVariants}
           >
-            Load More..
-          </div>
+            <div
+              onClick={() => setVisibleCount((prev) => prev + 3)}
+              className="link-primary cursor-pointer hover:link-primary/90 transition"
+            >
+              Load More..
+            </div>
+          </motion.div>
         </div>
       )}
 
       {/* Polls */}
-      <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-2 xl:grid-cols-1 gap-6 justify-center">
-
-        <motion.div
-          initial="hidden"
-          whileInView="visible"
-          viewport={{ once: true }}
-          variants={{
-            hidden: {},
-            visible: {
-              transition: {
-                staggerChildren: 0.1
-              }
-            }
-          }}
-        >
-          <OutcomePoll
-            data={sortedPolls.slice(0, visiblePollCount).map((poll, i) => ({
-              ...poll,
-              _animationIndex: i
-            }))}
-          />
-        </motion.div>
+      <div className="outcomePollContainer">
+        <OutcomePoll
+          data={sortedPolls.slice(0, visiblePollCount).map((poll, i) => ({
+            ...poll,
+            _animationIndex: i
+          }))}
+        />
       </div>
 
+
       {visiblePollCount < sortedPolls.length && (
-        <div className="flex justify-center mt-4">
-          <div
-            onClick={() => setVisiblePollCount((prev) => prev + 3)}
-            className="link-primary cursor-pointer hover:link-primary/90 transition"
-          >
-            Load More..
+
+        <motion.div
+          key={1}
+          custom={1}
+          initial="hidden"
+          animate="visible"
+          variants={fadeUpVariants}
+        >
+          <div className="flex justify-center mt-4">
+            <div
+              onClick={() => setVisiblePollCount((prev) => prev + 3)}
+              className="link-primary cursor-pointer hover:link-primary/90 transition"
+            >
+              Load More..
+            </div>
           </div>
-        </div>
+        </motion.div>
+
       )}
     </div>
   );
