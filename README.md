@@ -1,43 +1,52 @@
 # ASSERT Frontend
 
-Welcome to the frontend of **ASSERT** – a blockchain-powered prediction platform. This React + Vite application allows users to explore, vote, and create predictions across different domains like sports and politics. It integrates tightly with a backend service and smart contract for token-based reward logic.
+This is the frontend for **ASSERT** – a blockchain-based prediction platform. The project is built using React with Vite, Tailwind CSS, and DaisyUI, and communicates with a Node.js backend via REST API.
 
 ---
 
 ## Project Structure
 
 ```
-├── assets/               # Static assets (images, icons)
-├── components/           # Reusable UI components
-│   ├── header/
-│   ├── hero/
-│   ├── predictionCard/
-│   └── ...
-├── pages/                # Main page views
-│   ├── LandingPage.jsx
-│   ├── Dashboard/
-│   └── ...
-├── services/             # Axios services for API interaction
-├── context/              # React Context (e.g., AuthContext)
-├── routes/               # Route configuration
-├── App.jsx               # App wrapper with layout
-├── main.jsx              # Entry point
-├── tailwind.config.js    # TailwindCSS config
-└── vite.config.js        # Vite config
+├── public/                   # Static files
+├── dist/                     # Production build output
+├── node_modules/             # Installed dependencies
+├── src/
+│   ├── api/                  # API request handlers
+│   ├── assets/               # Images and static media
+│   ├── components/           # Reusable UI components
+│   ├── Context/              # React Context for global state
+│   ├── Layout/               # Layout wrappers like sidebar, headers
+│   ├── Page/                 # Page views (e.g., Landing, Dashboard)
+│   ├── redux/                # Redux store and slices
+│   ├── Services/             # Axios services for external API calls
+│   ├── utils/                # Helper functions
+│   ├── App.css               # Global styles
+│   ├── App.jsx               # Main App component
+│   ├── main.jsx              # Entry point
+│   └── routes.jsx            # Route definitions
+├── .env                      # Environment variables
+├── .gitignore
+├── eslint.config.js
+├── index.html
+├── package.json
+├── package-lock.json
+├── tailwind.config.js
+├── vite.config.js
+└── README.md
 ```
 
 ---
 
 ## Features
 
-- React 18 with Vite for fast development
-- Tailwind CSS and DaisyUI for consistent styling
-- React Router for page navigation
-- Token-based prediction and voting logic
-- Context API for authentication state
-- Framer Motion for animated transitions
-- Axios for API communication with token-based auth
-- Dashboards for user predictions, tokens, and threads
+- React 18 + Vite setup for fast development
+- TailwindCSS + DaisyUI for responsive and modern UI
+- Axios-based API integration with backend
+- Redux for global state management
+- Framer Motion for smooth animations
+- Dynamic routing via React Router
+- Custom layout structure (header/sidebar)
+- Token-based voting and prediction flow
 
 ---
 
@@ -54,16 +63,16 @@ cd assert-frontend
 npm install
 ```
 
-### 3. Create environment variables
-Create a `.env` file in the root directory and add the following:
+### 3. Configure environment variables
+Create a `.env` file in the root with:
 
 ```
 VITE_API_BASE_URL=https://your-server-url.com
 ```
 
-> You can find the backend server or API URL in the [Backend Repository](https://github.com/Rafin31/Assert-backend)
+> Refer to the backend repo here: [ASSERT Backend](https://github.com/Rafin31/Assert-backend)
 
-### 4. Start the development server
+### 4. Run the development server
 ```bash
 npm run dev
 ```
@@ -72,30 +81,32 @@ npm run dev
 
 ## Available Scripts
 
-- `npm run dev` – Start Vite development server
-- `npm run build` – Build the project for production
+- `npm run dev` – Start the local development server
+- `npm run build` – Build for production
 - `npm run preview` – Preview the production build locally
 
 ---
 
 ## Technologies Used
 
-- React.js with Vite
-- Tailwind CSS and DaisyUI
+- React 18
+- Vite
+- Tailwind CSS
+- DaisyUI
+- Redux Toolkit
+- Axios
 - React Router DOM
-- Context API
-- Axios for HTTP requests
-- Framer Motion for animations
+- Framer Motion
 
 ---
 
-## Contribution Guide
+## Contributing
 
 1. Fork the repository
-2. Create a new branch: `git checkout -b feature/feature-name`
-3. Make your changes and commit: `git commit -m 'Add new feature'`
-4. Push to your fork: `git push origin feature/feature-name`
-5. Submit a Pull Request
+2. Create a feature branch: `git checkout -b feature/your-feature-name`
+3. Commit your changes: `git commit -m 'Add new feature'`
+4. Push to the branch: `git push origin feature/your-feature-name`
+5. Open a pull request
 
 ---
 
@@ -107,4 +118,4 @@ This project is licensed under the MIT License.
 
 ## Credits
 
-This project is developed as part of the **ASSERT Capstone** at the University of Wollongong.
+Developed as part of the **ASSERT Capstone Project** at the University of Wollongong by Team ASSERT.
