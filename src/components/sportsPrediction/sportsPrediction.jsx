@@ -18,14 +18,24 @@ export default function SportsPredictions({ refreshBalance, refreshKey }) {
     const [loading, setLoading] = useState(true);
     const [currentPage, setCurrentPage] = useState(1);
     const [searchTerm, setSearchTerm] = useState("");
-    const [filterRange, setFilterRange] = useState("next30");
+    const [filterRange, setFilterRange] = useState("next7");
 
     const ITEMS_PER_PAGE = 8;
-    const today = dayjs().format('YYYY-MM-DD');
+    const baseDate = dayjs('2025-05-01');
+
     const dateRanges = {
-        next30: { from: today, to: dayjs().add(30, 'day').format('YYYY-MM-DD') },
-        next7: { from: today, to: dayjs().add(7, 'day').format('YYYY-MM-DD') },
-        past7: { from: dayjs().subtract(7, 'day').format('YYYY-MM-DD'), to: today },
+        next7: {
+            from: baseDate.format('YYYY-MM-DD'),
+            to: baseDate.add(7, 'day').format('YYYY-MM-DD'),
+        },
+        past7: {
+            from: baseDate.subtract(7, 'day').format('YYYY-MM-DD'),
+            to: baseDate.format('YYYY-MM-DD'),
+        },
+        pastMonth: {
+            from: baseDate.subtract(1, 'month').format('YYYY-MM-DD'),
+            to: baseDate.format('YYYY-MM-DD'),
+        }
     };
 
     useEffect(() => {

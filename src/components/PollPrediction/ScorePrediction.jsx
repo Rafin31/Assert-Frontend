@@ -6,16 +6,26 @@ import dayjs from "dayjs";
 export default function ScorePrediction() {
   const [fixtures, setFixtures] = useState([]);
   const [loading, setLoading] = useState(true);
-  const [filterRange, setFilterRange] = useState("next30");
+  const [filterRange, setFilterRange] = useState("next7");
   const [currentPage, setCurrentPage] = useState(1);
   const ITEMS_PER_PAGE = 8;
+  const baseDate = dayjs('2025-05-01');
 
-  const today = dayjs().format("YYYY-MM-DD");
   const dateRanges = {
-    next30: { from: today, to: dayjs().add(30, "day").format("YYYY-MM-DD") },
-    next7: { from: today, to: dayjs().add(7, "day").format("YYYY-MM-DD") },
-    past7: { from: dayjs().subtract(7, "day").format("YYYY-MM-DD"), to: today },
+    next7: {
+      from: baseDate.format('YYYY-MM-DD'),
+      to: baseDate.add(7, 'day').format('YYYY-MM-DD'),
+    },
+    past7: {
+      from: baseDate.subtract(7, 'day').format('YYYY-MM-DD'),
+      to: baseDate.format('YYYY-MM-DD'),
+    },
+    pastMonth: {
+      from: baseDate.subtract(1, 'month').format('YYYY-MM-DD'),
+      to: baseDate.format('YYYY-MM-DD'),
+    }
   };
+
 
   useEffect(() => {
     const fetchFixtures = async () => {
@@ -51,7 +61,7 @@ export default function ScorePrediction() {
             className={`btn btn-sm ${filterRange === range ? "bg-[#E64800] text-white" : "btn-outline"}`}
             onClick={() => setFilterRange(range)}
           >
-            {range === "next30" ? "Next 30 Days" : range === "next7" ? "Next 7 Days" : "Past 7 Days"}
+            {range === "pastMonth" ? "Past Month" : range === "next7" ? "Next 7 Days" : "Last Week"}
           </button>
         ))}
       </div>
