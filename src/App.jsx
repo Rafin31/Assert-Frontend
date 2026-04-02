@@ -56,8 +56,6 @@ function App() {
   }, [votes]);
 
 
-  console.count()
-
   return (
     <div data-theme="corporate">
       <AppRouter />

@@ -14,18 +14,18 @@ export default function Activity() {
     const [predPage, setPredPage] = useState(1);
     const [pollPage, setPollPage] = useState(1);
     const [postPage, setPostPage] = useState(1);
-    const [expanded, setExpanded] = useState(false)
+    const [expanded, setExpanded] = useState({});
 
-
-    const spliceLongText = (text) => {
-        if (expanded || text.length <= visibleCount) {
+    const spliceLongText = (text, rowKey) => {
+        const isExpanded = !!expanded[rowKey];
+        if (isExpanded || text.length <= visibleCount) {
             return (
                 <>
                     {text}
                     {text.length > visibleCount && (
                         <span
                             className="text-blue-600 cursor-pointer ml-1 text-xs"
-                            onClick={() => setExpanded(p => !p)}
+                            onClick={() => setExpanded(p => ({ ...p, [rowKey]: false }))}
                         >
                             See less
                         </span>
@@ -38,7 +38,7 @@ export default function Activity() {
                     {text.slice(0, visibleCount)}...
                     <span
                         className="text-blue-600 cursor-pointer ml-1 text-xs"
-                        onClick={() => setExpanded(p => !p)}
+                        onClick={() => setExpanded(p => ({ ...p, [rowKey]: true }))}
                     >
                         See more
                     </span>
@@ -162,7 +162,7 @@ export default function Activity() {
 
                                         return (
                                             <tr key={p._id} className="hover:bg-gray-50 transition">
-                                                <td>{spliceLongText(p.question)}</td>
+                                                <td>{spliceLongText(p.question, p._id)}</td>
                                                 <td>{p.category || p.realm}</td>
                                                 <td>{yesPct}%</td>
                                                 <td>{noPct}%</td>

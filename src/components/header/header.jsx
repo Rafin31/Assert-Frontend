@@ -100,7 +100,7 @@ export default function Header({ refreshBalance, refreshKey }) {
         try {
             setLoading(true);
             const response = await claimDailyReward({ email: user.email });
-            setTokenBalance(response.newBalance);
+            setTokenBalance(response.data.newBalance);
             refreshBalance();
             setCountdown(86400);
             setIsClaimable(false);
@@ -124,7 +124,7 @@ export default function Header({ refreshBalance, refreshKey }) {
         dialog.addEventListener(
             "close",
             () => {
-                dispatch(clearNotifications());
+                dispatch(clearNotifications(user?.id));
             },
             { once: true }
         );
@@ -247,7 +247,7 @@ export default function Header({ refreshBalance, refreshKey }) {
                     )}
                     {!user && <Link to="/login" className="font-bold">Login</Link>}
                     {!user && <div className="divider divider-horizontal m-0 p-0"></div>}
-                    {!user && <Link to="/signUp" className="btn-grad-blue lg:btn-md">Sign Up</Link>}
+                    {!user && <Link to="/signup" className="btn-grad-blue lg:btn-md">Sign Up</Link>}
                 </div>
             </div>
             <NotificationModal id="notification_modal" unreadCount={unreadCount} />

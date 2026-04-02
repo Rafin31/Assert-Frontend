@@ -1,22 +1,15 @@
-// redux/notificationSlice.js
 import { createSlice, createAsyncThunk } from "@reduxjs/toolkit";
 import {
     fetchNotifications as apiFetch,
     markAllRead as apiMarkRead,
 } from "../../Services/notificationService.jsx";
 
-
-
-const loggedInUser = JSON.parse(localStorage.getItem("user") || "{}");
-
 export const fetchNotifications = createAsyncThunk(
     "notifications/fetch",
-    async (_, { rejectWithValue }) => {
+    async (userId, { rejectWithValue }) => {
         try {
-
-            if (!loggedInUser.id) return [];
-
-            const { data } = await apiFetch(loggedInUser.id);
+            if (!userId) return [];
+            const { data } = await apiFetch(userId);
             return data?.data || [];
         } catch (err) {
             return rejectWithValue(
@@ -28,14 +21,13 @@ export const fetchNotifications = createAsyncThunk(
 
 export const clearNotifications = createAsyncThunk(
     "notifications/clear",
-    async () => {
-        if (!loggedInUser.id) return [];
-        await apiMarkRead(loggedInUser.id);
+    async (userId) => {
+        if (!userId) return [];
+        await apiMarkRead(userId);
         return true;
     }
 );
 
-// slice
 const notificationSlice = createSlice({
     name: "notifications",
     initialState: {
@@ -54,7 +46,6 @@ const notificationSlice = createSlice({
                 state.status = "succeeded";
                 state.items = action.payload;
                 state.unreadCount = action.payload.filter((n) => !n.read).length;
-
             })
             .addCase(fetchNotifications.rejected, (state, action) => {
                 state.status = "failed";

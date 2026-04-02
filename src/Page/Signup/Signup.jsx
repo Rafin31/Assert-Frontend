@@ -31,7 +31,7 @@ export default function SignupPage() {
                 theme: "dark",
                 transition: Slide,
             });
-            navigate("/login"); navigate('/login')
+            navigate('/login')
         },
         onError: () => {
             toast.error("Signup failed", {

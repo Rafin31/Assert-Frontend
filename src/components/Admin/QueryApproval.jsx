@@ -86,7 +86,6 @@ const QueryApproval = () => {
 
     const handlePollDecision = async (id, action) => {
         const ruleData = pollRuleData[id];
-        console.log(ruleData)
         try {
             const response = await ServerApi.put(`/userPoll/updateStatus/${id}`, {
                 status: action,

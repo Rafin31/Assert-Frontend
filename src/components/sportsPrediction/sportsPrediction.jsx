@@ -21,27 +21,30 @@ export default function SportsPredictions({ refreshBalance, refreshKey }) {
     const [filterRange, setFilterRange] = useState("next7");
 
     const ITEMS_PER_PAGE = 8;
-    const baseDate = dayjs('2025-05-01');
 
-    const dateRanges = {
-        next7: {
-            from: baseDate.format('YYYY-MM-DD'),
-            to: baseDate.add(7, 'day').format('YYYY-MM-DD'),
-        },
-        past7: {
-            from: baseDate.subtract(7, 'day').format('YYYY-MM-DD'),
-            to: baseDate.format('YYYY-MM-DD'),
-        },
-        pastMonth: {
-            from: baseDate.subtract(1, 'month').format('YYYY-MM-DD'),
-            to: baseDate.format('YYYY-MM-DD'),
-        }
+    const getDateRanges = () => {
+        const today = dayjs();
+        return {
+            next7: {
+                from: today.format('YYYY-MM-DD'),
+                to: today.add(7, 'day').format('YYYY-MM-DD'),
+            },
+            past7: {
+                from: today.subtract(7, 'day').format('YYYY-MM-DD'),
+                to: today.format('YYYY-MM-DD'),
+            },
+            pastMonth: {
+                from: today.subtract(1, 'month').format('YYYY-MM-DD'),
+                to: today.format('YYYY-MM-DD'),
+            }
+        };
     };
 
     useEffect(() => {
         const fetchFixtures = async () => {
             try {
                 setLoading(true);
+                const dateRanges = getDateRanges();
                 const range = dateRanges[filterRange];
                 const data = await getFixturesForDateRange(range.from, range.to);
                 setFixtures(data);
@@ -68,7 +71,7 @@ export default function SportsPredictions({ refreshBalance, refreshKey }) {
             <div className="flex flex-wrap gap-4 items-center py-4 justify-between">
                 <div className="flex flex-wrap gap-2">
                     <button className={`btn btn-sm ${filterRange === 'past7' ? 'bg-[#E64800] text-white' : 'btn-outline'}`} onClick={() => setFilterRange('past7')}>Past 7 Days</button>
-                    <button className={`btn btn-sm ${filterRange === 'next30' ? 'bg-[#E64800] text-white' : 'btn-outline'}`} onClick={() => setFilterRange('next30')}>Next 30 Days</button>
+                    <button className={`btn btn-sm ${filterRange === 'pastMonth' ? 'bg-[#E64800] text-white' : 'btn-outline'}`} onClick={() => setFilterRange('pastMonth')}>Past Month</button>
                     <button className={`btn btn-sm ${filterRange === 'next7' ? 'bg-[#E64800] text-white' : 'btn-outline'}`} onClick={() => setFilterRange('next7')}>Next 7 Days</button>
 
                 </div>

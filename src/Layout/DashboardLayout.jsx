@@ -8,7 +8,7 @@ export default function DashboardLayout() {
             <input id="dash-drawer" type="checkbox" className="drawer-toggle" />
 
             {/* ===== Main column ===== */}
-            <div className="drawer-content flex flex-col">
+            <div className="drawer-content flex flex-col lg:ml-64">
                 {/* Hamburger (mobile only) */}
                 <label htmlFor="dash-drawer" className="btn btn-ghost w-fit m-2 lg:hidden">
                     <svg xmlns="http://www.w3.org/2000/svg" className="h-6 w-6" fill="none"

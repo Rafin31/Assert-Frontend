@@ -6,8 +6,15 @@ const ServerApi = axios.create({
 
 ServerApi.interceptors.request.use(
     (config) => {
-        // Optionally: attach auth token
-        // config.headers.Authorization = `Bearer ${token}`;
+        const rawToken = localStorage.getItem('token');
+        if (rawToken) {
+            try {
+                const token = JSON.parse(rawToken);
+                config.headers.Authorization = `Bearer ${token}`;
+            } catch {
+                config.headers.Authorization = `Bearer ${rawToken}`;
+            }
+        }
         return config;
     },
     (error) => {

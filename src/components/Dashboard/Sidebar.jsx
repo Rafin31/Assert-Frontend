@@ -6,9 +6,9 @@ import { useAuth } from "../../Context/AuthContext";
 const links = [
     { name: "Overview", path: "/dashboard/overview" },
     { name: "My Results", path: "/dashboard/results" },
+    { name: "My Predictions", path: "/dashboard/predictions" },
+    { name: "Token Wallet", path: "/dashboard/wallet" },
     { name: "Activity", path: "/dashboard/activity" },
-    // { name: "My Predictions", path: "/dashboard/predictions" },
-    // { name: "Token Wallet", path: "/dashboard/wallet" },
 ];
 
 export default function Sidebar() {
