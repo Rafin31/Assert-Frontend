@@ -16,75 +16,77 @@ export default function TokenWallet() {
         enabled: !!user?.id,
     });
 
-    if (isLoading) {
-        return (
-            <div className="max-w-3xl mx-auto px-4 py-10 space-y-4">
-                <div className="skeleton h-32 w-full rounded-xl" />
-                <div className="skeleton h-64 w-full rounded-xl" />
-            </div>
-        );
-    }
+    if (isLoading) return (
+        <div className="max-w-3xl mx-auto space-y-5 mt-4">
+            <div className="skeleton h-44 w-full rounded-2xl" />
+            <div className="skeleton h-64 w-full rounded-2xl" />
+        </div>
+    );
 
-    if (isError) {
-        return <p className="text-center text-red-500 py-10">Failed to load wallet data.</p>;
-    }
+    if (isError) return <p className="text-center text-red-500 py-10">Failed to load wallet data.</p>;
 
     const balance = data?.tokenBalance ?? 0;
     const lastReward = data?.lastLoginReward;
     const nextClaimTime = lastReward ? dayjs(lastReward).add(24, 'hour') : null;
     const canClaim = !nextClaimTime || dayjs().isAfter(nextClaimTime);
-
     const transactions = data?.tokenHistory ?? [];
 
     return (
-        <div className="max-w-3xl mx-auto px-4 py-10 space-y-8">
-            {/* Balance Card */}
-            <div className="bg-[#13242a] text-white rounded-2xl shadow-lg p-8 flex flex-col items-center gap-2">
-                <p className="text-sm uppercase tracking-widest text-gray-400">Token Balance</p>
-                <p className="text-6xl font-extrabold">{balance}</p>
-                <p className="text-sm text-gray-400 mt-1">AT Tokens</p>
+        <div className="max-w-3xl mx-auto space-y-6 py-2">
+            <div>
+                <h1 className="text-2xl font-black text-slate-900">Token Wallet</h1>
+                <p className="text-slate-500 text-sm mt-0.5">Your AT token balance and transaction history.</p>
+            </div>
 
-                <div className="mt-4 flex flex-col items-center text-sm">
-                    {canClaim ? (
-                        <span className="badge badge-success badge-lg">Daily reward available</span>
-                    ) : (
-                        <span className="text-gray-400">
-                            Next daily reward: {nextClaimTime?.format('D MMM YYYY h:mm A')}
-                        </span>
-                    )}
+            {/* Balance card */}
+            <div className="rounded-2xl overflow-hidden" style={{ background: 'linear-gradient(135deg, #5B21B6, #7C3AED, #6366F1)' }}>
+                <div className="px-8 py-10 text-white text-center">
+                    <p className="text-sm uppercase tracking-widest text-violet-200 mb-2">Token Balance</p>
+                    <p className="text-7xl font-extrabold mb-1">{balance}</p>
+                    <p className="text-violet-300 text-sm">AT Tokens</p>
+                    <div className="mt-6">
+                        {canClaim ? (
+                            <span className="inline-flex items-center gap-1.5 bg-white/20 border border-white/30 text-white text-xs font-semibold px-3 py-1.5 rounded-full">
+                                <span className="w-1.5 h-1.5 bg-emerald-400 rounded-full animate-pulse" />
+                                Daily reward available — claim from the header
+                            </span>
+                        ) : (
+                            <span className="text-violet-300 text-xs">
+                                Next daily reward: {nextClaimTime?.format('D MMM YYYY · h:mm A')}
+                            </span>
+                        )}
+                    </div>
                 </div>
             </div>
 
-            {/* How Tokens Work */}
-            <div className="bg-white rounded-2xl shadow-md p-6">
-                <h2 className="text-lg font-semibold text-[#264653] mb-4">How Tokens Work</h2>
-                <ul className="space-y-2 text-sm text-gray-600">
-                    <li className="flex items-start gap-2">
-                        <span className="text-green-500 font-bold mt-0.5">+</span>
-                        <span><strong>Daily Login Reward</strong> — Claim tokens once every 24 hours from the header.</span>
-                    </li>
-                    <li className="flex items-start gap-2">
-                        <span className="text-green-500 font-bold mt-0.5">+10</span>
-                        <span><strong>Correct Match Prediction</strong> — Win 10 tokens when your voted team wins.</span>
-                    </li>
-                    <li className="flex items-start gap-2">
-                        <span className="text-red-500 font-bold mt-0.5">-5</span>
-                        <span><strong>Cast a Vote</strong> — 5 tokens are deducted when you vote on a match prediction.</span>
-                    </li>
-                    <li className="flex items-start gap-2">
-                        <span className="text-red-500 font-bold mt-0.5">-5</span>
-                        <span><strong>Create a Debate / Query</strong> — 5 tokens are deducted when you create a thread post.</span>
-                    </li>
-                </ul>
+            {/* How tokens work */}
+            <div className="assert-card p-6">
+                <h2 className="text-base font-bold text-slate-800 mb-4">How Tokens Work</h2>
+                <div className="space-y-3">
+                    {[
+                        { sign: "+", color: "text-emerald-600 bg-emerald-50 border-emerald-200", title: "Daily Login Reward", desc: "Claim tokens once every 24 hours from the header." },
+                        { sign: "+10", color: "text-emerald-600 bg-emerald-50 border-emerald-200", title: "Correct Match Prediction", desc: "Win 10 tokens when your voted team wins." },
+                        { sign: "−5", color: "text-red-500 bg-red-50 border-red-200", title: "Cast a Vote", desc: "5 tokens are deducted when you vote on a match." },
+                        { sign: "−5", color: "text-red-500 bg-red-50 border-red-200", title: "Create a Debate / Query", desc: "5 tokens are deducted when you create a thread post." },
+                    ].map((item, i) => (
+                        <div key={i} className="flex items-start gap-3">
+                            <span className={`text-xs font-bold px-2 py-1 rounded-lg border shrink-0 ${item.color}`}>{item.sign}</span>
+                            <div>
+                                <p className="text-sm font-semibold text-slate-700">{item.title}</p>
+                                <p className="text-xs text-slate-400 mt-0.5">{item.desc}</p>
+                            </div>
+                        </div>
+                    ))}
+                </div>
             </div>
 
-            {/* Transaction History */}
-            <div className="bg-white rounded-2xl shadow-md p-6">
-                <h2 className="text-lg font-semibold text-[#264653] mb-4">Transaction History</h2>
+            {/* Transaction history */}
+            <div className="assert-card p-6">
+                <h2 className="text-base font-bold text-slate-800 mb-4">Transaction History</h2>
                 {transactions.length > 0 ? (
                     <div className="overflow-x-auto">
-                        <table className="table w-full text-sm">
-                            <thead className="bg-gray-100 text-gray-600">
+                        <table className="assert-table">
+                            <thead>
                                 <tr>
                                     <th>Date</th>
                                     <th>Description</th>
@@ -93,12 +95,10 @@ export default function TokenWallet() {
                             </thead>
                             <tbody>
                                 {transactions.map((tx, i) => (
-                                    <tr key={i} className="hover:bg-gray-50">
-                                        <td className="whitespace-nowrap">
-                                            {dayjs(tx.date).format('D MMM YYYY')}
-                                        </td>
+                                    <tr key={i}>
+                                        <td className="whitespace-nowrap">{dayjs(tx.date).format('D MMM YYYY')}</td>
                                         <td>{tx.description || 'Transaction'}</td>
-                                        <td className={`text-right font-semibold ${tx.amount > 0 ? 'text-green-600' : 'text-red-500'}`}>
+                                        <td className={`text-right font-bold ${tx.amount > 0 ? 'text-emerald-600' : 'text-red-500'}`}>
                                             {tx.amount > 0 ? `+${tx.amount}` : tx.amount}
                                         </td>
                                     </tr>
@@ -107,7 +107,15 @@ export default function TokenWallet() {
                         </table>
                     </div>
                 ) : (
-                    <p className="text-gray-400 text-sm">No transaction history available yet.</p>
+                    <div className="text-center py-8">
+                        <div className="w-12 h-12 bg-violet-50 rounded-2xl flex items-center justify-center mx-auto mb-3">
+                            <svg className="w-6 h-6 text-violet-400" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2}>
+                                <path strokeLinecap="round" strokeLinejoin="round" d="M9 5H7a2 2 0 00-2 2v12a2 2 0 002 2h10a2 2 0 002-2V7a2 2 0 00-2-2h-2M9 5a2 2 0 002 2h2a2 2 0 002-2M9 5a2 2 0 012-2h2a2 2 0 012 2" />
+                            </svg>
+                        </div>
+                        <p className="text-slate-500 text-sm font-medium">No transactions yet</p>
+                        <p className="text-slate-400 text-xs mt-1">Start predicting to earn tokens.</p>
+                    </div>
                 )}
             </div>
         </div>

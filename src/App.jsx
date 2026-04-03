@@ -57,7 +57,7 @@ function App() {
 
 
   return (
-    <div data-theme="corporate">
+    <div data-theme="corporate" style={{ background: 'var(--assert-bg)', minHeight: '100vh' }}>
       <AppRouter />
       <ToastContainer
         position="top-center"

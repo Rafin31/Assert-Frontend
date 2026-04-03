@@ -21,7 +21,7 @@ const MyResult = () => {
     queryKey: ["userVotes", userId],
     queryFn: () => getUserVotes(userId),
     enabled: !!userId,
-    refetchInterval: 1000 * 60 * 1,
+    refetchInterval: 1000 * 60,
   });
 
   const { mutate: triggerResultProcessing } = useMutation({
@@ -34,10 +34,9 @@ const MyResult = () => {
   }, []);
 
   useEffect(() => {
-    if (!votes || !votes.length) return;
+    if (!votes?.length) return;
     votes.forEach((v) => {
-      const isTimePassed = dayjs(v.processAfterTime).isBefore(dayjs());
-      if (!v.isProcessed && isTimePassed) {
+      if (!v.isProcessed && dayjs(v.processAfterTime).isBefore(dayjs())) {
         triggerResultProcessing(v.fixtureId);
       }
     });
@@ -52,11 +51,8 @@ const MyResult = () => {
 
   const filteredVotes = votes
     .filter((v) => {
-      const searchText = searchTerm.toLowerCase();
-      return (
-        v.teamVoted?.toLowerCase().includes(searchText) ||
-        v.matchResult?.toLowerCase().includes(searchText)
-      );
+      const q = searchTerm.toLowerCase();
+      return v.teamVoted?.toLowerCase().includes(q) || v.matchResult?.toLowerCase().includes(q);
     })
     .filter((v) => {
       const published = dayjs(v.processAfterTime).diff(now) <= 0;
@@ -68,140 +64,137 @@ const MyResult = () => {
         case "rewarded": return v.isRewarded;
         default: return true;
       }
-    });
+    })
+    .sort((a, b) => new Date(b.createdAt) - new Date(a.createdAt));
 
-  const sortedVotes = filteredVotes.sort(
-    (a, b) => new Date(b.createdAt) - new Date(a.createdAt)
+  const totalPages = Math.ceil(filteredVotes.length / votesPerPage);
+  const currentVotes = filteredVotes.slice((currentPage - 1) * votesPerPage, currentPage * votesPerPage);
+
+  if (isLoading) return (
+    <div className="space-y-3 mt-4">
+      {[...Array(6)].map((_, i) => <div key={i} className="skeleton h-12 w-full rounded-xl" />)}
+    </div>
   );
 
-  const totalPages = Math.ceil(sortedVotes.length / votesPerPage);
-  const startIndex = (currentPage - 1) * votesPerPage;
-  const currentVotes = sortedVotes.slice(startIndex, startIndex + votesPerPage);
+  if (isError) return <p className="text-center py-8 text-red-500">Something went wrong.</p>;
 
-  const goToNextPage = () => setCurrentPage((prev) => Math.min(prev + 1, totalPages));
-  const goToPrevPage = () => setCurrentPage((prev) => Math.max(prev - 1, 1));
-
-  if (isLoading) {
-    return <div className="mt-10 max-w-[1450px] min-h-[50vh] mx-auto grid grid-cols-1 gap-3">
-      {[...Array(6)].map((_, idx) => (
-        <div key={idx} className="skeleton h-[50px] w-full rounded-sm" />
-      ))}
-    </div>
-  }
-
-
-  if (isError) return <p className="text-center py-8 text-error">Something went wrong.</p>;
+  const filterOptions = [
+    { key: "all", label: "All" },
+    { key: "win", label: "Win" },
+    { key: "lose", label: "Lose" },
+    { key: "pending", label: "Pending" },
+    { key: "rewarded", label: "Rewarded" },
+  ];
 
   return (
-    <section className="max-w-[1450px] mx-auto px-4 md:px-6">
-      <div className="flex flex-col md:flex-row justify-between items-center mb-6 gap-4">
-        <h2 className="text-xl font-semibold flex items-center gap-2">
-          My Predictions
-          <span className="badge badge-sm badge-outline badge-primary">Match Results</span>
-        </h2>
-        <div className="inline-flex items-center space-x-2">
-          <span className="relative flex h-2 w-2">
-            <span className="animate-ping absolute inline-flex h-full w-full rounded-full bg-red-500 opacity-75"></span>
-            <span className="relative inline-flex rounded-full h-2 w-2 bg-red-600"></span>
-          </span>
-          <span className="text-red-500 font-semibold uppercase text-sm">Live</span>
+    <section className="w-full">
+      <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3 mb-6">
+        <div>
+          <h1 className="text-2xl font-black text-slate-900">My Results</h1>
+          <p className="text-slate-500 text-sm mt-0.5 flex items-center gap-1.5">
+            <span className="relative flex h-2 w-2">
+              <span className="animate-ping absolute inline-flex h-full w-full rounded-full bg-red-400 opacity-75"></span>
+              <span className="relative inline-flex rounded-full h-2 w-2 bg-red-500"></span>
+            </span>
+            Live updates
+          </p>
         </div>
       </div>
 
-      <div className="flex flex-col md:flex-row justify-between mb-4 gap-4">
-        <input
-          type="text"
-          value={searchTerm}
-          onChange={(e) => setSearchTerm(e.target.value)}
-          placeholder="Search by Team or Result"
-          className="input input-bordered w-full md:max-w-sm"
-        />
-
-        <select
-          value={filter}
-          onChange={(e) => setFilter(e.target.value)}
-          className="select select-bordered md:max-w-xs w-full"
-        >
-          <option value="all">All</option>
-          <option value="win">Win</option>
-          <option value="lose">Lose</option>
-          <option value="pending">Pending</option>
-          <option value="rewarded">Rewarded</option>
-        </select>
+      {/* Controls */}
+      <div className="flex flex-col md:flex-row gap-3 mb-5">
+        <div className="relative flex-1">
+          <svg className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-slate-400" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2}>
+            <path strokeLinecap="round" strokeLinejoin="round" d="M21 21l-4.35-4.35M17 11A6 6 0 115 11a6 6 0 0112 0z" />
+          </svg>
+          <input
+            type="text"
+            value={searchTerm}
+            onChange={(e) => { setSearchTerm(e.target.value); setCurrentPage(1); }}
+            placeholder="Search by team or result..."
+            className="assert-input pl-9 w-full"
+          />
+        </div>
+        <div className="flex gap-2 flex-wrap">
+          {filterOptions.map(opt => (
+            <button
+              key={opt.key}
+              onClick={() => { setFilter(opt.key); setCurrentPage(1); }}
+              className={`filter-pill ${filter === opt.key ? "active" : ""}`}
+            >
+              {opt.label}
+            </button>
+          ))}
+        </div>
       </div>
 
-      <div className="overflow-x-auto rounded-lg shadow ring-1 ring-gray-300">
-        <table className="min-w-full divide-y divide-gray-200 text-sm">
-          <thead className="bg-primary text-white">
-            <tr>
-              <th className="px-4 py-3 text-left">Fixture ID</th>
-              <th className="px-4 py-3 text-left">Team Voted</th>
-              <th className="px-4 py-3 text-left">Match Result</th>
-              <th className="px-4 py-3 text-left">Rewarded</th>
-              <th className="px-4 py-3 text-left">Match Start (UTC)</th>
-              <th className="px-4 py-3 text-left">Result Countdown</th>
-              <th className="px-4 py-3 text-left">Win / Lose</th>
-              <th className="px-4 py-3 text-left">Token Outcome</th>
-            </tr>
-          </thead>
-          <tbody className="divide-y divide-gray-100 bg-white">
-            {currentVotes.map((v) => {
-              const published = dayjs(v.processAfterTime).diff(now) <= 0;
-              let outcomeLabel, outcomeClass, tokenOutcome = "";
-              if (!published) {
-                outcomeLabel = "Pending";
-                outcomeClass = "text-gray-500";
-              } else if (!v.isProcessed) {
-                outcomeLabel = "Processing...";
-                outcomeClass = "text-orange-500";
-              } else if (v.teamVoted === v.matchResult) {
-                outcomeLabel = "Win";
-                outcomeClass = "text-green-600 font-semibold";
-                tokenOutcome = "+10";
-              } else {
-                outcomeLabel = "Lose";
-                outcomeClass = "text-red-600 font-semibold";
-                tokenOutcome = "-5";
-              }
-
-              return (
-                <tr key={v._id} className="hover:bg-gray-50">
-                  <td className="px-4 py-3 whitespace-nowrap">{v.fixtureId}</td>
-                  <td className="px-4 py-3 whitespace-nowrap">{v.teamVoted}</td>
-                  <td className="px-4 py-3 whitespace-nowrap">{v.matchResult || "-"}</td>
-                  <td className="px-4 py-3 whitespace-nowrap">{v.isRewarded ? "Yes" : "No"}</td>
-                  <td className="px-4 py-3 whitespace-nowrap">{dayjs(v.matchStartTime).format("D MMM YYYY h:mm A")}</td>
-                  <td className="px-4 py-3 whitespace-nowrap">{published ? "Result Published" : countdown(v.processAfterTime)}</td>
-                  <td className={`px-4 py-3 whitespace-nowrap ${outcomeClass}`}>{outcomeLabel}</td>
-                  <td className={`px-4 py-3 whitespace-nowrap font-semibold ${tokenOutcome.startsWith('+') ? 'text-green-500' : tokenOutcome.startsWith('-') ? 'text-red-500' : 'text-gray-400'}`}>
-                    {tokenOutcome || "-"}
-                  </td>
+      {/* Table */}
+      <div className="assert-card overflow-hidden">
+        <div className="overflow-x-auto">
+          <table className="assert-table">
+            <thead>
+              <tr>
+                <th>Fixture ID</th>
+                <th>Team Voted</th>
+                <th>Match Result</th>
+                <th>Match Start</th>
+                <th>Countdown</th>
+                <th>Outcome</th>
+                <th>Tokens</th>
+                <th>Rewarded</th>
+              </tr>
+            </thead>
+            <tbody>
+              {currentVotes.length === 0 ? (
+                <tr>
+                  <td colSpan={8} className="text-center py-10 text-slate-400">No results found.</td>
                 </tr>
-              );
-            })}
-          </tbody>
-        </table>
+              ) : currentVotes.map((v) => {
+                const published = dayjs(v.processAfterTime).diff(now) <= 0;
+                let outcomeLabel, badgeClass, tokenOutcome = "";
+                if (!published) {
+                  outcomeLabel = "Pending";
+                  badgeClass = "badge-pending";
+                } else if (!v.isProcessed) {
+                  outcomeLabel = "Processing";
+                  badgeClass = "badge-processing";
+                } else if (v.teamVoted === v.matchResult) {
+                  outcomeLabel = "Win";
+                  badgeClass = "badge-win";
+                  tokenOutcome = "+10";
+                } else {
+                  outcomeLabel = "Lose";
+                  badgeClass = "badge-lose";
+                  tokenOutcome = "-5";
+                }
+
+                return (
+                  <tr key={v._id}>
+                    <td className="whitespace-nowrap font-mono text-xs text-slate-500">{v.fixtureId}</td>
+                    <td className="whitespace-nowrap font-medium">{v.teamVoted}</td>
+                    <td className="whitespace-nowrap">{v.matchResult || "—"}</td>
+                    <td className="whitespace-nowrap">{dayjs(v.matchStartTime).format("D MMM YYYY · h:mm A")}</td>
+                    <td className="whitespace-nowrap text-xs font-mono text-slate-500">{published ? "Published" : countdown(v.processAfterTime)}</td>
+                    <td><span className={badgeClass}>{outcomeLabel}</span></td>
+                    <td className={`font-bold ${tokenOutcome.startsWith('+') ? 'text-emerald-600' : tokenOutcome.startsWith('-') ? 'text-red-500' : 'text-slate-400'}`}>
+                      {tokenOutcome || "—"}
+                    </td>
+                    <td>{v.isRewarded ? <span className="badge-win">Yes</span> : <span className="text-slate-400 text-xs">No</span>}</td>
+                  </tr>
+                );
+              })}
+            </tbody>
+          </table>
+        </div>
       </div>
 
-      <div className="flex justify-center items-center mt-6 gap-4">
-        <button
-          onClick={goToPrevPage}
-          disabled={currentPage === 1}
-          className="btn btn-sm btn-outline"
-        >
-          Previous
-        </button>
-        <span className="text-sm font-medium">
-          Page {currentPage} of {totalPages}
-        </span>
-        <button
-          onClick={goToNextPage}
-          disabled={currentPage === totalPages}
-          className="btn btn-sm btn-outline"
-        >
-          Next
-        </button>
-      </div>
+      {totalPages > 1 && (
+        <div className="flex items-center justify-center mt-6 gap-3">
+          <button className="btn-assert-ghost" onClick={() => setCurrentPage(p => Math.max(p - 1, 1))} disabled={currentPage === 1}>Previous</button>
+          <span className="text-sm text-slate-500 font-medium">Page {currentPage} of {totalPages}</span>
+          <button className="btn-assert-ghost" onClick={() => setCurrentPage(p => Math.min(p + 1, totalPages))} disabled={currentPage === totalPages}>Next</button>
+        </div>
+      )}
     </section>
   );
 };

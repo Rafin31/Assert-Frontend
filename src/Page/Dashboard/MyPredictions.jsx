@@ -3,16 +3,14 @@ import ServerApi from '../../api/ServerAPI';
 import { useAuth } from "../../Context/AuthContext.jsx";
 import { PollCard } from '../../components/PollPrediction/PollCard';
 import OutcomePoll from '../../components/PollPrediction/OutcomePoll';
-import { Link, useNavigate } from "react-router-dom"; // Import useNavigate
 
 export default function MyPredictions() {
     const [predictions, setPredictions] = useState([]);
     const [filteredPredictions, setFilteredPredictions] = useState([]);
     const [polls, setPolls] = useState([]);
     const [filteredPolls, setFilteredPolls] = useState([]);
-    const [selectedStatus, setSelectedStatus] = useState("approved"); // default filter
+    const [selectedStatus, setSelectedStatus] = useState("approved");
     const { user } = useAuth();
-    
 
     useEffect(() => {
         const fetchUserContent = async () => {
@@ -21,75 +19,86 @@ export default function MyPredictions() {
                     ServerApi.get('/userPrediction/participatedPredictions'),
                     ServerApi.get('/userPoll/participatedPolls')
                 ]);
-
                 const userEmail = user?.email;
-
                 if (predRes.data.success) {
-                    const userPredictions = predRes.data.data
-                        .filter(pred => pred.email === userEmail)
-                        .sort((a, b) => new Date(b.timestamp) - new Date(a.timestamp));
-                    setPredictions(userPredictions);
+                    setPredictions(predRes.data.data.filter(p => p.email === userEmail).sort((a, b) => new Date(b.timestamp) - new Date(a.timestamp)));
                 }
-
                 if (pollRes.data.success) {
-                    const userPolls = pollRes.data.data
-                        .filter(poll => poll.email === userEmail)
-                        .sort((a, b) => new Date(b.timestamp) - new Date(a.timestamp));
-                    setPolls(userPolls);
+                    setPolls(pollRes.data.data.filter(p => p.email === userEmail).sort((a, b) => new Date(b.timestamp) - new Date(a.timestamp)));
                 }
-
             } catch (error) {
                 console.error('Error fetching data:', error.message);
             }
         };
-
-        if (user?.email) {
-            fetchUserContent();
-        }
+        if (user?.email) fetchUserContent();
     }, [user]);
 
     useEffect(() => {
-        setFilteredPredictions(predictions.filter(pred => pred.status === selectedStatus));
-        setFilteredPolls(polls.filter(poll => poll.status === selectedStatus));
+        setFilteredPredictions(predictions.filter(p => p.status === selectedStatus));
+        setFilteredPolls(polls.filter(p => p.status === selectedStatus));
     }, [selectedStatus, predictions, polls]);
 
-    const buttonStyles = (status) =>
-        `btn ${selectedStatus === status ? 'btn-success' : 'btn-outline'} transition-all`;
+    const statusOptions = [
+        { key: "approved", label: "Approved" },
+        { key: "pending", label: "Pending" },
+        { key: "rejected", label: "Rejected" },
+    ];
 
     return (
-        <div className='bg-base-150 px-4 pb-10'>
-            <h2 className='text-left text-xl font-bold mt-5'>My Predictions</h2>
+        <div className="w-full py-2">
+            <div className="mb-6">
+                <h1 className="text-2xl font-black text-slate-900">My Predictions</h1>
+                <p className="text-slate-500 text-sm mt-0.5">Your submitted predictions and polls.</p>
+            </div>
 
-            {/* Filter Buttons */}
-            <div className="flex justify-center gap-4 my-4">
-                <button className={buttonStyles("approved")} onClick={() => setSelectedStatus("approved")}>
-                    Approved
-                </button>
-                <button className={buttonStyles("pending")} onClick={() => setSelectedStatus("pending")}>
-                    Pending
-                </button>
-                <button className={buttonStyles("rejected")} onClick={() => setSelectedStatus("rejected")}>
-                    Rejected
-                </button>
+            {/* Filter tabs */}
+            <div className="flex gap-2 mb-6">
+                {statusOptions.map(opt => (
+                    <button
+                        key={opt.key}
+                        onClick={() => setSelectedStatus(opt.key)}
+                        className={`filter-pill ${selectedStatus === opt.key ? "active" : ""}`}
+                    >
+                        {opt.label}
+                    </button>
+                ))}
             </div>
 
             {/* Predictions */}
-            <div className={`p-2 sm:p-5 mx-auto flex flex-wrap justify-center gap-3 ${selectedStatus !== "approved" ? "opacity-50 cursor-not-allowed" : ""}`}>
+            <section className="mb-8">
+                <h2 className="text-base font-bold text-slate-700 mb-4">Predictions</h2>
                 {filteredPredictions.length > 0 ? (
-                    filteredPredictions.map((prediction, index) => (
-                        <PollCard key={index} data={prediction} />
-                    ))
+                    <div className={`flex flex-wrap gap-4 ${selectedStatus !== "approved" ? "opacity-60 pointer-events-none" : ""}`}>
+                        {filteredPredictions.map((prediction, index) => (
+                            <PollCard key={index} data={prediction} />
+                        ))}
+                    </div>
                 ) : (
-                    <p className="text-center text-gray-500">No {selectedStatus} predictions found.</p>
+                    <div className="assert-card p-8 text-center">
+                        <p className="text-slate-500 text-sm">No {selectedStatus} predictions found.</p>
+                    </div>
                 )}
-            </div>
+            </section>
 
             {/* Polls */}
-            <h2 className="mt-10 font-bold text-lg">My Polls</h2>
-            <OutcomePoll data={filteredPolls} from="myPolls" />
+            <section className="mb-8">
+                <h2 className="text-base font-bold text-slate-700 mb-4">Polls</h2>
+                {filteredPolls.length > 0 ? (
+                    <OutcomePoll data={filteredPolls} from="myPolls" />
+                ) : (
+                    <div className="assert-card p-8 text-center">
+                        <p className="text-slate-500 text-sm">No {selectedStatus} polls found.</p>
+                    </div>
+                )}
+            </section>
 
-            {/* Thread Placeholder */}
-            <h2 className="mt-10 font-bold text-lg">Thread</h2>
+            {/* Thread placeholder */}
+            <section>
+                <h2 className="text-base font-bold text-slate-700 mb-4">Thread</h2>
+                <div className="assert-card p-8 text-center">
+                    <p className="text-slate-400 text-sm">Thread posts will appear here.</p>
+                </div>
+            </section>
         </div>
     );
 }

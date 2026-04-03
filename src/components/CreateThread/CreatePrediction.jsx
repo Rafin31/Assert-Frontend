@@ -15,6 +15,8 @@ const categories = {
   UFC: []
 };
 
+const REALMS = ["politics", "technology", "crypto", "sports"];
+
 const CreatePrediction = () => {
   const { user } = useAuth();
   const [realm, setRealm] = useState('');
@@ -23,166 +25,125 @@ const CreatePrediction = () => {
   const [question, setQuestion] = useState('');
   const [submittedPrediction, setSubmittedPrediction] = useState(null);
   const [isModalOpen, setIsModalOpen] = useState(false);
-  const [loading, setLoading] = useState(false); // 🔧 Added loading state
+  const [loading, setLoading] = useState(false);
 
   const handleSubmit = async (e) => {
     e.preventDefault();
-
-    if (!realm || !question) {
-      alert('Please fill out all required fields.');
-      return;
-    }
-
-    const formData = {
-      username: user.userName,
-      email: user.email,
-      realm,
-      category,
-      subcategory,
-      question,
-    };
-
+    if (!realm || !question) return;
     try {
-      setLoading(true); // 🔧 Start loading
-      const response = await ServerApi.post('userPrediction/submit', formData);
-      const result = response.data;
-
-      if (result.success) {
-        setSubmittedPrediction(result.data);
+      setLoading(true);
+      const response = await ServerApi.post('userPrediction/submit', {
+        username: user.userName,
+        email: user.email,
+        realm, category, subcategory, question,
+      });
+      if (response.data.success) {
+        setSubmittedPrediction(response.data.data);
         setIsModalOpen(true);
-      } else {
-        alert('There was an error submitting the query.');
+        setRealm('');
+        setQuestion('');
       }
     } catch (error) {
       console.error('Error:', error);
-      alert('An error occurred. Please try again later.');
     } finally {
-      setLoading(false); // 🔧 Stop loading
-      setRealm('');
-      setQuestion('');
+      setLoading(false);
     }
   };
 
-  const closeModal = () => {
-    setIsModalOpen(false);
-  };
+  return (
+    <div className="min-h-[60vh] flex items-start justify-center py-10 px-4" style={{ background: 'var(--assert-bg)' }}>
+      <div className="w-full max-w-lg">
+        <div className="mb-6">
+          <h1 className="text-2xl font-black text-slate-900">Create Prediction</h1>
+          <p className="text-slate-500 text-sm mt-1">Submit a yes/no prediction for the community to vote on.</p>
+        </div>
 
-    return (
-        <div className="flex flex-col items-center bg-gray-100 py-10">
-            <div className="bg-white p-8 rounded-lg shadow-lg max-w-lg w-full">
-                <h1 className="text-2xl font-semibold mb-6">Create Prediction</h1>
-
-                <form onSubmit={handleSubmit} className="space-y-6">
-                    <div>
-                        <label htmlFor="realm" className="block text-sm text-gray-700">Choose a Realm:</label>
-                        <select
-                            id="realm"
-                            name="realm"
-                            value={realm}
-                            onChange={(e) => {
-                                setRealm(e.target.value);
-                                setCategory('');
-                                setSubcategory('');
-                            }}
-                            className="w-full p-3 border border-gray-300 rounded-md"
-                            required
-                        >
-                            <option value="">Select a Realm</option>
-                            <option value="politics">Politics</option>
-                            <option value="technology">Technology</option>
-                            <option value="crypto">Crypto</option>
-                            <option value="sports">Sports</option>
-                        </select>
-                    </div>
-
-                    {realm === "sports" && (
-                        <div>
-                            <label htmlFor="category" className="block text-sm text-gray-700">Choose a Category:</label>
-                            <select
-                                id="category"
-                                name="category"
-                                value={category}
-                                onChange={(e) => {
-                                    setCategory(e.target.value);
-                                    setSubcategory('');
-                                }}
-                                className="w-full p-3 border border-gray-300 rounded-md"
-                                required
-                            >
-                                <option value="">Select a Category</option>
-                                {Object.keys(categories).map((cat) => (
-                                    <option key={cat} value={cat}>{cat}</option>
-                                ))}
-                            </select>
-                        </div>
-                    )}
-
-                    {category && categories[category].length > 0 && (
-                        <div>
-                            <label htmlFor="subcategory" className="block text-sm text-gray-700">Choose a Subcategory (Optional):</label>
-                            <select
-                                id="subcategory"
-                                name="subcategory"
-                                value={subcategory}
-                                onChange={(e) => setSubcategory(e.target.value)}
-                                className="w-full p-3 border border-gray-300 rounded-md"
-                            >
-                                <option value="">None</option>
-                                {categories[category].map((sub) => (
-                                    <option key={sub} value={sub}>{sub}</option>
-                                ))}
-                            </select>
-                        </div>
-                    )}
-
-                    <div>
-                        <label htmlFor="question" className="block text-sm text-gray-700">Your Prediction Question:</label>
-                        <textarea
-                            id="question"
-                            name="question"
-                            value={question}
-                            onChange={(e) => setQuestion(e.target.value)}
-                            rows="4"
-                            placeholder="Type your question here..."
-                            className="w-full p-3 border border-gray-300 rounded-md"
-                            required
-                        ></textarea>
-                    </div>
-
-                    <button
-                        type="submit"
-                        className={`w-full p-3 ${loading ? 'bg-gray-400' : 'bg-[#f17575]'} text-white rounded-md hover:bg-[#d96969] cursor-pointer`}
-                        disabled={loading}
-                    >
-                        {loading ? "Submitting..." : "Submit Prediction"}
-                    </button>
-                </form>
+        <div className="assert-card p-7">
+          <form onSubmit={handleSubmit} className="space-y-5">
+            <div>
+              <label className="form-label">Realm <span className="text-red-500">*</span></label>
+              <select
+                value={realm}
+                onChange={(e) => { setRealm(e.target.value); setCategory(''); setSubcategory(''); }}
+                className="assert-select w-full"
+                required
+              >
+                <option value="">Select a realm</option>
+                {REALMS.map(r => <option key={r} value={r} className="capitalize">{r.charAt(0).toUpperCase() + r.slice(1)}</option>)}
+              </select>
             </div>
 
-            {isModalOpen && submittedPrediction && (
-                <div className="fixed inset-0 bg-base-100 bg-opacity-50 flex justify-center items-center z-50">
-                    <div className="bg-white p-8 rounded-lg shadow-lg max-w-lg w-full">
-                        <h2 className="text-xl font-semibold mb-4 text-center">Submitted Prediction for Review</h2>
-                        <div className="flex justify-center">
-                            
-                            {/* Disable interaction with the PollCard */}
-                            <div className="pointer-events-none opacity-75">
-                                <PollCard data={submittedPrediction} />
-                            </div>
-                        </div>
-                        <div className="mt-4 text-center">
-                            <button
-                                onClick={closeModal}
-                                className="p-2 bg-gray-300 rounded-md text-sm text-gray-800 hover:bg-gray-400 cursor-pointer"
-                            >
-                                Close
-                            </button>
-                        </div>
-                    </div>
-                </div>
+            {realm === "sports" && (
+              <div>
+                <label className="form-label">Category <span className="text-red-500">*</span></label>
+                <select
+                  value={category}
+                  onChange={(e) => { setCategory(e.target.value); setSubcategory(''); }}
+                  className="assert-select w-full"
+                  required
+                >
+                  <option value="">Select a category</option>
+                  {Object.keys(categories).map(cat => <option key={cat} value={cat}>{cat}</option>)}
+                </select>
+              </div>
             )}
+
+            {category && categories[category]?.length > 0 && (
+              <div>
+                <label className="form-label">Subcategory <span className="text-slate-400 text-xs">(optional)</span></label>
+                <select
+                  value={subcategory}
+                  onChange={(e) => setSubcategory(e.target.value)}
+                  className="assert-select w-full"
+                >
+                  <option value="">None</option>
+                  {categories[category].map(sub => <option key={sub} value={sub}>{sub}</option>)}
+                </select>
+              </div>
+            )}
+
+            <div>
+              <label className="form-label">Prediction Question <span className="text-red-500">*</span></label>
+              <textarea
+                value={question}
+                onChange={(e) => setQuestion(e.target.value)}
+                rows={4}
+                placeholder="e.g. Will Team X win the championship this season?"
+                className="assert-input w-full resize-none"
+                required
+              />
+            </div>
+
+            <button type="submit" className="btn-assert w-full justify-center py-2.5" disabled={loading}>
+              {loading ? "Submitting..." : "Submit Prediction"}
+            </button>
+          </form>
         </div>
-    );
+      </div>
+
+      {isModalOpen && submittedPrediction && (
+        <div className="fixed inset-0 bg-black/40 backdrop-blur-sm flex justify-center items-center z-50 p-4">
+          <div className="assert-card p-7 max-w-sm w-full">
+            <div className="flex items-center gap-2 mb-4">
+              <div className="w-8 h-8 rounded-xl bg-violet-100 flex items-center justify-center">
+                <svg className="w-4 h-4 text-violet-600" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2}>
+                  <path strokeLinecap="round" strokeLinejoin="round" d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z" />
+                </svg>
+              </div>
+              <h2 className="text-base font-bold text-slate-800">Submitted for Review</h2>
+            </div>
+            <p className="text-sm text-slate-500 mb-5">Your prediction has been submitted and is awaiting admin approval.</p>
+            <div className="pointer-events-none opacity-80 flex justify-center">
+              <PollCard data={submittedPrediction} />
+            </div>
+            <button onClick={() => setIsModalOpen(false)} className="btn-assert-ghost w-full justify-center mt-5">
+              Close
+            </button>
+          </div>
+        </div>
+      )}
+    </div>
+  );
 };
 
 export default CreatePrediction;

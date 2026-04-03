@@ -1,111 +1,104 @@
 import React, { useState } from 'react';
 import { Link, useNavigate } from 'react-router-dom';
-// import googleIcon from '.././../assets/google-logo.png';
-// import metaMaskIcon from '.././../assets/metamask-icon.svg';
 import { Slide, toast } from 'react-toastify';
 import { useMutation } from '@tanstack/react-query';
 import { loginUser } from '../../Services/authService';
 import { useAuth } from "../../Context/AuthContext.jsx";
 
 export default function LoginPage() {
-    const navigate = useNavigate()
+    const navigate = useNavigate();
     const { login } = useAuth();
-
-    const [formData, setFormData] = useState(
-        {
-            email: '',
-            password: ''
-        }
-    );
+    const [formData, setFormData] = useState({ email: '', password: '' });
 
     const { mutate, isPending, error } = useMutation({
         mutationFn: loginUser,
         onSuccess: (response) => {
-            toast.success('Logged In', {
-                position: "top-center",
-                autoClose: 2000,
-                hideProgressBar: false,
-                closeOnClick: false,
-                pauseOnHover: true,
-                draggable: true,
-                progress: undefined,
-                theme: "dark",
-                transition: Slide,
-            });
+            toast.success('Welcome back!', { position: "top-center", autoClose: 2000, theme: "light", transition: Slide });
             login(response.token, response.user);
-
-            navigate('/')
+            navigate('/');
         },
         onError: (err) => {
-            console.error('Signup Error:', err);
+            console.error('Login Error:', err);
         }
     });
 
-
-    const handleChange = (e) => {
-        setFormData({ ...formData, [e.target.name]: e.target.value });
-    };
-
-    const handleSubmit = (e) => {
-        e.preventDefault();
-        mutate(formData);
-    };
+    const handleChange = (e) => setFormData({ ...formData, [e.target.name]: e.target.value });
+    const handleSubmit = (e) => { e.preventDefault(); mutate(formData); };
 
     return (
-        <div className="flex flex-col items-center justify-center min-h-screen bg-base-200">
-            <div className="card w-96 bg-base-100 shadow-xl p-6">
-                <h2 className="text-2xl font-bold mb-4 text-center">Login</h2>
-                <form onSubmit={handleSubmit}>
-
-                    <label className="input w-full">
-                        <svg className="h-[1em] opacity-50" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><g strokeLinejoin="round" strokeLinecap="round" strokeWidth="2.5" fill="none" stroke="currentColor"><rect width="20" height="16" x="2" y="4" rx="2"></rect><path d="m22 7-8.97 5.7a1.94 1.94 0 0 1-2.06 0L2 7"></path></g></svg>
-                        <input type="email" placeholder="email@site.com" required
-                            name="email"
-                            value={formData.email}
-                            onChange={handleChange}
-                        />
-                    </label>
-
-
-                    <label className="input my-3 w-full">
-                        <svg className="h-[1em] opacity-50" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><g strokeLinejoin="round" strokeLinecap="round" strokeWidth="2.5" fill="none" stroke="currentColor"><path d="M2.586 17.414A2 2 0 0 0 2 18.828V21a1 1 0 0 0 1 1h3a1 1 0 0 0 1-1v-1a1 1 0 0 1 1-1h1a1 1 0 0 0 1-1v-1a1 1 0 0 1 1-1h.172a2 2 0 0 0 1.414-.586l.814-.814a6.5 6.5 0 1 0-4-4z"></path><circle cx="16.5" cy="7.5" r=".5" fill="currentColor"></circle></g></svg>
-                        <input type="password" required placeholder="Password"
-                            value={formData.password}
-                            onChange={handleChange}
-                            name="password"
-                            className="w-full"
-                        />
-                    </label>
-
-                    <button type="submit" className="btn btn-success w-full mb-2" disabled={isPending}>
-                        {isPending ? 'Logging In...' : 'Login'}
-                    </button>
-                </form>
-                {/* <button className="btn w-full mb-2">
-                    <img src={googleIcon} className='inline mr-3 w-6' alt="icon" />
-                    Google
-                </button>
-                <button className="btn w-full">
-                    <img src={metaMaskIcon} className='inline mr-3 w-6' alt="icon" />
-                    MetaMask
-                </button> */}
-
-                {
-                    error &&
-                    // <p className="text-red-500 mt-5 text-sm text-center">{error?.response?.data?.message || 'Login failed'}</p>
-                    <div role="alert" className="alert alert-error mt-5">
-                        <svg xmlns="http://www.w3.org/2000/svg" className="h-6 w-6 shrink-0 stroke-current" fill="none" viewBox="0 0 24 24">
-                            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M10 14l2-2m0 0l2-2m-2 2l-2-2m2 2l2 2m7-2a9 9 0 11-18 0 9 9 0 0118 0z" />
-                        </svg>
-                        <span>{error?.response?.data?.message || 'Login failed'}</span>
+        <div className="min-h-screen flex items-center justify-center px-4" style={{ background: 'var(--assert-bg)' }}>
+            <div className="w-full max-w-sm">
+                {/* Logo */}
+                <div className="text-center mb-8">
+                    <div className="inline-flex items-center gap-2.5 mb-4">
+                        <div className="w-10 h-10 rounded-2xl bg-gradient-to-br from-violet-600 to-purple-700 flex items-center justify-center shadow-md shadow-violet-200">
+                            <span className="text-white font-black text-base">A</span>
+                        </div>
+                        <span className="font-black text-2xl tracking-tight gradient-text">ASSERT</span>
                     </div>
-                }
+                    <h1 className="text-2xl font-black text-slate-900 mb-1">Welcome back</h1>
+                    <p className="text-slate-500 text-sm">Sign in to your account to continue</p>
+                </div>
 
+                <div className="assert-card p-7">
+                    <form onSubmit={handleSubmit} className="space-y-4">
+                        <div>
+                            <label className="form-label">Email address</label>
+                            <div className="relative">
+                                <svg className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-slate-400" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2}>
+                                    <path strokeLinecap="round" strokeLinejoin="round" d="M3 8l7.89 5.26a2 2 0 002.22 0L21 8M5 19h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v10a2 2 0 002 2z" />
+                                </svg>
+                                <input
+                                    type="email"
+                                    name="email"
+                                    required
+                                    placeholder="you@example.com"
+                                    value={formData.email}
+                                    onChange={handleChange}
+                                    className="assert-input pl-9 w-full"
+                                />
+                            </div>
+                        </div>
 
+                        <div>
+                            <label className="form-label">Password</label>
+                            <div className="relative">
+                                <svg className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-slate-400" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2}>
+                                    <path strokeLinecap="round" strokeLinejoin="round" d="M12 15v2m-6 4h12a2 2 0 002-2v-6a2 2 0 00-2-2H6a2 2 0 00-2 2v6a2 2 0 002 2zm10-10V7a4 4 0 00-8 0v4h8z" />
+                                </svg>
+                                <input
+                                    type="password"
+                                    name="password"
+                                    required
+                                    placeholder="••••••••"
+                                    value={formData.password}
+                                    onChange={handleChange}
+                                    className="assert-input pl-9 w-full"
+                                />
+                            </div>
+                        </div>
 
-                <p className="mt-4 text-center">
-                    Don't have an account? <Link to="/signup" className="link link-error">Sign up</Link>
-                </p>
+                        {error && (
+                            <div className="flex items-center gap-2 bg-red-50 border border-red-200 rounded-xl p-3 text-sm text-red-600">
+                                <svg className="w-4 h-4 shrink-0" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2}>
+                                    <path strokeLinecap="round" strokeLinejoin="round" d="M12 8v4m0 4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z" />
+                                </svg>
+                                {error?.response?.data?.message || 'Login failed. Please try again.'}
+                            </div>
+                        )}
+
+                        <button type="submit" className="btn-assert w-full justify-center py-2.5 mt-1" disabled={isPending}>
+                            {isPending ? 'Signing in...' : 'Sign In'}
+                        </button>
+                    </form>
+
+                    <p className="text-center text-sm text-slate-500 mt-5">
+                        Don't have an account?{' '}
+                        <Link to="/signup" className="text-violet-600 font-semibold hover:text-violet-700">
+                            Sign up
+                        </Link>
+                    </p>
+                </div>
             </div>
         </div>
     );

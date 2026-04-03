@@ -1,7 +1,8 @@
 import { useEffect, useState } from "react";
 import { getFixturesForDateRange } from "../../Services/FootballService";
 import dayjs from "dayjs";
-
+import { motion } from "framer-motion";
+import Skeleton from "../../utils/skeleton.jsx";
 
 export default function ScorePrediction() {
   const [fixtures, setFixtures] = useState([]);
@@ -13,22 +14,11 @@ export default function ScorePrediction() {
   const getDateRanges = () => {
     const today = dayjs();
     return {
-      next7: {
-        from: today.format('YYYY-MM-DD'),
-        to: today.add(7, 'day').format('YYYY-MM-DD'),
-      },
-      past7: {
-        from: today.subtract(7, 'day').format('YYYY-MM-DD'),
-        to: today.format('YYYY-MM-DD'),
-      },
-      pastMonth: {
-        from: today.subtract(1, 'month').format('YYYY-MM-DD'),
-        to: today.format('YYYY-MM-DD'),
-      }
+      next7: { from: today.format('YYYY-MM-DD'), to: today.add(7, 'day').format('YYYY-MM-DD') },
+      past7: { from: today.subtract(7, 'day').format('YYYY-MM-DD'), to: today.format('YYYY-MM-DD') },
+      pastMonth: { from: today.subtract(1, 'month').format('YYYY-MM-DD'), to: today.format('YYYY-MM-DD') },
     };
   };
-  const dateRanges = getDateRanges();
-
 
   useEffect(() => {
     const fetchFixtures = async () => {
@@ -37,7 +27,7 @@ export default function ScorePrediction() {
         const range = getDateRanges()[filterRange];
         const data = await getFixturesForDateRange(range.from, range.to);
         setFixtures(data);
-        setCurrentPage(1); // Reset to page 1 on filter change
+        setCurrentPage(1);
       } catch (err) {
         console.error("Error loading fixtures:", err);
       } finally {
@@ -47,109 +37,131 @@ export default function ScorePrediction() {
     fetchFixtures();
   }, [filterRange]);
 
+  const filterOptions = [
+    { key: "past7", label: "Past 7 Days" },
+    { key: "pastMonth", label: "Past Month" },
+    { key: "next7", label: "Next 7 Days" },
+  ];
+
   const filteredFixtures = fixtures?.data || [];
   const totalPages = Math.ceil(filteredFixtures.length / ITEMS_PER_PAGE);
-  const startIndex = (currentPage - 1) * ITEMS_PER_PAGE;
-  const paginatedFixtures = filteredFixtures.slice(startIndex, startIndex + ITEMS_PER_PAGE);
+  const paginatedFixtures = filteredFixtures.slice((currentPage - 1) * ITEMS_PER_PAGE, currentPage * ITEMS_PER_PAGE);
 
   return (
-    <div className="mx-auto max-w-[1450px] py-4">
-      <h1 className="text-center text-3xl font-bold mb-4">Predict Scores</h1>
+    <div className="mx-auto max-w-[1450px] px-6 py-4">
+      <div className="mb-6">
+        <h1 className="text-3xl font-black text-slate-900">Score Predictions</h1>
+        <p className="text-slate-500 text-sm mt-1">Predict exact scores for upcoming matches.</p>
+      </div>
 
-      {/* Filter Buttons */}
-      <div className="flex justify-center gap-2 mb-6">
-        {Object.keys(dateRanges).map((range) => (
+      {/* Filters */}
+      <div className="flex gap-2 flex-wrap mb-5">
+        {filterOptions.map(opt => (
           <button
-            key={range}
-            className={`btn btn-sm ${filterRange === range ? "bg-[#E64800] text-white" : "btn-outline"}`}
-            onClick={() => setFilterRange(range)}
+            key={opt.key}
+            className={`filter-pill ${filterRange === opt.key ? "active" : ""}`}
+            onClick={() => { setFilterRange(opt.key); setCurrentPage(1); }}
           >
-            {range === "pastMonth" ? "Past Month" : range === "next7" ? "Next 7 Days" : "Last Week"}
+            {opt.label}
           </button>
         ))}
       </div>
 
-      {/* Score Prediction Cards */}
-      <div className="max-w-[1450px] mx-auto grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-6 py-4 px-10">
-        {loading ? (
-          [...Array(ITEMS_PER_PAGE)].map((_, i) => (
-            <div key={i} className="skeleton h-[280px] w-full rounded-lg"></div>
-          ))
-        ) : (
-          paginatedFixtures.map((match) => {
-            const teamA = match.name.split("vs")[0]?.trim();
-            const teamB = match.name.split("vs")[1]?.trim();
-            const matchStart = dayjs(match.starting_at);
-            const now = dayjs();
-            const hasStarted = now.isAfter(matchStart);
-            const resultPublished = now.isAfter(matchStart.add(3, "hour"));
-
-            return (
-              <div className="card bg-base p-5 rounded-xl shadow-md">
-                <div className="top min-h-[110px]">
-                  <p className="text-sm text-gray-500 font-semibold">
-                    {match?.league?.name || "League"}
-                  </p>
-                  <p className="text-sm text-gray-500 mb-1">
-                    {dayjs(match?.starting_at).format("YYYY-MM-DD | hh:mm A (AEDT)")}
-                  </p>
-                  <h2 className="font-bold text-center text-lg mb-3">{match.name}</h2>
-                </div>
-                <div className="flex gap-2 mb-3">
-                  <input
-                    type="number"
-                    min="0"
-                    placeholder={`${teamA} Goals`}
-                    className="input input-bordered w-full"
-                    disabled={hasStarted}
-                  />
-                  <input
-                    type="number"
-                    min="0"
-                    placeholder={`${teamB} Goals`}
-                    className="input input-bordered w-full"
-                    disabled={hasStarted}
-                  />
-                </div>
-
-                <button
-                  className="btn btn-block bg-[#27AE6080] text-custom font-semibold hover:bg-[#27AE60] hover:text-white transition-all duration-200"
-                  disabled={hasStarted}
-                >
-                  Submit Prediction
-                </button>
-
-                <p className="text-center text-sm font-medium mt-2">
-                  {resultPublished ? "Result Published" : hasStarted ? "Match Started" : ""}
-                </p>
-              </div>
-
-            );
-          })
-        )}
-      </div>
-
-      {/* Pagination */}
-      {totalPages > 1 && (
-        <div className="flex justify-center mt-6 gap-2">
-          <button
-            className="btn btn-outline btn-sm"
-            onClick={() => setCurrentPage((prev) => Math.max(prev - 1, 1))}
-            disabled={currentPage === 1}
-          >
-            Prev
-          </button>
-          <span className="btn btn-ghost btn-sm cursor-default">
-            Page {currentPage} of {totalPages}
-          </span>
-          <button
-            className="btn btn-outline btn-sm"
-            onClick={() => setCurrentPage((prev) => Math.min(prev + 1, totalPages))}
-            disabled={currentPage === totalPages}
-          >
-            Next
-          </button>
+      {loading ? (
+        <Skeleton />
+      ) : filteredFixtures.length === 0 ? (
+        <div className="flex flex-col items-center justify-center min-h-[40vh] text-center">
+          <div className="w-14 h-14 bg-violet-100 rounded-2xl flex items-center justify-center mb-4">
+            <svg className="w-7 h-7 text-violet-500" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2}>
+              <path strokeLinecap="round" strokeLinejoin="round" d="M9.172 16.172a4 4 0 015.656 0M9 10h.01M15 10h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z" />
+            </svg>
+          </div>
+          <p className="text-slate-600 font-semibold">No fixtures found</p>
+          <p className="text-slate-400 text-sm mt-1">Try a different date range.</p>
         </div>
+      ) : (
+        <>
+          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-5">
+            {paginatedFixtures.map((match, i) => {
+              const teamA = match.name.split("vs")[0]?.trim();
+              const teamB = match.name.split("vs")[1]?.trim();
+              const matchStart = dayjs(match.starting_at);
+              const hasStarted = dayjs().isAfter(matchStart);
+              const resultPublished = dayjs().isAfter(matchStart.add(3, "hour"));
+
+              return (
+                <motion.div
+                  key={match.id || i}
+                  initial={{ opacity: 0, y: 30 }}
+                  animate={{ opacity: 1, y: 0 }}
+                  transition={{ delay: i * 0.05, duration: 0.35, ease: "easeOut" }}
+                >
+                  <div className="assert-card flex flex-col p-5 min-h-[260px]">
+                    <div className="flex items-start justify-between mb-3">
+                      <div>
+                        <p className="text-xs font-semibold text-slate-400 uppercase tracking-wider mb-0.5">{match?.league?.name || "Football"}</p>
+                        <p className="text-xs text-slate-400">{dayjs(match.starting_at).format("D MMM YYYY · h:mm A")}</p>
+                      </div>
+                      <span className="text-xs bg-orange-100 text-orange-700 font-semibold px-2 py-0.5 rounded-full">Score</span>
+                    </div>
+
+                    <p className="font-bold text-slate-800 text-base mb-3 leading-snug">{match.name}</p>
+
+                    <div className="flex gap-2 mb-4">
+                      <input
+                        type="number"
+                        min="0"
+                        placeholder={`${teamA} goals`}
+                        className="assert-input flex-1 text-sm"
+                        disabled={hasStarted}
+                      />
+                      <input
+                        type="number"
+                        min="0"
+                        placeholder={`${teamB} goals`}
+                        className="assert-input flex-1 text-sm"
+                        disabled={hasStarted}
+                      />
+                    </div>
+
+                    <button
+                      className={`btn-assert w-full justify-center text-sm py-2 ${hasStarted ? "opacity-50 cursor-not-allowed" : ""}`}
+                      disabled={hasStarted}
+                    >
+                      Submit Prediction
+                    </button>
+
+                    {hasStarted && (
+                      <p className={`text-center text-xs font-semibold mt-2 ${resultPublished ? "text-emerald-600" : "text-orange-500"}`}>
+                        {resultPublished ? "✓ Result Published" : "● Match in Progress"}
+                      </p>
+                    )}
+                  </div>
+                </motion.div>
+              );
+            })}
+          </div>
+
+          {totalPages > 1 && (
+            <div className="flex items-center justify-center mt-8 gap-3">
+              <button
+                className="btn-assert-ghost"
+                onClick={() => setCurrentPage(p => Math.max(p - 1, 1))}
+                disabled={currentPage === 1}
+              >
+                Previous
+              </button>
+              <span className="text-sm text-slate-500 font-medium">Page {currentPage} of {totalPages}</span>
+              <button
+                className="btn-assert-ghost"
+                onClick={() => setCurrentPage(p => Math.min(p + 1, totalPages))}
+                disabled={currentPage === totalPages}
+              >
+                Next
+              </button>
+            </div>
+          )}
+        </>
       )}
     </div>
   );

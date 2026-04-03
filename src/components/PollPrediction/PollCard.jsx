@@ -99,60 +99,115 @@ export const PollCard = ({ data }) => {
   });
 
   return (
-    <div className="bg-white rounded-xl shadow-md hover:shadow-lg p-5 flex flex-col justify-between w-full min-w-[280px] max-w-[310px] h-[400px] transition-all duration-300">
-      <div className="text-xs text-gray-500 mb-1">{realm} • {category} • {subcategory}</div>
-      <p className="text-sm text-gray-600">Posted by <span className="font-semibold">{username}</span><br />{formatTimestamp(timestamp)}</p>
-      <h3 className="font-medium text-sm mt-2 mb-3 leading-snug break-words">
+    <div className="assert-card flex flex-col justify-between w-full min-w-[280px] max-w-[310px] min-h-[400px] p-5">
+      <div className="text-xs font-semibold text-slate-400 uppercase tracking-wider mb-1">{realm} · {category} · {subcategory}</div>
+      <p className="text-xs text-slate-400 mb-2">By <span className="font-semibold text-slate-600">{username}</span> · {formatTimestamp(timestamp)}</p>
+
+      <h3 className="font-semibold text-slate-800 text-sm mt-1 mb-3 leading-snug break-words flex-1">
         {expanded || question.length <= 90 ? question : `${question.slice(0, 90)}...`}
         {question.length > 90 && (
-          <span className="text-blue-600 cursor-pointer ml-1 text-xs" onClick={() => setExpanded(p => !p)}>
+          <span className="text-violet-600 cursor-pointer ml-1 text-xs" onClick={() => setExpanded(p => !p)}>
             {expanded ? "See less" : "See more"}
           </span>
         )}
       </h3>
-      <div className="w-full h-2 bg-gray-200 rounded-full overflow-hidden">
+
+      {/* Progress bar */}
+      <div className="w-full h-1.5 bg-slate-100 rounded-full overflow-hidden mb-1">
         <div
-          className={`h-full ${yesPercent >= noPercent ? "bg-green-500" : "bg-red-500"}`}
-          style={{ width: `${Math.max(yesPercent, noPercent)}%` }}
-        ></div>
+          className="h-full rounded-full bg-gradient-to-r from-violet-500 to-purple-600"
+          style={{ width: `${yesPercent}%` }}
+        />
       </div>
-      <div className="flex justify-between text-xs text-gray-600 mt-1">
-        <span className="text-green-600">Yes: {yesPercent}%</span>
-        <span className="text-red-600">No: {noPercent}%</span>
+      <div className="flex justify-between text-xs mb-3">
+        <span className="text-emerald-600 font-medium">Yes {yesPercent}%</span>
+        <span className="text-red-500 font-medium">No {noPercent}%</span>
       </div>
-      <div className="flex gap-2 mt-3">
-        <button onClick={() => handleVote("yes")} disabled={!!userVote} className={`w-1/2 py-1 rounded-md text-sm font-semibold ${userVote ? "bg-green-400 opacity-70 cursor-not-allowed text-white" : "bg-green-100 hover:bg-green-600 hover:text-white"}`}>Yes</button>
-        <button onClick={() => handleVote("no")} disabled={!!userVote} className={`w-1/2 py-1 rounded-md text-sm font-semibold ${userVote ? "bg-red-400 opacity-70 cursor-not-allowed text-white" : "bg-red-100 hover:bg-red-500 hover:text-white"}`}>No</button>
+
+      {/* Vote buttons */}
+      {userVote ? (
+        <div className="flex items-center gap-2 bg-violet-50 border border-violet-200 rounded-xl p-2.5 mb-2">
+          <svg className="w-4 h-4 text-violet-600 shrink-0" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2}>
+            <path strokeLinecap="round" strokeLinejoin="round" d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z" />
+          </svg>
+          <p className="text-xs text-violet-700 font-medium">Voted <strong>{userVote.toUpperCase()}</strong></p>
+        </div>
+      ) : (
+        <div className="flex gap-2 mb-2">
+          <button
+            onClick={() => handleVote("yes")}
+            className="flex-1 py-1.5 rounded-xl text-xs font-semibold bg-emerald-50 border border-emerald-200 text-emerald-700 hover:bg-emerald-500 hover:text-white hover:border-emerald-500 transition-all"
+          >
+            Yes
+          </button>
+          <button
+            onClick={() => handleVote("no")}
+            className="flex-1 py-1.5 rounded-xl text-xs font-semibold bg-red-50 border border-red-200 text-red-600 hover:bg-red-500 hover:text-white hover:border-red-500 transition-all"
+          >
+            No
+          </button>
+        </div>
+      )}
+
+      <p className="text-center text-xs text-slate-400 mb-2">{totalVotes} vote{totalVotes !== 1 ? "s" : ""} cast</p>
+
+      {/* Countdown */}
+      <div className="text-center text-xs font-mono font-semibold text-slate-500 mb-3">
+        {countdown.expired ? (
+          <span className="text-red-500">Closed</span>
+        ) : (
+          `${countdown.days}d ${countdown.hours}h ${countdown.minutes}m ${countdown.seconds}s`
+        )}
       </div>
-      <div className="text-center text-xs mt-2 font-mono text-gray-700">
-        {countdown.expired ? "Closed" : `${countdown.days}d ${countdown.hours}h ${countdown.minutes}m ${countdown.seconds}s`}
-      </div>
-      <p className="text-center text-xs text-gray-500">Total Votes: <strong>{totalVotes}</strong></p>
-      <div className="flex justify-between text-xs text-blue-600 mt-2 font-medium">
-        <button onClick={() => document.getElementById(`modal_${_id}`).showModal()} className="hover:underline">Votes</button>
-        <button onClick={() => document.getElementById(`rules_${_id}`).showModal()} className="hover:underline">Rules</button>
+
+      {/* Actions */}
+      <div className="flex gap-2">
+        <button
+          onClick={() => document.getElementById(`modal_${_id}`).showModal()}
+          className="flex-1 py-1.5 text-xs font-semibold text-violet-600 bg-violet-50 border border-violet-200 rounded-xl hover:bg-violet-100 transition-colors"
+        >
+          Votes
+        </button>
+        <button
+          onClick={() => document.getElementById(`rules_${_id}`).showModal()}
+          className="flex-1 py-1.5 text-xs font-semibold text-slate-600 bg-slate-50 border border-slate-200 rounded-xl hover:bg-slate-100 transition-colors"
+        >
+          Rules
+        </button>
       </div>
 
       {/* Votes Modal */}
       <dialog id={`modal_${_id}`} className="modal modal-bottom sm:modal-middle backdrop-blur-sm">
-        <div className="modal-box">
-          <h3 className="font-bold text-lg mb-2">Vote Summary</h3>
-          <p className="mb-3 text-sm">{question}</p>
-          {paginatedVotes.map((vote, i) => (
-            <p key={i} className="text-sm mb-1">
-              <strong>{vote.username}</strong> predicted <span className={vote.voteType === 'yes' ? 'text-green-600' : 'text-red-600'}>{vote.voteType.toUpperCase()}</span> at <span className="text-gray-600">{formatTimestamp(vote.timestamp)}</span>
-            </p>
-          ))}
+        <div className="modal-box rounded-2xl max-w-md">
+          <h3 className="font-bold text-lg text-slate-800 mb-1">Vote Summary</h3>
+          <p className="mb-4 text-sm text-slate-500">{question}</p>
+          <div className="space-y-1.5">
+            {paginatedVotes.map((vote, i) => (
+              <div key={i} className="flex items-center gap-2 text-sm py-1.5 border-b border-slate-100">
+                <span className={`w-12 text-center text-xs font-bold rounded-full py-0.5 ${vote.voteType === 'yes' ? 'bg-emerald-100 text-emerald-700' : 'bg-red-100 text-red-600'}`}>
+                  {vote.voteType.toUpperCase()}
+                </span>
+                <span className="font-medium text-slate-700">{vote.username}</span>
+                <span className="text-slate-400 text-xs ml-auto">{formatTimestamp(vote.timestamp)}</span>
+              </div>
+            ))}
+          </div>
           {totalPages > 1 && (
             <div className="flex justify-center mt-4 gap-2">
               {[...Array(totalPages)].map((_, i) => (
-                <button key={i} onClick={() => setCurrentPage(i + 1)} className={`px-3 py-1 rounded ${currentPage === i + 1 ? "bg-gray-800 text-white" : "bg-gray-200 hover:bg-gray-300"}`}>{i + 1}</button>
+                <button
+                  key={i}
+                  onClick={() => setCurrentPage(i + 1)}
+                  className={`w-7 h-7 rounded-lg text-xs font-semibold ${currentPage === i + 1 ? "bg-violet-600 text-white" : "bg-slate-100 text-slate-600 hover:bg-slate-200"}`}
+                >
+                  {i + 1}
+                </button>
               ))}
             </div>
           )}
-          <div className="modal-action">
+          <div className="modal-action mt-4">
             <form method="dialog">
-              <button className="btn">Close</button>
+              <button className="btn-assert-ghost">Close</button>
             </form>
           </div>
         </div>
@@ -160,22 +215,24 @@ export const PollCard = ({ data }) => {
 
       {/* Rules Modal */}
       <dialog id={`rules_${_id}`} className="modal modal-bottom sm:modal-middle backdrop-blur-sm">
-        <div className="modal-box">
-          <h3 className="font-bold text-lg mb-2">Rules</h3>
-          <p className="mb-2 text-sm">{question}</p>
+        <div className="modal-box rounded-2xl max-w-md">
+          <h3 className="font-bold text-lg text-slate-800 mb-1">Rules</h3>
+          <p className="mb-4 text-sm text-slate-500">{question}</p>
           {Array.isArray(rule) && rule.length > 0 ? (
-            rule.map((r, i) => (
-              <div key={i} className="mb-2">
-                <p><strong>Condition:</strong> {r.condition}</p>
-                <p><strong>Closes:</strong> {formatTimestamp(r.closingDate)}</p>
-              </div>
-            ))
+            <div className="space-y-3">
+              {rule.map((r, i) => (
+                <div key={i} className="bg-slate-50 border border-slate-200 rounded-xl p-3 text-sm">
+                  <p className="font-medium text-slate-700">{r.condition}</p>
+                  <p className="text-slate-400 text-xs mt-1">Closes: {formatTimestamp(r.closingDate)}</p>
+                </div>
+              ))}
+            </div>
           ) : (
-            <p className="text-gray-500 italic text-sm">No rules defined.</p>
+            <p className="text-slate-400 italic text-sm">No rules defined.</p>
           )}
-          <div className="modal-action">
+          <div className="modal-action mt-4">
             <form method="dialog">
-              <button className="btn">Close</button>
+              <button className="btn-assert-ghost">Close</button>
             </form>
           </div>
         </div>

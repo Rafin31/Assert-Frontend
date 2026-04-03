@@ -1,16 +1,14 @@
-// 🛠️ Updated DisplayBox.jsx with Pagination
 import { useEffect, useState, useRef } from "react";
 import { useAuth } from "../../Context/AuthContext";
 import { useNavigate } from "react-router-dom";
-import {
-  getAllApproved,
-  toggleLike,
-  addReply,
-} from "../../Services/postService.jsx";
+import { getAllApproved, toggleLike, addReply } from "../../Services/postService.jsx";
 import PostCard from "../../utils/postCard.jsx";
 import PostModal from "../../utils/postModal.jsx";
 import dayjs from "dayjs";
 import { motion } from "framer-motion";
+
+const REALMS = ["all", "politics", "technology", "crypto", "sports"];
+const TYPES = ["all", "debate", "query"];
 
 const DisplayBox = () => {
   const { user } = useAuth();
@@ -25,21 +23,16 @@ const DisplayBox = () => {
   const [searchTerm, setSearchTerm] = useState("");
   const [dateFilter, setDateFilter] = useState("recent");
   const [sortOption, setSortOption] = useState("newest");
-  const [showDropdown, setShowDropdown] = useState(false);
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState(null);
   const [openFilter, setOpenFilter] = useState(false);
-
   const [currentPage, setCurrentPage] = useState(1);
   const postsPerPage = 5;
-
   const dropdownRef = useRef(null);
 
   useEffect(() => {
-    const handleClickOutside = (event) => {
-      if (dropdownRef.current && !dropdownRef.current.contains(event.target)) {
-        setShowDropdown(false);
-      }
+    const handleClickOutside = (e) => {
+      if (dropdownRef.current && !dropdownRef.current.contains(e.target)) setOpenFilter(false);
     };
     document.addEventListener("mousedown", handleClickOutside);
     return () => document.removeEventListener("mousedown", handleClickOutside);
@@ -49,51 +42,35 @@ const DisplayBox = () => {
     const fetchData = async () => {
       setLoading(true);
       setError(null);
-
       try {
         const result = await getAllApproved();
         if (result.success) {
           const filtered = result.data.filter((form) => {
-            const matchesType =
-              filter === "all" || form.type.toLowerCase() === filter.toLowerCase();
-            const matchesRealm =
-              selectedRealm === "all" ||
-              form.realm.toLowerCase() === selectedRealm.toLowerCase();
+            const matchesType = filter === "all" || form.type.toLowerCase() === filter;
+            const matchesRealm = selectedRealm === "all" || form.realm.toLowerCase() === selectedRealm;
             const matchesSearch =
               form.moreDetails?.toLowerCase().includes(searchTerm.toLowerCase()) ||
               form.question?.toLowerCase().includes(searchTerm.toLowerCase());
             const matchDate =
               dateFilter === "recent" ||
-              (dateFilter === "past7" &&
-                dayjs(form.createdAt).isAfter(dayjs().subtract(7, "day"))) ||
-              (dateFilter === "past15" &&
-                dayjs(form.createdAt).isAfter(dayjs().subtract(15, "day")));
-
+              (dateFilter === "past7" && dayjs(form.createdAt).isAfter(dayjs().subtract(7, "day"))) ||
+              (dateFilter === "past15" && dayjs(form.createdAt).isAfter(dayjs().subtract(15, "day")));
             return matchesType && matchesRealm && matchesSearch && matchDate;
           });
 
-          const sorted = [...filtered].sort((a, b) => {
-            if (sortOption === "newest") {
-              return new Date(b.createdAt) - new Date(a.createdAt);
-            } else {
-              return b.likeCount - a.likeCount;
-            }
-          });
-
-          setFormData(sorted);
-          setCurrentPage(1); // Reset to page 1 on filter/sort change
-
-          const likedSet = new Set(
-            sorted
-              .filter((form) =>
-                form.likedBy?.some((liker) => liker.email === user?.email)
-              )
-              .map((form) => form._id) // ✅ extract IDs
+          const sorted = [...filtered].sort((a, b) =>
+            sortOption === "newest"
+              ? new Date(b.createdAt) - new Date(a.createdAt)
+              : b.likeCount - a.likeCount
           );
 
-          setLikedPosts(likedSet);
+          setFormData(sorted);
+          setCurrentPage(1);
+          setLikedPosts(new Set(
+            sorted.filter(f => f.likedBy?.some(l => l.email === user?.email)).map(f => f._id)
+          ));
         } else {
-          setError("Failed to load data.");
+          setError("Failed to load posts.");
         }
       } catch (err) {
         console.error("Error fetching posts:", err);
@@ -102,184 +79,145 @@ const DisplayBox = () => {
         setLoading(false);
       }
     };
-
     fetchData();
   }, [user, filter, selectedRealm, searchTerm, dateFilter, sortOption]);
 
   const resetFilters = () => {
-    setFilter("all");
-    setSelectedRealm("all");
-    setDateFilter("recent");
-    setSearchTerm("");
+    setFilter("all"); setSelectedRealm("all"); setDateFilter("recent"); setSearchTerm("");
   };
 
-
-
+  const hasActiveFilters = filter !== "all" || selectedRealm !== "all" || dateFilter !== "recent" || searchTerm;
 
   const handleLike = async (formId) => {
     if (!user) return navigate("/login");
-
-    const isLiked = likedPosts.has(formId);
-
     try {
       const result = await toggleLike(formId, user.userName, user.email);
-
       if (result.success) {
-        setFormData((prev) =>
-          prev.map((form) =>
-            form._id === formId
-              ? { ...form, likeCount: result.data.likeCount }
-              : form
-          )
-        );
-
-        setLikedPosts((prevSet) => {
-          const updatedSet = new Set(prevSet);
-          if (isLiked) {
-            updatedSet.delete(formId);
-          } else {
-            updatedSet.add(formId);
-          }
-          return updatedSet;
+        setFormData(prev => prev.map(f => f._id === formId ? { ...f, likeCount: result.data.likeCount } : f));
+        setLikedPosts(prev => {
+          const s = new Set(prev);
+          s.has(formId) ? s.delete(formId) : s.add(formId);
+          return s;
         });
-
-        if (openModalPost?._id === formId) {
-          setOpenModalPost((prev) => ({
-            ...prev,
-            likeCount: result.data.likeCount,
-          }));
-        }
+        if (openModalPost?._id === formId) setOpenModalPost(p => ({ ...p, likeCount: result.data.likeCount }));
       }
     } catch (err) {
       console.error("Like failed:", err);
-      setError("Failed to toggle like.");
     }
   };
 
   const handleReply = async (formId) => {
     const text = replyText[formId]?.trim();
     if (!text || !user) return navigate("/login");
-
     try {
       const result = await addReply(formId, user.userName, user.email, text);
       if (result.success) {
-        setFormData((prev) =>
-          prev.map((form) =>
-            form._id === formId ? { ...form, replies: result.data.replies } : form
-          )
-        );
-        if (openModalPost?._id === formId) {
-          setOpenModalPost((prev) => ({
-            ...prev,
-            replies: result.data.replies,
-          }));
-        }
-        setReplyText((prev) => ({ ...prev, [formId]: "" }));
+        setFormData(prev => prev.map(f => f._id === formId ? { ...f, replies: result.data.replies } : f));
+        if (openModalPost?._id === formId) setOpenModalPost(p => ({ ...p, replies: result.data.replies }));
+        setReplyText(prev => ({ ...prev, [formId]: "" }));
       }
     } catch (err) {
       console.error("Reply failed:", err);
     }
   };
 
-  const indexOfLastPost = currentPage * postsPerPage;
-  const indexOfFirstPost = indexOfLastPost - postsPerPage;
-  const currentPosts = formData.slice(indexOfFirstPost, indexOfLastPost);
+  const currentPosts = formData.slice((currentPage - 1) * postsPerPage, currentPage * postsPerPage);
   const totalPages = Math.ceil(formData.length / postsPerPage);
 
   return (
-    <div className="max-w-[1450px] mx-auto rounded-lg overflow-hidden bg-base-50 min-h-[100vh]">
-      <div className="sticky top-0 z-10 bg-base-50 p-2 flex flex-wrap justify-between items-center gap-2">
-        <input
-          type="text"
-          placeholder="Search posts..."
-          className="input input-bordered flex-grow max-w-xl"
-          value={searchTerm}
-          onChange={(e) => setSearchTerm(e.target.value)}
-        />
-        <div className="flex gap-1">
-          <button
-            className={`btn btn-sm ${sortOption === "newest" ? 'bg-[#E64800] text-white' : "btn-outline"}`}
-            onClick={() => setSortOption("newest")}
-          >
-            Newest First
-          </button>
-          <button
-            className={`btn btn-sm ${sortOption === "liked" ? 'bg-[#E64800] text-white' : "btn-outline"}`}
-            onClick={() => setSortOption("liked")}
-          >
-            Most Liked
-          </button>
+    <div className="w-full">
+      {/* Controls bar */}
+      <div className="flex flex-wrap gap-2 mb-5 items-center">
+        <div className="relative flex-1 min-w-[200px]">
+          <svg className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-slate-400" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2}>
+            <path strokeLinecap="round" strokeLinejoin="round" d="M21 21l-4.35-4.35M17 11A6 6 0 115 11a6 6 0 0112 0z" />
+          </svg>
+          <input
+            type="text"
+            placeholder="Search posts..."
+            className="assert-input pl-9 w-full"
+            value={searchTerm}
+            onChange={(e) => setSearchTerm(e.target.value)}
+          />
+        </div>
 
-          <div className="dropdown dropdown-end" onClick={() => setOpenFilter(!openFilter)}>
-            <label tabIndex={0} className="btn btn-sm">
+        <div className="flex gap-2 flex-wrap">
+          <button className={`filter-pill ${sortOption === "newest" ? "active" : ""}`} onClick={() => setSortOption("newest")}>Newest</button>
+          <button className={`filter-pill ${sortOption === "liked" ? "active" : ""}`} onClick={() => setSortOption("liked")}>Most Liked</button>
+
+          {/* Filter dropdown */}
+          <div className="relative" ref={dropdownRef}>
+            <button
+              onClick={() => setOpenFilter(p => !p)}
+              className={`filter-pill flex items-center gap-1 ${openFilter ? "active" : ""}`}
+            >
+              <svg className="w-3.5 h-3.5" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2}>
+                <path strokeLinecap="round" strokeLinejoin="round" d="M3 4h18M7 8h10M10 12h4" />
+              </svg>
               Filters
-            </label>
+            </button>
 
             {openFilter && (
-              <ul
-                tabIndex={0}
-                className="dropdown-content z-[999] menu p-4 shadow bg-base-100 rounded-box w-64"
-                onClick={(e) => {
-                  e.stopPropagation();
-                  setOpenFilter(false);
-                }}
-              >
-                <li className="mb-1 font-bold text-sm">Realm</li>
-                {["all", "sports", "technology"].map((realm) => (
-                  <li key={realm}>
-                    <button
-                      className={`w-full text-left ${selectedRealm === realm ? "btn-active" : ""}`}
-                      onClick={() => setSelectedRealm(realm)}
-                    >
-                      {realm.charAt(0).toUpperCase() + realm.slice(1)}
-                    </button>
-                  </li>
+              <div className="absolute right-0 top-full mt-2 z-50 assert-card p-4 w-52 shadow-xl">
+                <p className="text-xs font-bold text-slate-500 uppercase tracking-wider mb-2">Realm</p>
+                {REALMS.map(realm => (
+                  <button
+                    key={realm}
+                    onClick={() => { setSelectedRealm(realm); setOpenFilter(false); }}
+                    className={`w-full text-left text-sm px-2 py-1.5 rounded-lg mb-0.5 capitalize ${selectedRealm === realm ? "bg-violet-100 text-violet-700 font-semibold" : "text-slate-600 hover:bg-slate-50"}`}
+                  >
+                    {realm === "all" ? "All realms" : realm}
+                  </button>
                 ))}
-
-                <li className="mt-3 mb-1 font-bold text-sm">Type</li>
-                {["all", "debate", "query"].map((type) => (
-                  <li key={type}>
-                    <button
-                      className={`w-full text-left ${filter === type ? "btn-active" : ""}`}
-                      onClick={() => setFilter(type)}
-                    >
-                      {type.charAt(0).toUpperCase() + type.slice(1)}
-                    </button>
-                  </li>
+                <p className="text-xs font-bold text-slate-500 uppercase tracking-wider mb-2 mt-3">Type</p>
+                {TYPES.map(type => (
+                  <button
+                    key={type}
+                    onClick={() => { setFilter(type); setOpenFilter(false); }}
+                    className={`w-full text-left text-sm px-2 py-1.5 rounded-lg mb-0.5 capitalize ${filter === type ? "bg-violet-100 text-violet-700 font-semibold" : "text-slate-600 hover:bg-slate-50"}`}
+                  >
+                    {type === "all" ? "All types" : type}
+                  </button>
                 ))}
-              </ul>
+              </div>
             )}
           </div>
-          {(filter !== "all" || selectedRealm !== "all" || dateFilter !== "recent" || searchTerm) && (
-            <button className="btn btn-warning btn-sm text-white" onClick={resetFilters}>Reset Filters</button>
+
+          {hasActiveFilters && (
+            <button onClick={resetFilters} className="filter-pill text-orange-600 border-orange-200 bg-orange-50 hover:bg-orange-100">
+              Reset
+            </button>
           )}
         </div>
       </div>
 
+      {/* Content */}
       {loading ? (
-        <div className="space-y-4">
-          {[...Array(6)].map((_, idx) => (
-            <div key={idx} className="skeleton h-32 w-full rounded-xl"></div>
-          ))}
+        <div className="space-y-3">
+          {[...Array(5)].map((_, i) => <div key={i} className="skeleton h-28 w-full rounded-2xl" />)}
         </div>
       ) : error ? (
-        <p className="text-center text-red-500">{error}</p>
+        <p className="text-center text-red-500 py-8">{error}</p>
       ) : formData.length === 0 ? (
-        <div className="h-[80vh] flex justify-center items-center">
-          <p className="text-center text-gray-500">No posts found in this category / Thread.</p>
+        <div className="flex flex-col items-center justify-center min-h-[40vh] text-center">
+          <div className="w-14 h-14 bg-violet-100 rounded-2xl flex items-center justify-center mb-4">
+            <svg className="w-7 h-7 text-violet-400" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={1.5}>
+              <path strokeLinecap="round" strokeLinejoin="round" d="M8 12h.01M12 12h.01M16 12h.01M21 12c0 4.418-4.03 8-9 8a9.863 9.863 0 01-4.255-.949L3 20l1.395-3.72C3.512 15.042 3 13.574 3 12c0-4.418 4.03-8 9-8s9 3.582 9 8z" />
+            </svg>
+          </div>
+          <p className="text-slate-600 font-semibold">No posts found</p>
+          <p className="text-slate-400 text-sm mt-1">Try adjusting your filters.</p>
         </div>
       ) : (
         <>
           {currentPosts.map((post, index) => (
-
             <motion.div
               key={post._id}
-              initial={{ opacity: 0, y: 40 }}
+              initial={{ opacity: 0, y: 30 }}
               animate={{ opacity: 1, y: 0 }}
-              transition={{ delay: index * 0.1, duration: 0.4, ease: "easeOut" }}
+              transition={{ delay: index * 0.07, duration: 0.35, ease: "easeOut" }}
             >
               <PostCard
-                key={post._id}
                 post={post}
                 onLike={handleLike}
                 onOpenModal={() => setOpenModalPost(post)}
@@ -288,26 +226,11 @@ const DisplayBox = () => {
             </motion.div>
           ))}
 
-          {/* Pagination Controls */}
           {totalPages > 1 && (
-            <div className="flex justify-center mt-6 mb-10 gap-4">
-              <button
-                className="btn btn-outline btn-sm"
-                onClick={() => setCurrentPage((prev) => Math.max(prev - 1, 1))}
-                disabled={currentPage === 1}
-              >
-                Previous
-              </button>
-              <span className="self-center text-sm font-semibold">
-                Page {currentPage} of {totalPages}
-              </span>
-              <button
-                className="btn btn-outline btn-sm"
-                onClick={() => setCurrentPage((prev) => Math.min(prev + 1, totalPages))}
-                disabled={currentPage === totalPages}
-              >
-                Next
-              </button>
+            <div className="flex items-center justify-center mt-6 gap-3">
+              <button className="btn-assert-ghost" onClick={() => setCurrentPage(p => Math.max(p - 1, 1))} disabled={currentPage === 1}>Previous</button>
+              <span className="text-sm text-slate-500 font-medium">Page {currentPage} of {totalPages}</span>
+              <button className="btn-assert-ghost" onClick={() => setCurrentPage(p => Math.min(p + 1, totalPages))} disabled={currentPage === totalPages}>Next</button>
             </div>
           )}
         </>
@@ -320,9 +243,7 @@ const DisplayBox = () => {
           onLike={handleLike}
           onReply={handleReply}
           replyText={replyText[openModalPost._id] || ""}
-          setReplyText={(value) =>
-            setReplyText((prev) => ({ ...prev, [openModalPost._id]: value }))
-          }
+          setReplyText={(value) => setReplyText(prev => ({ ...prev, [openModalPost._id]: value }))}
           liked={likedPosts.has(openModalPost._id)}
         />
       )}

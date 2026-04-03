@@ -1,145 +1,125 @@
 import React, { useState } from 'react';
-import { useNavigate } from 'react-router-dom';
+import { useNavigate, Link } from 'react-router-dom';
 import { signupUser } from '../../Services/authService';
-import { Link } from 'react-router-dom';
-// import googleIcon from '../../assets/google-logo.png';
-// import metaMaskIcon from '../../assets/metamask-icon.svg';
 import { useMutation } from '@tanstack/react-query';
 import { Slide, toast } from 'react-toastify';
-// import { useAuth } from "../../Context/AuthContext.jsx";
 
 export default function SignupPage() {
-    // const { login } = useAuth();
     const navigate = useNavigate();
-    const [formData, setFormData] = useState({
-        userName: '',
-        email: '',
-        password: ''
-    });
+    const [formData, setFormData] = useState({ userName: '', email: '', password: '' });
 
     const { mutate, isPending, error } = useMutation({
         mutationFn: signupUser,
         onSuccess: () => {
-            toast.success('Successfully Signed Up ', {
-                position: "top-center",
-                autoClose: 2000,
-                hideProgressBar: false,
-                closeOnClick: false,
-                pauseOnHover: true,
-                draggable: true,
-                progress: undefined,
-                theme: "dark",
-                transition: Slide,
-            });
-            navigate('/login')
+            toast.success('Account created! Please log in.', { position: "top-center", autoClose: 2000, theme: "light", transition: Slide });
+            navigate('/login');
         },
         onError: () => {
-            toast.error("Signup failed", {
-                position: "top-center",
-                autoClose: 2000,
-            });
+            toast.error("Signup failed", { position: "top-center", autoClose: 2000, theme: "light" });
         }
     });
 
-    const handleChange = (e) => {
-        setFormData({ ...formData, [e.target.name]: e.target.value });
-    };
-
-    const handleSubmit = (e) => {
-        e.preventDefault();
-        mutate(formData);
-    };
-
-
+    const handleChange = (e) => setFormData({ ...formData, [e.target.name]: e.target.value });
+    const handleSubmit = (e) => { e.preventDefault(); mutate(formData); };
 
     return (
-        <div className="flex flex-col items-center justify-center min-h-screen bg-base-200">
-            <form onSubmit={handleSubmit} className="card w-96 bg-base-100 shadow-xl p-6">
-
-                <h2 className="text-2xl font-bold mb-4 text-center">Sign Up</h2>
-
-
-                {/* <input name="userName" onChange={handleChange} type="text" placeholder="Full Name" className="input input-bordered w-full mb-2" /> */}
-
-                <label className="input w-full">
-                    <svg className="h-[1em] opacity-50" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><g strokeLinejoin="round" strokeLinecap="round" strokeWidth="2.5" fill="none" stroke="currentColor"><path d="M19 21v-2a4 4 0 0 0-4-4H9a4 4 0 0 0-4 4v2"></path><circle cx="12" cy="7" r="4"></circle></g></svg>
-                    <input type="input" required placeholder="Username"
-                        title="Only letters, numbers or dash"
-                        name="userName"
-                        onChange={handleChange}
-                    />
-                </label>
-
-
-                <label className="input w-full my-3">
-                    <svg className="h-[1em] opacity-50" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><g strokeLinejoin="round" strokeLinecap="round" strokeWidth="2.5" fill="none" stroke="currentColor"><rect width="20" height="16" x="2" y="4" rx="2"></rect><path d="m22 7-8.97 5.7a1.94 1.94 0 0 1-2.06 0L2 7"></path></g></svg>
-                    <input type="email" placeholder="email@site.com" required
-                        name="email"
-                        value={formData.email}
-                        onChange={handleChange}
-                    />
-                </label>
-
-
-                <label className="input validator w-full">
-                    <svg className="h-[1em] opacity-50" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><g strokeLinejoin="round" strokeLinecap="round" strokeWidth="2.5" fill="none" stroke="currentColor"><path d="M2.586 17.414A2 2 0 0 0 2 18.828V21a1 1 0 0 0 1 1h3a1 1 0 0 0 1-1v-1a1 1 0 0 1 1-1h1a1 1 0 0 0 1-1v-1a1 1 0 0 1 1-1h.172a2 2 0 0 0 1.414-.586l.814-.814a6.5 6.5 0 1 0-4-4z"></path><circle cx="16.5" cy="7.5" r=".5" fill="currentColor"></circle></g></svg>
-                    <input type="password"
-                        required
-                        placeholder="Password"
-                        minLength="8"
-                        pattern="(?=.*\d)(?=.*[a-z])(?=.*[A-Z])(?=.*[!@#$%^&*()_+\-=\[\]{};':&quot;\\|,.<>\/?]).{8,}"
-                        title="Must include uppercase, lowercase, number, special character & 8+ characters."
-                        value={formData.password}
-                        onChange={handleChange}
-                        name="password"
-                        className="w-full"
-                    />
-                </label>
-                <p className="validator-hint hidden">
-                    Must be more than 8 characters, including
-                    <br />At least one number
-                    <br />At least one lowercase letter
-                    <br />At least one uppercase letter
-                </p>
-
-
-
-
-                <button type="submit" className="btn btn-success w-full my-2" disabled={isPending}>
-                    {isPending ? 'Signing Up...' : 'Sign Up'}
-                </button>
-
-                {/* <button className="btn w-full mb-2 btn-disabled">
-                    <img src={googleIcon} className='inline mr-3 w-6' alt="icon" />
-                    Google
-                </button>
-                <button className="btn w-full btn-disabled">
-                    <img src={metaMaskIcon} className='inline mr-3 w-6' alt="icon" />
-                    MetaMask
-                </button> */}
-
-                {
-                    error &&
-                    <div role="alert" className="alert alert-error">
-                        <svg xmlns="http://www.w3.org/2000/svg" className="h-6 w-6 shrink-0 stroke-current" fill="none" viewBox="0 0 24 24">
-                            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M10 14l2-2m0 0l2-2m-2 2l-2-2m2 2l2 2m7-2a9 9 0 11-18 0 9 9 0 0118 0z" />
-                        </svg>
-                        <span>
-                            {
-                                error.response.data?.error ? error.response.data?.error.split("password:")[1] :
-                                    error.response.data?.message ? error.response.data?.message : "Signup failed"
-
-                            }
-                        </span>
+        <div className="min-h-screen flex items-center justify-center px-4" style={{ background: 'var(--assert-bg)' }}>
+            <div className="w-full max-w-sm">
+                {/* Logo */}
+                <div className="text-center mb-8">
+                    <div className="inline-flex items-center gap-2.5 mb-4">
+                        <div className="w-10 h-10 rounded-2xl bg-gradient-to-br from-violet-600 to-purple-700 flex items-center justify-center shadow-md shadow-violet-200">
+                            <span className="text-white font-black text-base">A</span>
+                        </div>
+                        <span className="font-black text-2xl tracking-tight gradient-text">ASSERT</span>
                     </div>
-                }
+                    <h1 className="text-2xl font-black text-slate-900 mb-1">Create an account</h1>
+                    <p className="text-slate-500 text-sm">Join the prediction platform and start earning</p>
+                </div>
 
+                <div className="assert-card p-7">
+                    <form onSubmit={handleSubmit} className="space-y-4">
+                        <div>
+                            <label className="form-label">Username</label>
+                            <div className="relative">
+                                <svg className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-slate-400" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2}>
+                                    <path strokeLinecap="round" strokeLinejoin="round" d="M16 7a4 4 0 11-8 0 4 4 0 018 0zM12 14a7 7 0 00-7 7h14a7 7 0 00-7-7z" />
+                                </svg>
+                                <input
+                                    type="text"
+                                    name="userName"
+                                    required
+                                    placeholder="your_username"
+                                    onChange={handleChange}
+                                    className="assert-input pl-9 w-full"
+                                />
+                            </div>
+                        </div>
 
+                        <div>
+                            <label className="form-label">Email address</label>
+                            <div className="relative">
+                                <svg className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-slate-400" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2}>
+                                    <path strokeLinecap="round" strokeLinejoin="round" d="M3 8l7.89 5.26a2 2 0 002.22 0L21 8M5 19h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v10a2 2 0 002 2z" />
+                                </svg>
+                                <input
+                                    type="email"
+                                    name="email"
+                                    required
+                                    placeholder="you@example.com"
+                                    value={formData.email}
+                                    onChange={handleChange}
+                                    className="assert-input pl-9 w-full"
+                                />
+                            </div>
+                        </div>
 
-                <p className="mt-4 text-center">
-                    Already have an account? <Link to="/login" className="link link-error">Login</Link>
-                </p>
-            </form>
+                        <div>
+                            <label className="form-label">Password</label>
+                            <div className="relative">
+                                <svg className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-slate-400" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2}>
+                                    <path strokeLinecap="round" strokeLinejoin="round" d="M12 15v2m-6 4h12a2 2 0 002-2v-6a2 2 0 00-2-2H6a2 2 0 00-2 2v6a2 2 0 002 2zm10-10V7a4 4 0 00-8 0v4h8z" />
+                                </svg>
+                                <input
+                                    type="password"
+                                    name="password"
+                                    required
+                                    minLength="8"
+                                    pattern={"(?=.*\\d)(?=.*[a-z])(?=.*[A-Z])(?=.*[!@#$%^&*()_+\\-=\\[\\]{};':\"\\\\|,.<>\\/?]).{8,}"}
+                                    title="Must include uppercase, lowercase, number, special character & 8+ characters."
+                                    placeholder="••••••••"
+                                    value={formData.password}
+                                    onChange={handleChange}
+                                    className="assert-input pl-9 w-full"
+                                />
+                            </div>
+                            <p className="text-xs text-slate-400 mt-1.5">8+ chars · uppercase · lowercase · number · special character</p>
+                        </div>
+
+                        {error && (
+                            <div className="flex items-center gap-2 bg-red-50 border border-red-200 rounded-xl p-3 text-sm text-red-600">
+                                <svg className="w-4 h-4 shrink-0" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2}>
+                                    <path strokeLinecap="round" strokeLinejoin="round" d="M12 8v4m0 4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z" />
+                                </svg>
+                                {error.response?.data?.error
+                                    ? error.response.data.error.split("password:")[1]
+                                    : error.response?.data?.message || "Signup failed"}
+                            </div>
+                        )}
+
+                        <button type="submit" className="btn-assert w-full justify-center py-2.5 mt-1" disabled={isPending}>
+                            {isPending ? 'Creating account...' : 'Create Account'}
+                        </button>
+                    </form>
+
+                    <p className="text-center text-sm text-slate-500 mt-5">
+                        Already have an account?{' '}
+                        <Link to="/login" className="text-violet-600 font-semibold hover:text-violet-700">
+                            Sign in
+                        </Link>
+                    </p>
+                </div>
+            </div>
         </div>
     );
 }
